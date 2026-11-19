@@ -76,9 +76,10 @@ html,body{margin:0;height:100%;overflow:hidden;background:#f6e3c6;font-family:'B
 #title h1 span{display:block;font-size:24px;color:#ffe2b8;text-shadow:0 3px 0 #c96a2f}
 #title .bb{font-size:26px;padding:14px 40px;animation:bounce 1.4s infinite}
 @keyframes bounce{50%{transform:translateY(-6px) scale(1.03)}}
-#boost{top:calc(62px + env(safe-area-inset-top,0px));left:12px;display:none;align-items:center;gap:6px;background:linear-gradient(#ffe066,#ffb02e);color:#7a3d00;border-radius:999px;padding:3px 12px;font-weight:800;font-size:16px;box-shadow:0 3px 0 #d98a2a,0 0 18px rgba(255,190,40,.7);animation:bp 1s infinite}
+#boost{top:calc(98px + env(safe-area-inset-top,0px));left:12px;display:none;align-items:center;gap:6px;background:linear-gradient(#ffe066,#ffb02e);color:#7a3d00;border-radius:999px;padding:3px 12px;font-weight:800;font-size:16px;box-shadow:0 3px 0 #d98a2a,0 0 18px rgba(255,190,40,.7);animation:bp 1s infinite}
 @keyframes bp{50%{transform:scale(1.07)}}
 #musBtn{position:fixed;z-index:6;top:calc(76px + env(safe-area-inset-top,0px));right:12px;width:40px;height:40px;border-radius:50%;border:none;background:#fff;box-shadow:0 3px 0 #d8b98f;font-size:20px;padding:0}
+#nextUp{top:calc(60px + env(safe-area-inset-top,0px));left:12px;max-width:52vw;font-size:12.5px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#6e5440;display:none;background:rgba(255,255,255,.92);border-radius:12px;padding:3px 10px 5px;box-shadow:0 3px 0 #e2c49b}#nextUp b{color:#2f9a46}#nextUp.ok{color:#2f7a3c}#nextUp .nb{height:4px;border-radius:3px;background:#f1e2cc;margin-top:2px;overflow:hidden}#nextUp .nb div{height:100%;background:#5fd06e;border-radius:3px}
 #dayLine{font-size:11.5px;font-weight:700;color:#c96a2f;margin-top:1px}
 #side{position:fixed;z-index:6;right:12px;top:calc(124px + env(safe-area-inset-top,0px));display:none;flex-direction:column;gap:8px}
 #side button{position:relative;width:40px;height:40px;border-radius:50%;border:none;background:#fff;box-shadow:0 3px 0 #d8b98f;font-size:19px;padding:0}
@@ -93,7 +94,7 @@ html,body{margin:0;height:100%;overflow:hidden;background:#f6e3c6;font-family:'B
 #dlgN{font-weight:800;font-size:13px}
 #dlgT{font-weight:700;font-size:15px;color:#3b2a1e;line-height:1.3;margin:2px 0 4px;min-height:38px}
 #dlgC{text-align:right;font-size:12px;font-weight:800;color:#c96a2f;animation:bp 1s infinite}
-#ocard{position:fixed;z-index:6;left:10px;top:calc(104px + env(safe-area-inset-top,0px));display:none;flex-direction:column;gap:6px;max-width:58vw}
+#ocard{position:fixed;z-index:6;left:10px;top:calc(136px + env(safe-area-inset-top,0px));display:none;flex-direction:column;gap:6px;max-width:58vw}
 #ocard .oc{background:rgba(255,255,255,.95);border-radius:14px;padding:5px 9px 6px;box-shadow:0 3px 0 #e2c49b;pointer-events:auto}
 #ocard .oh{font-size:11px;font-weight:800;color:#c96a2f}
 #ocard .oi{font-size:22px;line-height:1.15;display:flex;gap:3px;flex-wrap:wrap}
@@ -124,6 +125,7 @@ html,body{margin:0;height:100%;overflow:hidden;background:#f6e3c6;font-family:'B
   <div id="money"><div class="ic">$</div><span id="mv">0</span></div>
   <div id="lvlBox"><div id="lvlName"></div><div id="lvlSub"></div><div id="dayLine"></div><div class="pb"><div id="lvlP"></div></div></div>
 </div>
+<div id="nextUp" class="hud"></div>
 <div id="boost" class="hud"><b>⚡ 2x</b><span id="bt">40s</span></div>
 <button id="musBtn" onclick="openSettings()">⚙️</button>
 <div id="side"><button onclick="openMissions()">📋<i id="misN">0</i></button><button onclick="openMap()">🗺️</button><button onclick="openShop()">🎨</button><button onclick="openSave()">💾</button></div>
@@ -673,8 +675,8 @@ function buildWorld(){
  if(!player){player=makeChar(PLAYER_KEY,1.68);player.isPlayer=true;player.maxSpd=3.2;scene.add(player.root)}
  buildDogBed();spawnSheila();player.root.position.set(-4,0,4);player.stack.forEach(s=>{if(s.parent)s.parent.remove(s)});player.stack=[];[...player.carry.children].forEach(o=>{if(o.userData&&o.userData.kind)player.carry.remove(o)});buildDeco();
  // guidance arrow & player ring
- if(!arrow){const ag=new THREE.ConeGeometry(.35,.7,4);ag.rotateX(Math.PI);arrow=mesh(ag,std(0xffc23a,{emissive:0xff9a1a,emissiveIntensity:.5}),0,0,0,false);scene.add(arrow);
-  const rg=new THREE.Shape();rg.moveTo(0,.45);rg.lineTo(.4,-.1);rg.lineTo(.15,-.1);rg.lineTo(.15,-.4);rg.lineTo(-.15,-.4);rg.lineTo(-.15,-.1);rg.lineTo(-.4,-.1);rg.lineTo(0,.45);ring=new THREE.Group();const rm=new THREE.Mesh(new THREE.ShapeGeometry(rg),new THREE.MeshBasicMaterial({color:0xffc23a,transparent:true,opacity:.9,depthWrite:false,side:THREE.DoubleSide}));rm.rotation.x=Math.PI/2;rm.position.z=1.1;ring.add(rm);ring.userData.m=rm;scene.add(ring)}
+ if(!arrow){const ag=new THREE.ConeGeometry(.2,.38,12);ag.rotateX(Math.PI);arrow=mesh(ag,new THREE.MeshBasicMaterial({color:0xffc23a,transparent:true,opacity:0,depthWrite:false}),0,0,0,false);scene.add(arrow);arrow.visible=false;scene.add(arrow);
+  const rg=new THREE.Shape();rg.moveTo(0,.45);rg.lineTo(.4,-.1);rg.lineTo(.15,-.1);rg.lineTo(.15,-.4);rg.lineTo(-.15,-.4);rg.lineTo(-.15,-.1);rg.lineTo(-.4,-.1);rg.lineTo(0,.45);ring=new THREE.Group();const rm=new THREE.Mesh(new THREE.ShapeGeometry(rg),new THREE.MeshBasicMaterial({color:0xffc23a,transparent:true,opacity:0,depthWrite:false,side:THREE.DoubleSide}));rm.scale.setScalar(.75);rm.rotation.x=Math.PI/2;rm.position.z=1.0;ring.add(rm);ring.userData.m=rm;scene.add(ring)}
 }
 function plant(x,z){const p=new THREE.Group();p.add(mesh(new THREE.CylinderGeometry(.35,.28,.6,12),std(0xc8775a),0,.3,0));for(let k=0;k<5;k++){const l=mesh(new THREE.SphereGeometry(.35,10,8),std(0x5fa85a),Math.cos(k)*.2,.85+k*.12,Math.sin(k*2)*.2);l.scale.set(1,1.3,1);p.add(l)}p.position.set(x,0,z);world.add(p)}
 function tree(x,z){const t=new THREE.Group();t.add(mesh(new THREE.CylinderGeometry(.18,.25,1.4,8),std(0x8a5a3b),0,.7,0));const c=std(0x6fbf5a);t.add(mesh(new THREE.SphereGeometry(1.1,12,10),c,0,2,0));t.add(mesh(new THREE.SphereGeometry(.8,12,10),c,.6,2.5,.2));t.add(mesh(new THREE.SphereGeometry(.7,12,10),c,-.5,2.6,-.2));t.position.set(x,0,z);world.add(t)}
@@ -905,6 +907,10 @@ function updateCustomers(dt){tables.forEach(t=>{if(t.dirty>=t.seats.length)t.dir
    if(wcTryVisit(c,t,c.seat)){}else{c.state='leave';c.path=t.fun&&OUTDOOR_FUN(t.lv)?[{x:c.seat.x,z:15.3},{x:0,z:15.8},{x:.5,z:27}]:t.fun?[{x:-7.45,z:c.seat.z},{x:-7.45,z:6.75},{x:-1.2,z:8.6},{x:DOOR.x,z:DOOR.z+2}]:[{x:c.seat.x+(c.seat.x<t.x?-.6:.6),z:t.z+1.4},{x:1.2,z:t.z+1.4},{x:1.2,z:9},{x:DOOR.x,z:DOOR.z+2}]}}
    else if(c.table.fun){c.fx-=dt;if(c.fx<0){c.fx=rnd(1.3,2.4);const s=new THREE.Sprite(new THREE.SpriteMaterial({map:emojiTex(Math.random()<.7?FUNI().e:'😆'),transparent:true,depthWrite:false}));s.position.copy(p).add(new V3(0,1.9,0));s.scale.setScalar(.01);scene.add(s);hearts.push({s,t:0});if(c.table.lv===0&&Math.random()<.35)ch.squash=.7}}}
   if(c.state==='wait'&&!c.served&&c.qi>=0&&c.qi<=2){const bm=machines.find(m=>m.kind===c.order);if(bm&&bm.broken&&findItem(reg.stock,c.order)<0){c.wt+=dt*.8;c.bc=(c.bc??rnd(1,3))-dt;if(c.bc<0){c.bc=rnd(4.5,7);chat(ch,CHAT_BROKEN[Math.floor(Math.random()*CHAT_BROKEN.length)],'#c0504d');ch.squash=.45}}}
+  if((c.state==='wait'||c.state==='toQueue')&&!c.served&&c.qi<0&&!c.path.length){giveUp(c,p,false)}
+  if(c.state==='wait'&&!c.served&&!c.vip&&c.qi>=0&&c.wt>(c.qi===0?55:42)){giveUp(c,p,true)}
+  {const mv=['toQueue','toSeat','leave','toWCQ','toStall'].includes(c.state);const h=c._st||(c._st={x:p.x,z:p.z,t:GT});if(!mv||Math.hypot(p.x-h.x,p.z-h.z)>.05){h.x=p.x;h.z=p.z;h.t=GT}else if(GT-h.t>12){h.t=GT;
+    if(c.state==='leave'){p.set(DOOR.x,0,DOOR.z+3);c.path=[{x:DOOR.x,z:DOOR.z+3}]}else if(c.path.length)c.path.shift();else giveUp(c,p,false)}}
   if(c.state==='wait'&&!c.served){c.wt+=dt;if(c.wt>14){c.imp=(c.imp||0)-dt;if(c.imp<0){c.imp=rnd(2.2,3.2);emo(ch,Math.random()<.5?'😒':'⌚',2.0);ch.squash=.45}if(!c.repHit&&c.wt>20){c.repHit=1;repAdd(-.03)}}}
   if(ch.umb&&p.z<11.6&&c.state!=='leave'){ch.rig.inner.remove(ch.umb);ch.umb=null;ch.squash=.4}if(WX.on&&c.state==='leave'&&!ch.umb&&p.z>11.8)umbrella(ch);
   if(c.state==='sit'&&c.mate&&c.mate.state==='sit'&&c.mate.table===c.table){c.chat=(c.chat??rnd(0,2))-dt;if(c.chat<0){c.chat=rnd(2.5,4);emo(ch,['💬','😂','🥰','☺️'][Math.floor(Math.random()*4)],2.0)}}
@@ -932,6 +938,9 @@ function spawnCustomer(qi,vip){
  const q=QUEUE(qi);customers.push({id:cid++,c,state:'toQueue',qi,order,bub,path:[{x:DOOR.x,z:DOOR.z-1},{x:q.x,z:Math.max(q.z,6.5)}],served:false,vip,pat:45,pat0:45,bcol:'#ffc93c',order2,combo:!!order2,wt:0});
  if(vip){showHint('👑 VIP müşteri! Çabuk servis et, 3 kat öder');SFX.unlock()}
 }
+function giveUp(c,p,angry){if(c.qi>=0){const k=c.qi;c.qi=-1;customers.forEach(o=>{if(o.qi>k)o.qi--})}
+ c.state='leave';c.served=true;c.path=[{x:-.6,z:Math.max(p.z,1)},{x:DOOR.x,z:9},{x:DOOR.x,z:DOOR.z+3}];
+ if(angry){emo(c.c,'😤',2.1);if(GT>(window._guT||0)){window._guT=GT+20;showHint('Müşteri sırada çok bekledi ve gitti 😤')}}}
 function leaveQueue(c){
  c.qi=-1;customers.forEach(o=>{if(o.qi>0)o.qi--});
  // find a free seat
@@ -1889,6 +1898,11 @@ function resetAsk(){const b=$('rstB');if(!b.dataset.c){b.dataset.c=1;b.textConte
 const FPSW={n:0,t:0,bad:0,low:false};
 function fpsWatch(rdt){if(SET.q!=='auto'||FPSW.low||!started||document.hidden)return;FPSW.n++;FPSW.t+=rdt;if(FPSW.t<4)return;const fps=FPSW.n/FPSW.t;FPSW.n=0;FPSW.t=0;
  if(fps<38){if(++FPSW.bad>=2){FPSW.low=true;setQuality(true);showHint('✨ Daha akıcı oyun için grafik ayarı düşürüldü')}}else FPSW.bad=0}
+let nuT=0,nuQ='';function updateNextUp(dt){nuT-=dt;if(nuT>0)return;nuT=.4;const el=$('nextUp');if(!el)return;
+ const p=PADS.find(q=>!has(q.id));if(!p||!started){if(nuQ!=='-'){nuQ='-';el.style.display='none'}return}
+ const inf=padInfo(p),left=Math.max(0,padCost(p)-(G.padPaid[p.id]||0)),ok=G.money>=left,f=left>0?Math.min(1,G.money/left):1;
+ const q=p.id+'|'+Math.round(left)+'|'+ok+'|'+Math.round(f*20);if(q===nuQ)return;nuQ=q;el.style.display='block';el.classList.toggle('ok',ok);
+ el.innerHTML=`🔜 ${inf.ic} ${inf.n} · <b>$${fmt(left)}</b>${ok?' ✅':''}<div class="nb"><div style="width:${f*100}%"></div></div>`}
 let boardCool=0;function closePanel(){const k=$('panel').dataset.k;$('panel').classList.remove('open');if(k==='board')boardCool=GT+45}
 function buyUp(k){const u=UPG.find(x=>x.k===k),c=upCost(u);if(G.money<c||G.upg[k]>=u.max)return;buzz(20);saveSoon();G.money-=c;G.upg[k]++;refreshLooks();$('mv').textContent=fmt(G.money);SFX.unlock();buzz(25);confetti(player.root.position,20);player.squash=1;save();openBoard()}
 function levelDone(){const end=CYC()===0?STORY[LVI()].end:[['cat','Harika! '+L().name+' yıldızlı turda da tamam ⭐']];storyQueue(end,levelDoneCard)}
@@ -1913,7 +1927,7 @@ function offlineCheck(prev){
 function claimOff(v){$('over').classList.remove('open');addMoney(v,true);confetti(player.root.position,50);save();if(window._pendDaily){window._pendDaily=0;dailyCheck()}}
 
 // ================= LOOP =================
-const camPos=new V3(),camLook=new V3();let started=false,saveT=0,titleT=0;
+const GUIDE={idle:0,a:0};const camPos=new V3(),camLook=new V3();let started=false,saveT=0,titleT=0;
 let GT=0;const LATER=[];function later(fn,ms){LATER.push({t:GT+ms/1000,fn})}
 function loop(){
  requestAnimationFrame(loop);
@@ -1923,7 +1937,7 @@ function step(dt,now){GT+=dt;for(let i=LATER.length-1;i>=0;i--)if(LATER[i].t<=GT
  if(started){updateMachines(dt);updateCustomers(dt);updateStaff(dt);
   hintTimer-=dt;if(hintTimer<0&&hintTimer>-dt*1.5)$('hint').style.opacity=0;
   saveT+=dt;if(saveT>2){saveT=0;save()}
-  updateFun(dt);updateToken(dt,now);updateSky(dt);updateBin(dt);updateWC(dt);updateDeco(dt);updateOut(dt);updateScenery(dt);updateSheila(dt);updateManager(dt);branchTick(dt);updateTruck(dt);updateVisitors(dt);updateCalls(dt);updateChats(dt);outCard();if(reg&&reg.trash&&reg.trash.userData.pump>0){const tc=reg.trash;tc.userData.pump-=dt;const k=Math.sin(tc.userData.pump/.2*Math.PI)*.12;tc.scale.set(1+k,1-k,1+k);if(tc.userData.pump<=0)tc.scale.setScalar(1)}}
+  updateFun(dt);updateNextUp(dt);updateToken(dt,now);updateSky(dt);updateBin(dt);updateWC(dt);updateDeco(dt);updateOut(dt);updateScenery(dt);updateSheila(dt);updateManager(dt);branchTick(dt);updateTruck(dt);updateVisitors(dt);updateCalls(dt);updateChats(dt);outCard();if(reg&&reg.trash&&reg.trash.userData.pump>0){const tc=reg.trash;tc.userData.pump-=dt;const k=Math.sin(tc.userData.pump/.2*Math.PI)*.12;tc.scale.set(1+k,1-k,1+k);if(tc.userData.pump<=0)tc.scale.setScalar(1)}}
  // flyers (arc tweens)
  for(let i=flyers.length-1;i>=0;i--){const f=flyers[i];f.t+=dt/f.dur;const t=Math.min(1,f.t),e=t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2;
   const to=f.targetFn();f.obj.position.lerpVectors(f.from,to,e);f.obj.position.y+=Math.sin(t*Math.PI)*f.h;f.obj.rotation.y=f.r0+t*Math.PI*2*f.spin*.5;f.obj.rotation.x=Math.sin(t*Math.PI)*.4*f.spin;
@@ -1938,9 +1952,12 @@ function step(dt,now){GT+=dt;for(let i=LATER.length-1;i>=0;i--)if(LATER[i].t<=GT
  FAIRY.forEach((b,i)=>{const k=.6+.4*Math.sin(now*.003+i*1.7);b.material.color.setScalar?b.scale.setScalar(.8+k*.5):0});
  // guidance
  if(started){const g=guideTarget();const pp=player.root.position;
-  if(g){arrow.visible=true;arrow.position.set(g.x,2.2+Math.abs(Math.sin(now*.005))*.5,g.z);arrow.rotation.y+=dt*2;
-   const dx=g.x-pp.x,dz=g.z-pp.z,d=Math.hypot(dx,dz);ring.visible=d>2.2;ring.position.set(pp.x,.07,pp.z);ring.rotation.y=Math.atan2(dx,dz);ring.userData.m.position.z=1.05+Math.sin(now*.008)*.12;ring.userData.m.material.opacity=.6+Math.sin(now*.008)*.3}
-  else{arrow.visible=false;ring.visible=false}}
+  // rehber: ilk adımlarda hep, sonra sadece oyuncu ~2.5 sn durunca yumuşakça belirir
+  GUIDE.idle=pv.length()<.25?GUIDE.idle+dt:0;const early=G.lvl===0&&G.unl.length<5;
+  const dd=g?Math.hypot(g.x-pp.x,g.z-pp.z):0;const want=g&&(early||GUIDE.idle>2.5)&&dd>1.2?1:0;GUIDE.a+=(want-GUIDE.a)*Math.min(1,dt*(want?2.5:6));
+  arrow.visible=ring.visible=GUIDE.a>.02;
+  if(g&&arrow.visible){arrow.position.set(g.x,1.55+Math.sin(now*.0025)*.12,g.z);arrow.material.opacity=.85*GUIDE.a;
+   const dx=g.x-pp.x,dz=g.z-pp.z;ring.visible=dd>2.2;ring.position.set(pp.x,.07,pp.z);ring.rotation.y=Math.atan2(dx,dz);ring.userData.m.position.z=1.0+Math.sin(now*.004)*.06;ring.userData.m.material.opacity=.55*GUIDE.a}}
  // camera: smooth follow, distance fitted to aspect so portrait phones see the cafe width
  const asp=innerWidth/innerHeight,tf=Math.tan(THREE.MathUtils.degToRad(camera.fov/2)),dist=clamp(12/(2*tf*asp),(asp>1&&DEV.tab)?15:13,21);
  const target=started?player.root.position:new V3(Math.sin(now*.0002)*3,0,0);
