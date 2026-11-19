@@ -342,8 +342,11 @@ const QUEUE=i=>({x:-2.2,z:0.3+i*1.25});
 // ================= SAVE =================
 let G=null;
 function fresh(lvl=0,carry){return{lvl,money:carry?carry:30,unl:[],padPaid:{},upg:{spd:0,cap:0,mach:0,staff:0,price:0},t:Date.now(),rate:0,total:0,rep:3,mis:[],sd:[],custom:{wall:0,floor:0,cloth:0}}}
-function save(){try{G.t=Date.now();G.rate=autoRate();localStorage.setItem('kahve_v2',JSON.stringify(G))}catch(e){}saveMeta();cloudQueue()}
-function load(){try{const s=localStorage.getItem('kahve_v2');return s?JSON.parse(s):null}catch(e){return null}}
+// autosave: main slot + backup slot, so a crash mid-write can never lose the run
+let lastSaveStr='';
+function save(){if(!G)return;try{G.t=Date.now();G.rate=autoRate();const str=JSON.stringify(G);localStorage.setItem('kahve_v2',str);if(str.length>50)localStorage.setItem('kahve_v2_bak',str);lastSaveStr=str}catch(e){}saveMeta();cloudQueue()}
+function saveSoon(){clearTimeout(window._svT);window._svT=setTimeout(save,250)}
+function load(){const rd=k=>{try{const s=localStorage.getItem(k);const o=s?JSON.parse(s):null;return o&&o.lvl!=null&&Array.isArray(o.unl)?o:null}catch(e){return null}};const a=rd('kahve_v2'),b=rd('kahve_v2_bak');if(a&&b)return(b.t||0)>(a.t||0)?b:a;return a||b}
 const L=()=>LEVELS[((G&&G.lvl)||0)%LEVELS.length];
 const MULT=()=>Math.pow(5,G.lvl);
 const padCost=p=>Math.round(p.c*MULT());
@@ -718,7 +721,7 @@ function refreshPads(){
 }
 function updatePadVis(pd){const left=pd.cost-pd.paid;if(left!==pd.lastShown){pd.lastShown=left;const t=padTex(pd.p,left);pd.plane.material.map.dispose();pd.plane.material.map=t}
  const f=pd.paid/pd.cost;pd.fill.scale.set(1,Math.max(.001,f),1);pd.fill.position.z=pd.z+1.025*(1-f);}
-function completePad(pd){
+function completePad(pd){saveSoon();
  const p=pd.p;G.unl.push(p.id);delete G.padPaid[p.id];world.remove(pd.m);pads=pads.filter(x=>x!==pd);
  SFX.unlock();buzz(40);shakeT=.25;confetti(new V3(pd.x,0,pd.z),50);flash();
  if(p.t==='next'){save();later(levelDone,700);return}
@@ -1081,7 +1084,7 @@ const BR_NAMES=n=>(n>=7?'★'.repeat(Math.min(3,Math.floor(n/7)))+' ':'')+LEVELS
 const brRate=l=>3*Math.pow(5,l);
 function brBackfill(){for(let l=0;l<G.lvl;l++)if(!META.branches.some(b=>b.lvl===l))META.branches.push({lvl:l,t:Date.now()});saveMeta()}
 function brPending(){const now=Date.now();return META.branches.reduce((a,b)=>a+brRate(b.lvl)*Math.min(7200,(now-b.t)/1000),0)}
-function collectBranches(){const v=brPending();if(v<1)return;META.branches.forEach(b=>b.t=Date.now());saveMeta();addMoney(v,true);confetti(player.root.position,50);floatText('+$'+fmt(v),new V3(player.root.position.x,2.4,player.root.position.z),'y');openMap()}
+function collectBranches(){const v=brPending();if(v<1)return;saveSoon();META.branches.forEach(b=>b.t=Date.now());saveMeta();addMoney(v,true);confetti(player.root.position,50);floatText('+$'+fmt(v),new V3(player.root.position.x,2.4,player.root.position.z),'y');openMap()}
 function openMap(){joy.on=false;$('joy').style.display='none';brBackfill();
  const cv=document.createElement('canvas');cv.width=680;cv.height=520;const c=cv.getContext('2d');
  c.fillStyle='#bfe3a5';c.fillRect(0,0,680,520);c.fillStyle='#8fd0f0';c.beginPath();c.moveTo(0,330);c.bezierCurveTo(200,280,360,420,680,360);c.lineTo(680,420);c.bezierCurveTo(380,470,200,340,0,390);c.fill();
@@ -1602,7 +1605,7 @@ function openBoard(){joy.on=false;$('joy').style.display='none';
  UPG.forEach(u=>{const lv=G.upg[u.k],mx=lv>=u.max,c=upCost(u);h+=`<div class="up"><div class="ui">${u.ic}</div><div class="ut"><b>${u.n}</b><small>${u.d}</small><div class="dots">${Array.from({length:u.max},(_,i)=>`<i class="${i<lv?'on':''}"></i>`).join('')}</div></div><button class="bb ${mx?'max':''}" ${mx||G.money<c?'disabled':''} onclick="buyUp('${u.k}')">${mx?'MAKS':'$'+fmt(c)}</button></div>`});
  $('panel').innerHTML=h;$('panel').dataset.k='board';$('panel').classList.add('open')}
 let boardCool=0;function closePanel(){const k=$('panel').dataset.k;$('panel').classList.remove('open');if(k==='board')boardCool=GT+45}
-function buyUp(k){const u=UPG.find(x=>x.k===k),c=upCost(u);if(G.money<c||G.upg[k]>=u.max)return;G.money-=c;G.upg[k]++;refreshLooks();$('mv').textContent=fmt(G.money);SFX.unlock();buzz(25);confetti(player.root.position,20);player.squash=1;save();openBoard()}
+function buyUp(k){const u=UPG.find(x=>x.k===k),c=upCost(u);if(G.money<c||G.upg[k]>=u.max)return;saveSoon();G.money-=c;G.upg[k]++;refreshLooks();$('mv').textContent=fmt(G.money);SFX.unlock();buzz(25);confetti(player.root.position,20);player.squash=1;save();openBoard()}
 function levelDone(){const end=CYC()===0?STORY[LVI()].end:[['cat','Harika! '+L().name+' yıldızlı turda da tamam ⭐']];storyQueue(end,levelDoneCard)}
 function levelDoneCard(){
  const nx=G.lvl+1,name=BR_NAMES(nx),mega=MEGA(),win=G.rep>=mega,bonus=win?Math.round(60*MULT()*5):0;G.bonusNext=bonus;
@@ -1633,7 +1636,7 @@ function step(dt,now){GT+=dt;for(let i=LATER.length-1;i>=0;i--)if(LATER[i].t<=GT
  if(started&&!panelOpen()){updatePlayer(dt)}else if(started)animChar(player,dt,new V3());
  if(started){updateMachines(dt);updateCustomers(dt);updateStaff(dt);
   hintTimer-=dt;if(hintTimer<0&&hintTimer>-dt*1.5)$('hint').style.opacity=0;
-  saveT+=dt;if(saveT>5){saveT=0;save()}
+  saveT+=dt;if(saveT>2){saveT=0;save()}
   updateFun(dt);updateToken(dt,now);updateSky(dt);updateBin(dt);updateWC(dt);updateDeco(dt);updateOut(dt);updateScenery(dt);updateSheila(dt);outCard();if(reg&&reg.trash&&reg.trash.userData.pump>0){const tc=reg.trash;tc.userData.pump-=dt;const k=Math.sin(tc.userData.pump/.2*Math.PI)*.12;tc.scale.set(1+k,1-k,1+k);if(tc.userData.pump<=0)tc.scale.setScalar(1)}}
  // flyers (arc tweens)
  for(let i=flyers.length-1;i>=0;i--){const f=flyers[i];f.t+=dt/f.dur;const t=Math.min(1,f.t),e=t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2;
@@ -1673,7 +1676,7 @@ async function boot(){
  $('playBtn').onclick=()=>{audio();startMusic();$('musBtn').textContent=musicOn?'🎵':'🔇';$('title').style.transition='opacity .5s';$('title').style.opacity=0;setTimeout(()=>$('title').remove(),500);started=true;
   if(!G.unl.length)showHint('Parlayan kareye yürü ve ilk makineni aç!');else showHint('Hareket etmek için ekranı sürükle');
   if(prev)offlineCheck(prev);if($('over').classList.contains('open'))window._pendDaily=1;else dailyCheck();setTimeout(storyStart,700);updateHUD();brBackfill()};
- addEventListener('visibilitychange',()=>{if(document.hidden){save();cloudQueue(true);cloudFlush(true)}});addEventListener('pagehide',()=>{save();cloudFlush(true)});
+ addEventListener('visibilitychange',()=>{if(document.hidden){save();cloudQueue(true);cloudFlush(true)}});addEventListener('pagehide',()=>{save();cloudFlush(true)});addEventListener('beforeunload',save);addEventListener('blur',save);document.addEventListener('freeze',save);
 }
 boot();
 </script>
