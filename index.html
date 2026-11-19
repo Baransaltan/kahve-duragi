@@ -422,10 +422,21 @@ const PROD={
  soda:{n:'Gazoz',ic:'🥤',m:'k_soda',h:.34,price:8,time:2.2,st:'freezer',max:6},
  hotdog:{n:'Sosisli',ic:'🌭',m:'k_hot-dog',h:.12,w:.36,price:15,time:2.8,st:'fryer',max:5},
  lollipop:{n:'Lolipop',ic:'🍭',m:'k_lollypop',h:.38,price:12,time:2.6,st:'cakes',max:6},
+ lemonade:{n:'Limonata',ic:'🍹',m:'k_cocktail',h:.34,price:8,time:2.2,st:'kettle',max:6},
+ popsicle:{n:'Buz Dondurma',ic:'🍧',m:'k_popsicle',h:.34,price:13,time:2.6,st:'freezer',max:6},
+ watermelon:{n:'Karpuz',ic:'🍉',m:'k_watermelon',h:.2,w:.3,price:15,time:2.8,st:'cakes',max:5},
+ burger:{n:'Hamburger',ic:'🍔',m:'k_burger',h:.18,w:.3,price:18,time:3.0,st:'fryer',max:5},
+ fries:{n:'Patates',ic:'🍟',m:'k_fries',h:.28,price:11,time:2.4,st:'oven',max:6},
+ soup:{n:'Çorba',ic:'🍲',m:'k_bowl-soup',h:.14,w:.3,price:12,time:2.6,st:'oven2',max:5},
+ sushi:{n:'Suşi',ic:'🍣',m:'k_sushi-salmon',h:.1,w:.28,price:20,time:3.2,st:'cakes',max:5},
+ pizza:{n:'Pizza',ic:'🍕',m:'k_pizza',h:.06,w:.36,price:22,time:3.4,st:'oven',max:4},
+ noodle:{n:'Noodle',ic:'🥡',m:'k_chinese',h:.26,price:14,time:2.8,st:'fryer',max:5},
+ milk:{n:'Süt',ic:'🥛',m:'k_carton-small',h:.26,price:7,time:2.2,st:'freezer',max:6},
+ corn:{n:'Mısır',ic:'🌽',m:'k_corn',h:.3,price:11,time:2.6,st:'oven2',max:6},
  tea:{n:'Çay',ic:'🍵',m:'k_cup-tea',h:.22,w:.28,price:9,time:2.2,st:'kettle',max:6}
 };
 const ITEM_H={bill:.05};for(const k in PROD)ITEM_H[k]=PROD[k].h+.02;
-const LEVEL_MENU=[['coffee','croissant','tea','donut'],['coffee','cupcake','icecream','croissant'],['coffee','cake','icecream','donut'],['hotchoc','waffle','tea','pie'],['coffee','sandwich','frappe','croissant'],['coffee','cookie','pancakes','frappe'],['soda','hotdog','lollipop','icecream']];
+const LEVEL_MENU=[['coffee','croissant','tea','donut'],['lemonade','icecream','popsicle','watermelon'],['fries','cupcake','burger','cake'],['hotchoc','waffle','soup','pie'],['frappe','sandwich','sushi','pizza'],['milk','cookie','noodle','pancakes'],['soda','hotdog','lollipop','corn']];
 function levelMenu(){return LEVEL_MENU[LVI()]}
 function makeItem(kind){const g=new THREE.Group();g.userData.kind=kind;
  if(kind==='bill'){g.add(mesh(GEO.bill,MAT.bill,0,.022,0));g.add(mesh(GEO.band,MAT.band,0,.023,0,false));return g}
@@ -475,7 +486,7 @@ let FAIRY=[];
 // ================= ASSETS =================
 const TPL={};
 const FILES_V=['Kate','Coffee','CoffeeMaker','Milk','Butter','IceCream','CoolPancake','Cookieman','Olivia','MoonGirl','Shiro','CoolBunny','RealCake','CoolDrink','AwesomeLemon','TastySandwich','CoolBaguette','Rose','Teddy','Froggy','ChillPenguin','SuperICEPOP','CoolCloud','Jennifer'].map(n=>'v_'+n);
-const FILES_K=['k_cup-coffee','k_cup-tea','k_croissant','k_donut-sprinkles','k_cupcake','k_ice-cream','k_cake','k_waffle','k_muffin','k_kitchenCoffeeMachine','k_kitchenCabinet','k_kitchenStove','k_kitchenFridgeSmall','k_kitchenFridge','k_kitchenMicrowave','k_toaster','k_kitchenBlender','k_kitchenBar','k_kitchenBarEnd','k_tableRound','k_chairCushion','k_chairRounded','k_stoolBar','k_loungeSofa','k_loungeChair','k_tableCoffee','k_rugRound','k_rugRectangle','k_lampRoundFloor','k_lampRoundTable','k_pottedPlant','k_plantSmall1','k_plantSmall2','k_plantSmall3','k_bookcaseOpen','k_books','k_radio','k_speaker','k_coatRackStanding','k_pillowBlue','k_pillow','k_sideTable','k_trashcan','k_plate','k_cup-saucer','k_benchCushion','k_cardboardBoxOpen','k_mug','k_pie','k_sandwich','k_cookie-chocolate','k_pancakes','k_rugRounded','k_frappe','k_hot-dog','k_lollypop','k_soda','k_bear','k_toilet','k_bathroomSink','k_bathroomMirror','k_loungeSofaLong','k_televisionModern','k_cabinetTelevision','k_detail-parasol-a','k_detail-awning-wide','k_c_trash','k_c_flowers','k_c_bench','k_planter','k_tree-small','k_lampWall','k_rugDoormat','k_speakerSmall'];
+const FILES_K=['k_cup-coffee','k_cup-tea','k_croissant','k_donut-sprinkles','k_cupcake','k_ice-cream','k_cake','k_waffle','k_muffin','k_kitchenCoffeeMachine','k_kitchenCabinet','k_kitchenStove','k_kitchenFridgeSmall','k_kitchenFridge','k_kitchenMicrowave','k_toaster','k_kitchenBlender','k_kitchenBar','k_kitchenBarEnd','k_tableRound','k_chairCushion','k_chairRounded','k_stoolBar','k_loungeSofa','k_loungeChair','k_tableCoffee','k_rugRound','k_rugRectangle','k_lampRoundFloor','k_lampRoundTable','k_pottedPlant','k_plantSmall1','k_plantSmall2','k_plantSmall3','k_bookcaseOpen','k_books','k_radio','k_speaker','k_coatRackStanding','k_pillowBlue','k_pillow','k_sideTable','k_trashcan','k_plate','k_cup-saucer','k_benchCushion','k_cardboardBoxOpen','k_mug','k_pie','k_sandwich','k_cookie-chocolate','k_pancakes','k_rugRounded','k_frappe','k_hot-dog','k_lollypop','k_soda','k_cocktail','k_popsicle','k_watermelon','k_burger','k_fries','k_bowl-soup','k_sushi-salmon','k_pizza','k_chinese','k_carton-small','k_corn','k_bear','k_toilet','k_bathroomSink','k_bathroomMirror','k_loungeSofaLong','k_televisionModern','k_cabinetTelevision','k_detail-parasol-a','k_detail-awning-wide','k_c_trash','k_c_flowers','k_c_bench','k_planter','k_tree-small','k_lampWall','k_rugDoormat','k_speakerSmall'];
 const FILES=['anim_src','cat','dog',...FILES_V,...FILES_K];
 async function loadAssets(){
  const L=new THREE.GLTFLoader();let done=0;const b64=s=>{const bin=atob(s),u=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)u[i]=bin.charCodeAt(i);return u.buffer};
@@ -862,7 +873,7 @@ function spawnCustomer(qi,vip){
  if(vip){const cr=new THREE.Sprite(new THREE.SpriteMaterial({map:emojiTex('👑'),transparent:true,depthWrite:false}));cr.scale.setScalar(.5);cr.position.y=c.rig.h*1.08+.25;c.rig.inner.add(cr);c.crown=cr}
  c.root.position.set(DOOR.x+rnd(-1,1),0,DOOR.z+3);scene.add(c.root);
  if(WX.on)umbrella(c);
- const kinds=[...new Set(machines.map(m=>m.kind))];let order=kinds[0]||'coffee';{const hot=k=>k==='coffee'||k==='tea'||k==='hotchoc';const w=kinds.map((k,i)=>(1+i*.6)*(PHASE===0&&hot(k)?2:1)*(PHASE===2&&!hot(k)?1.6:1)*(WX.on&&hot(k)?2.5:1));let r=Math.random()*w.reduce((a,b)=>a+b,0);for(let i=0;i<kinds.length;i++){r-=w[i];if(r<=0){order=kinds[i];break}}}
+ const kinds=[...new Set(machines.map(m=>m.kind))];let order=kinds[0]||'coffee';{const hot=k=>['coffee','tea','hotchoc','soup'].includes(k);const w=kinds.map((k,i)=>(1+i*.6)*(PHASE===0&&hot(k)?2:1)*(PHASE===2&&!hot(k)?1.6:1)*(WX.on&&hot(k)?2.5:1));let r=Math.random()*w.reduce((a,b)=>a+b,0);for(let i=0;i<kinds.length;i++){r-=w[i];if(r<=0){order=kinds[i];break}}}
  let order2=null;if(!vip&&has('t2')&&kinds.length>=2&&Math.random()<.16){const o=kinds.filter(k=>k!==order);order2=o[Math.floor(Math.random()*o.length)]}
  const bub=new THREE.Sprite(new THREE.SpriteMaterial({map:vip?bubTex(PROD[order].ic,'#ffc93c'):order2?comboTex(PROD[order].ic,PROD[order2].ic):emojiTex(PROD[order].ic,true),transparent:true,depthWrite:false}));if(order2)bub.scale.set(1.2,.8,1);else bub.scale.setScalar(vip?.95:.85);scene.add(bub);
  const q=QUEUE(qi);customers.push({id:cid++,c,state:'toQueue',qi,order,bub,path:[{x:DOOR.x,z:DOOR.z-1},{x:q.x,z:Math.max(q.z,6.5)}],served:false,vip,pat:45,pat0:45,bcol:'#ffc93c',order2,combo:!!order2,wt:0});
