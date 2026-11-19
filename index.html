@@ -1540,7 +1540,7 @@ function updateSheila(dt){const k=DOG.o;if(!k)return;k.mx.update(dt);k.ears.forE
  if(moving){const tg=k.path[0],d=new V3(tg.x-p.x,0,tg.z-p.z),L=d.length();const sp=k.state==='follow'||k.run?2.4:1.35;if(L<.08){k.path.shift()}else{d.normalize();p.addScaledVector(d,Math.min(L,sp*dt));k.heading=Math.atan2(d.x,d.z);dogPlay(sp>1.5?'run':'walk',.2);if(k.A.walk)k.A.walk.timeScale=1.1;if(k.A.run)k.A.run.timeScale=.85}}
  else if(k.state==='walk'||k.state==='visit'||k.state==='follow'){
   if(k.state==='visit'&&k.target){const c=k.target;k.state='greet';k.t=3.5;dogPlay('idle2');k.heading=Math.atan2(c.c.root.position.x-p.x,c.c.root.position.z-p.z);
-   dogEmo('💕',1.1);emo(c.c,['🥰','😍','🐶'][Math.floor(Math.random()*3)],2.1);c.c.squash=.6;if(c.state==='wait'){c.wt=Math.max(0,(c.wt||0)-6)}repAdd(.01);if(Math.random()<.5)bark()}
+   window.__greets=(window.__greets||0)+1;dogEmo('💕',1.1);emo(c.c,['🥰','😍','🐶'][Math.floor(Math.random()*3)],2.1);c.c.squash=.6;if(c.c.rig&&c.state!=='sit')c.c.rig.play('wave');if(Math.random()<.35){later(()=>{if(!DOG.o)return;dogEmo('🦴',1.2);dogPlay('eat');floatText('Sheila\'ya ödül maması 🦴',new V3(DOG.o.holder.position.x,1.6,DOG.o.holder.position.z),'y')},1200)}if(c.state==='wait'){c.wt=Math.max(0,(c.wt||0)-6)}repAdd(.01);if(Math.random()<.5)bark()}
   else if(k.state==='follow'){k.state='happy';k.t=1.2;dogPlay('jump',.15)}
   else{k.state='sniff';k.t=rnd(2.5,5);dogPlay(Math.random()<.5?'eat':'idle')}}
  if(!moving&&k.t<=0&&k.state!=='nap'||(k.state==='nap'&&k.t<=0)){
