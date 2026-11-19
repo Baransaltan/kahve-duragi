@@ -469,7 +469,7 @@ let FAIRY=[];
 const TPL={};
 const FILES_V=['Kate','Coffee','CoffeeMaker','Milk','Butter','IceCream','CoolPancake','Cookieman','Olivia','MoonGirl','Shiro','CoolBunny','RealCake','CoolDrink','AwesomeLemon','TastySandwich','CoolBaguette','Rose','Teddy','Froggy','ChillPenguin','SuperICEPOP','CoolCloud','Jennifer'].map(n=>'v_'+n);
 const FILES_K=['k_cup-coffee','k_cup-tea','k_croissant','k_donut-sprinkles','k_cupcake','k_ice-cream','k_cake','k_waffle','k_muffin','k_kitchenCoffeeMachine','k_kitchenCabinet','k_kitchenStove','k_kitchenFridgeSmall','k_kitchenFridge','k_kitchenMicrowave','k_toaster','k_kitchenBlender','k_kitchenBar','k_kitchenBarEnd','k_tableRound','k_chairCushion','k_chairRounded','k_stoolBar','k_loungeSofa','k_loungeChair','k_tableCoffee','k_rugRound','k_rugRectangle','k_lampRoundFloor','k_lampRoundTable','k_pottedPlant','k_plantSmall1','k_plantSmall2','k_plantSmall3','k_bookcaseOpen','k_books','k_radio','k_speaker','k_coatRackStanding','k_pillowBlue','k_pillow','k_sideTable','k_trashcan','k_plate','k_cup-saucer','k_benchCushion','k_cardboardBoxOpen','k_mug','k_pie','k_sandwich','k_cookie-chocolate','k_pancakes','k_rugRounded','k_frappe','k_hot-dog','k_lollypop','k_soda','k_bear','k_toilet','k_bathroomSink','k_bathroomMirror','k_loungeSofaLong','k_televisionModern','k_cabinetTelevision','k_detail-parasol-a','k_detail-awning-wide','k_c_trash','k_c_flowers','k_c_bench','k_planter','k_tree-small','k_lampWall','k_rugDoormat','k_speakerSmall'];
-const FILES=['anim_src','cat',...FILES_V,...FILES_K];
+const FILES=['anim_src','cat','dog',...FILES_V,...FILES_K];
 async function loadAssets(){
  const L=new THREE.GLTFLoader();let done=0;const b64=s=>{const bin=atob(s),u=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)u[i]=bin.charCodeAt(i);return u.buffer};
  for(const f of FILES){if(window.MODELS[f]){await new Promise(res=>{try{L.parse(b64(window.MODELS[f]),'',g=>{TPL[f]=g;res()},e=>{console.error('parse',f,e);res()})}catch(e){console.error(f,e);res()}})}
@@ -603,7 +603,7 @@ function buildWorld(){
  refreshPads();
  // player
  if(!player){player=makeChar(PLAYER_KEY,1.68);player.isPlayer=true;player.maxSpd=3.2;scene.add(player.root)}
- player.root.position.set(-4,0,4);player.stack.forEach(s=>{if(s.parent)s.parent.remove(s)});player.stack=[];[...player.carry.children].forEach(o=>{if(o.userData&&o.userData.kind)player.carry.remove(o)});buildDeco();
+ buildDogBed();spawnSheila();player.root.position.set(-4,0,4);player.stack.forEach(s=>{if(s.parent)s.parent.remove(s)});player.stack=[];[...player.carry.children].forEach(o=>{if(o.userData&&o.userData.kind)player.carry.remove(o)});buildDeco();
  // guidance arrow & player ring
  if(!arrow){const ag=new THREE.ConeGeometry(.35,.7,4);ag.rotateX(Math.PI);arrow=mesh(ag,std(0xffc23a,{emissive:0xff9a1a,emissiveIntensity:.5}),0,0,0,false);scene.add(arrow);
   const rg=new THREE.Shape();rg.moveTo(0,.45);rg.lineTo(.4,-.1);rg.lineTo(.15,-.1);rg.lineTo(.15,-.4);rg.lineTo(-.15,-.4);rg.lineTo(-.15,-.1);rg.lineTo(-.4,-.1);rg.lineTo(0,.45);ring=new THREE.Group();const rm=new THREE.Mesh(new THREE.ShapeGeometry(rg),new THREE.MeshBasicMaterial({color:0xffc23a,transparent:true,opacity:.9,depthWrite:false,side:THREE.DoubleSide}));rm.rotation.x=Math.PI/2;rm.position.z=1.1;ring.add(rm);ring.userData.m=rm;scene.add(ring)}
@@ -1482,6 +1482,60 @@ function dlgTap(){if(!DLG)return;if($('dlgT').textContent.length<DLG.full.length
 function storyStart(){G.story=G.story||{};if(G.story.s)return;G.story.s=1;const st=STORY[LVI()];if(CYC()>0)storyQueue([['cat','⭐ Yıldızlı Tur: '+L().name+'! Bu kez müşteriler daha zengin, hedefler daha büyük.']]);else storyQueue(st.start);save()}
 function storyBeat(k){G.story=G.story||{};if(G.story[k])return;G.story[k]=1;const L2={fun:['cat',FUNI().ic+' '+FUNI().n+' açıldı! Burada müşteriler 3 kat bahşiş bırakır.'],out:['cat',OUTC().ic+' '+OUTC().n+'! Dışarıdaki siparişleri sen götürmelisin, iyi para var!'],wc:['kupa','Tuvalet mi açtın? MegaCup\'ın tuvaletleri pırıl pırıl, seninki kirlenecek! Hah!'],next:['cat','Yeni şube için para birikti mi? Hadi bir adım daha!']}[k];if(L2)storyQueue([L2])}
 
+// ================= SHEILA the Pomeranian (in every branch) =================
+const DOG={o:null};const DOGBED={x:3.4,z:10.4};
+const DOG_SPOTS=[[1.2,-2.4],[1.2,2.0],[1.2,6.4],[-1.0,5.6],[-0.8,9.6],[4.6,-2.8],[4.6,5.2],[-4.4,2.6],[-3.6,8.4]];
+function spawnSheila(){if(DOG.o){scene.remove(DOG.o.holder);DOG.o=null}if(!TPL.dog)return;
+ const cs=THREE.SkeletonUtils.clone(TPL.dog.scene);const bones={};
+ cs.traverse(o=>{if(o.isBone)bones[o.name]=o;if(o.isMesh){o.material=o.material.clone();if(o.isSkinnedMesh)o.material.skinning=true;o.castShadow=true;const n=o.material.name;
+  if(n==='Main')o.material.color.setHex(0xf6e6cc);else if(n==='Main_Light')o.material.color.setHex(0xffffff);o.material.roughness=.85}});
+ const holder=new THREE.Group();cs.scale.setScalar(normScale('dog',.72));holder.add(cs);holder.position.set(DOGBED.x,0,DOGBED.z);scene.add(holder);holder.updateMatrixWorld(true);
+ const fluffM=new THREE.MeshStandardMaterial({color:0xffffff,roughness:1}),creamM=new THREE.MeshStandardMaterial({color:0xf3dcb8,roughness:1});
+ const at=(bn,make)=>{const b=bones[bn];if(!b)return;const ws=new V3();b.getWorldScale(ws);const g=new THREE.Group();g.scale.setScalar(1/ws.x);b.add(g);make(g)};
+ // fluffy ruff around the neck, puffy tail, pink bow
+ at('Neck1',g=>{for(let i=0;i<14;i++){const a=i/14*Math.PI*2;const s=new THREE.Mesh(new THREE.SphereGeometry(.055,10,8),i%3?fluffM:creamM);s.position.set(Math.cos(a)*.085,Math.sin(a)*.085+.02,rnd(-.02,.02));g.add(s)}});
+ at('Tail3',g=>{for(let i=0;i<5;i++){const s=new THREE.Mesh(new THREE.SphereGeometry(.08,10,8),i%2?fluffM:creamM);s.position.set(rnd(-.04,.04),rnd(-.04,.06),rnd(-.04,.04));g.add(s)}});
+ at('Head',g=>{const pink=std(0xff6fae,{roughness:.4});const b1=new THREE.Mesh(new THREE.ConeGeometry(.045,.08,8),pink);b1.rotation.z=Math.PI/2;b1.position.set(.05,.12,-.02);const b2=b1.clone();b2.rotation.z=-Math.PI/2;b2.position.x=-.05;const k=new THREE.Mesh(new THREE.SphereGeometry(.025,8,6),pink);k.position.set(0,.12,-.02);g.add(b1,b2,k)});
+ const mx=new THREE.AnimationMixer(cs);const A={};const pick=(k,n)=>{const c=TPL.dog.animations.find(a=>a.name.endsWith('|'+n));if(c)A[k]=mx.clipAction(c)};
+ pick('idle','Idle');pick('idle2','Idle_2');pick('low','Idle_2_HeadLow');pick('walk','Walk');pick('run','Gallop');pick('jump','Jump_ToIdle');pick('eat','Eating');
+ if(A.jump){A.jump.setLoop(THREE.LoopOnce);A.jump.clampWhenFinished=true}
+ const nm=canvasTex(160,52,(c,w,h)=>{c.fillStyle='rgba(255,255,255,.92)';rr(c,4,4,w-8,h-8,20);c.fill();c.fillStyle='#ff4f9a';c.font='bold 28px "Baloo 2",sans-serif';c.textAlign='center';c.textBaseline='middle';c.fillText('🐾 Sheila',w/2,h/2+2)});
+ const tag=new THREE.Sprite(new THREE.SpriteMaterial({map:nm,transparent:true,depthWrite:false}));tag.scale.set(.8,.26,1);tag.position.y=1.0;holder.add(tag);
+ DOG.o={holder,mx,A,cur:null,state:'nap',t:4,path:[],heading:0,petT:0,visitT:8,sp:0,tag};dogPlay('low');
+ if(!META.sheila){META.sheila=1;saveMeta();if(typeof storyQueue==='function')setTimeout(()=>storyQueue([['cat','Bu da Sheila! Nine\'nin pamuk gibi Pomeranian\'ı 🐶 Müşteriler onu çok sever, kafeye ün kazandırır.']]),9000)}}
+function buildDogBed(){const g=new THREE.Group();g.position.set(DOGBED.x,0,DOGBED.z);g.add(mesh(new THREE.TorusGeometry(.42,.14,10,24),std(0xff9fc4,{roughness:.9}),0,.14,0,false));g.children[0].rotation.x=Math.PI/2;
+ g.add(mesh(new THREE.CylinderGeometry(.42,.42,.08,24),std(0xfff3f8,{roughness:1}),0,.06,0));const bt=canvasTex(128,48,(c,w,h)=>{c.fillStyle='#fff';rr(c,2,2,w-4,h-4,20);c.fill();c.fillStyle='#ff4f9a';c.font='bold 26px "Baloo 2",sans-serif';c.textAlign='center';c.textBaseline='middle';c.fillText('SHEILA',w/2,h/2+2)});
+ const s=mesh(new THREE.PlaneGeometry(.6,.22),new THREE.MeshBasicMaterial({map:bt,transparent:true}),0,.32,.55,false);s.rotation.x=-.5;g.add(s);g.add(mesh(new THREE.CylinderGeometry(.13,.11,.07,14),std(0xff6fae),.62,.04,.1));world.add(g)}
+function dogPlay(n,fade=.25){const k=DOG.o;if(!k||k.cur===n||!k.A[n])return;const a=k.A[n],b=k.A[k.cur];a.reset().play();if(b)a.crossFadeFrom(b,fade,false);k.cur=n}
+function dogGoto(x,z){const k=DOG.o,p=k.holder.position;k.path=Math.abs(p.x-x)>2.5||Math.sign(p.x-1.2)!==Math.sign(x-1.2)?[{x:1.2,z:p.z},{x:1.2,z},{x,z}]:[{x,z}]}
+function dogEmo(e,h=1.0){const p=DOG.o.holder.position;const s=new THREE.Sprite(new THREE.SpriteMaterial({map:emojiTex(e),transparent:true,depthWrite:false}));s.position.set(p.x,h,p.z);s.scale.setScalar(.01);scene.add(s);hearts.push({s,t:0})}
+function bark(){tone(620,.06,'square',.03,420);tone(700,.07,'square',.03,460,.12)}
+function updateSheila(dt){const k=DOG.o;if(!k)return;k.mx.update(dt);const p=k.holder.position;k.t-=dt;k.petT-=dt;k.visitT-=dt;
+ const pp=player.root.position,dP=Math.hypot(pp.x-p.x,pp.z-p.z);
+ // the player can pet her
+ if(dP<1.1&&k.petT<=0&&k.state!=='follow'){k.petT=14;dogEmo('💖',1.1);bark();floatText('Sheila: Hav! 🐶',new V3(p.x,1.5,p.z),'y');repAdd(.005);k.state='happy';k.t=1.6;dogPlay('jump',.15);k.heading=Math.atan2(pp.x-p.x,pp.z-p.z);k.path=[]}
+ const moving=k.path.length>0;
+ if(moving){const tg=k.path[0],d=new V3(tg.x-p.x,0,tg.z-p.z),L=d.length();const sp=k.state==='follow'||k.run?2.4:1.35;if(L<.08){k.path.shift()}else{d.normalize();p.addScaledVector(d,Math.min(L,sp*dt));k.heading=Math.atan2(d.x,d.z);dogPlay(sp>1.5?'run':'walk',.2);if(k.A.walk)k.A.walk.timeScale=1.1;if(k.A.run)k.A.run.timeScale=.85}}
+ else if(k.state==='walk'||k.state==='visit'||k.state==='follow'){
+  if(k.state==='visit'&&k.target){const c=k.target;k.state='greet';k.t=3.5;dogPlay('idle2');k.heading=Math.atan2(c.c.root.position.x-p.x,c.c.root.position.z-p.z);
+   dogEmo('💕',1.1);emo(c.c,['🥰','😍','🐶'][Math.floor(Math.random()*3)],2.1);c.c.squash=.6;if(c.state==='wait'){c.wt=Math.max(0,(c.wt||0)-6)}repAdd(.01);if(Math.random()<.5)bark()}
+  else if(k.state==='follow'){k.state='happy';k.t=1.2;dogPlay('jump',.15)}
+  else{k.state='sniff';k.t=rnd(2.5,5);dogPlay(Math.random()<.5?'eat':'idle')}}
+ if(!moving&&k.t<=0&&k.state!=='nap'||(k.state==='nap'&&k.t<=0)){
+  // decide what to do next
+  const sitters=customers.filter(c=>(c.state==='sit'&&c.table&&!(c.table.fun&&OUTDOOR_FUN(c.table.lv)))||(c.state==='wait'&&!c.served));
+  const r=Math.random();
+  if(dP<4&&player.stack.length===0&&r<.18){k.state='follow';k.path=[{x:pp.x+rnd(-.6,.6),z:pp.z+.7}]}
+  else if(sitters.length&&k.visitT<=0&&r<.7){sitters.sort((a,b)=>Math.hypot(a.c.root.position.x-p.x,a.c.root.position.z-p.z)-Math.hypot(b.c.root.position.x-p.x,b.c.root.position.z-p.z));const c=sitters[Math.floor(Math.random()*Math.min(3,sitters.length))];k.target=c;k.visitT=rnd(8,14);k.state='visit';const cp=c.c.root.position;
+   if(c.state==='wait')dogGoto(cp.x+.8,cp.z);else{const t=c.table,sx=c.seat?c.seat.x:cp.x;const off=t&&t.fun?-.7:(sx<t.x?-.55:.55);dogGoto(sx+off,(c.seat?c.seat.z:cp.z)+.35)}}
+  else if(r<.85){k.state='walk';const s=DOG_SPOTS[Math.floor(Math.random()*DOG_SPOTS.length)];dogGoto(s[0]+rnd(-.4,.4),s[1]+rnd(-.4,.4))}
+  else{k.state='nap';k.t=rnd(12,20);dogGoto(DOGBED.x,DOGBED.z)}}
+ if(k.state==='greet'||k.state==='sniff'||k.state==='happy'){if(k.t<=0){k.state='idle';k.t=0}}
+ if(k.state==='nap'&&!moving){dogPlay('low');if(Math.random()<dt*.35)dogEmo('💤',.9)}
+ if(k.cur==='jump'&&k.A.jump&&!k.A.jump.isRunning()&&!moving)dogPlay('idle');
+ let dh=k.heading-k.holder.rotation.y;dh=Math.atan2(Math.sin(dh),Math.cos(dh));k.holder.rotation.y+=dh*Math.min(1,dt*7);
+ k.tag.visible=dP<5;k.tag.position.y=1.0+Math.sin(GT*3)*.03}
+
 // ================= UI PANELS =================
 function panelOpen(){return $('panel').classList.contains('open')||$('over').classList.contains('open')||$('dlg').classList.contains('open')}
 function openBoard(){joy.on=false;$('joy').style.display='none';
@@ -1522,7 +1576,7 @@ function step(dt,now){GT+=dt;for(let i=LATER.length-1;i>=0;i--)if(LATER[i].t<=GT
  if(started){updateMachines(dt);updateCustomers(dt);updateStaff(dt);
   hintTimer-=dt;if(hintTimer<0&&hintTimer>-dt*1.5)$('hint').style.opacity=0;
   saveT+=dt;if(saveT>5){saveT=0;save()}
-  updateFun(dt);updateToken(dt,now);updateSky(dt);updateBin(dt);updateWC(dt);updateDeco(dt);updateOut(dt);updateScenery(dt);if(reg&&reg.trash&&reg.trash.userData.pump>0){const tc=reg.trash;tc.userData.pump-=dt;const k=Math.sin(tc.userData.pump/.2*Math.PI)*.12;tc.scale.set(1+k,1-k,1+k);if(tc.userData.pump<=0)tc.scale.setScalar(1)}}
+  updateFun(dt);updateToken(dt,now);updateSky(dt);updateBin(dt);updateWC(dt);updateDeco(dt);updateOut(dt);updateScenery(dt);updateSheila(dt);if(reg&&reg.trash&&reg.trash.userData.pump>0){const tc=reg.trash;tc.userData.pump-=dt;const k=Math.sin(tc.userData.pump/.2*Math.PI)*.12;tc.scale.set(1+k,1-k,1+k);if(tc.userData.pump<=0)tc.scale.setScalar(1)}}
  // flyers (arc tweens)
  for(let i=flyers.length-1;i>=0;i--){const f=flyers[i];f.t+=dt/f.dur;const t=Math.min(1,f.t),e=t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2;
   const to=f.targetFn();f.obj.position.lerpVectors(f.from,to,e);f.obj.position.y+=Math.sin(t*Math.PI)*f.h;f.obj.rotation.y=f.r0+t*Math.PI*2*f.spin*.5;f.obj.rotation.x=Math.sin(t*Math.PI)*.4*f.spin;
