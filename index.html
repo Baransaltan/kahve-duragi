@@ -1183,7 +1183,7 @@ function openSave(){joy.on=false;$('joy').style.display='none';save();
 function copyCode(){const t=$('scOut');t.select();t.setSelectionRange(0,1e7);let ok=false;try{ok=document.execCommand('copy')}catch(e){}if(navigator.clipboard)navigator.clipboard.writeText(t.value).then(()=>showHint('Kod kopyalandı ✅'),()=>{if(!ok)showHint('Kodu seçip elle kopyala')});else showHint(ok?'Kod kopyalandı ✅':'Kodu seçip elle kopyala')}
 function loadCode(){try{const o=JSON.parse(decodeURIComponent(escape(atob($('scIn').value.trim()))));if(!o.g||o.g.lvl==null)throw 0;
  G=o.g;G.t=Date.now();if(o.m)META=Object.assign(META,o.m);ensureG();save();saveMeta();cloudQueue(true);closePanel();
- customers.forEach(c=>{scene.remove(c.c.root);scene.remove(c.bub)});customers=[];staff.forEach(s=>scene.remove(s.c.root));staff=[];buildWorld();updateHUD();flash();showHint('Kayıt yüklendi ✅')}catch(e){showHint('Kod geçersiz ❌')}}
+ customers.forEach(c=>{scene.remove(c.c.root);scene.remove(c.bub)});customers=[];staff.forEach(s=>scene.remove(s.c.root));staff=[];buildWorld();updateHUD();flash();showHint('Kayıt yüklendi ✅');if(has('next'))later(levelDone,800)}catch(e){showHint('Kod geçersiz ❌')}}
 
 // ================= TRASH BIN (big, lid opens when you come close) =================
 function buildBin(parent){const th=L().theme,b=new THREE.Group();b.position.set(TRASH.x,0,TRASH.z);
@@ -1675,7 +1675,7 @@ async function boot(){
  loop();
  $('playBtn').onclick=()=>{audio();startMusic();$('musBtn').textContent=musicOn?'🎵':'🔇';$('title').style.transition='opacity .5s';$('title').style.opacity=0;setTimeout(()=>$('title').remove(),500);started=true;
   if(!G.unl.length)showHint('Parlayan kareye yürü ve ilk makineni aç!');else showHint('Hareket etmek için ekranı sürükle');
-  if(prev)offlineCheck(prev);if($('over').classList.contains('open'))window._pendDaily=1;else dailyCheck();setTimeout(storyStart,700);updateHUD();brBackfill()};
+  if(prev)offlineCheck(prev);if($('over').classList.contains('open'))window._pendDaily=1;else dailyCheck();setTimeout(()=>{if(has('next')){G.story=G.story||{};G.story.s=1;levelDone()}else storyStart()},700);updateHUD();brBackfill()};
  addEventListener('visibilitychange',()=>{if(document.hidden){save();cloudQueue(true);cloudFlush(true)}});addEventListener('pagehide',()=>{save();cloudFlush(true)});addEventListener('beforeunload',save);addEventListener('blur',save);document.addEventListener('freeze',save);
 }
 boot();
