@@ -2,8 +2,27 @@
 <html lang="tr">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <title>Kahve Durağı</title>
+<script>
+// ===== DEVICE FIT: telefon / tablet otomatik algılama =====
+// Tablette tüm arayüz (HUD, paneller, yazılar) viewport ölçeğiyle büyütülür; 3D sahne keskin kalsın diye pixelRatio telafi edilir.
+window.DEV={tab:false,land:false,u:1,S:1};
+function fitDevice(){
+ const sw=screen.width||innerWidth,sh=screen.height||innerHeight,mn=Math.min(sw,sh),mx=Math.max(sw,sh);
+ const land=(window.matchMedia&&matchMedia('(orientation: landscape)').matches)||innerWidth>innerHeight;
+ const tab=mn>=600&&('ontouchstart' in window||navigator.maxTouchPoints>0);
+ let u=tab?Math.min(1.75,Math.max(1.2,mn/480)):1;if(tab&&land)u=Math.max(1.15,Math.min(u,mn/570)); // yatayda dikey alan dar kalmasın
+ const curW=land?mx:mn;
+ DEV.tab=tab;DEV.land=land;DEV.u=u;DEV.curW=curW;
+ const m=document.querySelector('meta[name=viewport]');
+ const c=tab?`width=${Math.round(curW/u)},user-scalable=no,viewport-fit=cover`:'width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover';
+ if(m&&m.getAttribute('content')!==c)m.setAttribute('content',c);
+ const r=document.documentElement;r.classList.toggle('tab',tab);r.classList.toggle('phone',!tab);r.classList.toggle('land',land);
+}
+fitDevice();
+addEventListener('orientationchange',()=>setTimeout(fitDevice,60));
+</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&display=swap" rel="stylesheet">
 <style>
@@ -84,6 +103,12 @@ html,body{margin:0;height:100%;overflow:hidden;background:#f6e3c6;font-family:'B
 #daycard .dr.s{color:#8a6d55;font-size:12px}
 #daycard .dr.t{border-top:2px dashed #ecd6b8;margin-top:4px;padding-top:4px;font-size:14px}
 #flash{position:fixed;inset:0;z-index:25;background:#fff;opacity:0;pointer-events:none;transition:opacity .4s}
+/* tablet: paneller ortada, okunur genişlikte */
+.tab #panel{left:0;right:0;margin:0 auto;width:min(560px,100%)}
+.tab #dlg{left:0;right:0;margin:0 auto;width:min(640px,calc(100% - 20px))}
+.tab #ocard{max-width:40vw}
+.tab.land #panel{max-height:88vh;overflow-y:auto}
+#over{overflow-y:auto}#over .card{margin:auto}.land #over{align-items:flex-start}
 </style>
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes">
@@ -388,8 +413,12 @@ const clock=new THREE.Clock();
 // hex colours are authored in sRGB; convert to linear so the sRGB output shows them as picked (no washed-out pastels)
 {const _sh=THREE.Color.prototype.setHex;THREE.Color.prototype.setHex=function(h){_sh.call(this,h);return this.convertSRGBToLinear()}}
 function _bgRaw(){const c=scene.background;c.convertLinearToSRGB()}
+function fitPR(){ // gerçek ölçek = ekran CSS genişliği / sayfa genişliği; toplam piksel ~3.6M ile sınırlı
+ DEV.S=DEV.tab?Math.max(1,(DEV.curW||innerWidth)/innerWidth):1;
+ let pr=Math.min(devicePixelRatio||1,2)*DEV.S;const px=innerWidth*innerHeight*pr*pr;if(px>3.6e6)pr*=Math.sqrt(3.6e6/px);
+ if(renderer)renderer.setPixelRatio(pr)}
 function initThree(){
- renderer=new THREE.WebGLRenderer({antialias:true});renderer.setPixelRatio(Math.min(devicePixelRatio||1,2));renderer.setSize(innerWidth,innerHeight);
+ renderer=new THREE.WebGLRenderer({antialias:true});fitPR();renderer.setSize(innerWidth,innerHeight);
  renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;renderer.outputEncoding=THREE.sRGBEncoding;
  renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=.93;
  $('c').appendChild(renderer.domElement);
@@ -398,7 +427,7 @@ function initThree(){
  scene.add(new THREE.HemisphereLight(0xfff8f0,0xc9a98a,.75));
  sun=new THREE.DirectionalLight(0xfff1de,1.05);sun.position.set(-9,22,12);sun.castShadow=true;sun.shadow.mapSize.set(2048,2048);
  Object.assign(sun.shadow.camera,{left:-18,right:18,top:18,bottom:-18,near:1,far:60});sun.shadow.bias=-.0005;sun.shadow.normalBias=.02;scene.add(sun,sun.target);
- addEventListener('resize',()=>{renderer.setSize(innerWidth,innerHeight);camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix()});
+ addEventListener('resize',()=>{fitDevice();fitPR();renderer.setSize(innerWidth,innerHeight);camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix()});
 }
 const MAT={};
 function std(c,o){return new THREE.MeshStandardMaterial(Object.assign({color:c,roughness:.72,metalness:0},o||{}))}
@@ -1883,7 +1912,7 @@ function step(dt,now){GT+=dt;for(let i=LATER.length-1;i>=0;i--)if(LATER[i].t<=GT
    const dx=g.x-pp.x,dz=g.z-pp.z,d=Math.hypot(dx,dz);ring.visible=d>2.2;ring.position.set(pp.x,.07,pp.z);ring.rotation.y=Math.atan2(dx,dz);ring.userData.m.position.z=1.05+Math.sin(now*.008)*.12;ring.userData.m.material.opacity=.6+Math.sin(now*.008)*.3}
   else{arrow.visible=false;ring.visible=false}}
  // camera: smooth follow, distance fitted to aspect so portrait phones see the cafe width
- const asp=innerWidth/innerHeight,tf=Math.tan(THREE.MathUtils.degToRad(camera.fov/2)),dist=clamp(12/(2*tf*asp),13,21);
+ const asp=innerWidth/innerHeight,tf=Math.tan(THREE.MathUtils.degToRad(camera.fov/2)),dist=clamp(12/(2*tf*asp),(asp>1&&DEV.tab)?15:13,21);
  const target=started?player.root.position:new V3(Math.sin(now*.0002)*3,0,0);
  const want=new V3(target.x*.97,dist*.8,target.z*.9+dist*.6);camPos.lerp(want,1-Math.exp(-dt*(started?5:1.5)));
  camLook.lerp(new V3(target.x*.97,0,target.z*.9),1-Math.exp(-dt*(started?6:1.5)));
