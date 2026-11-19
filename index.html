@@ -71,6 +71,12 @@ html,body{margin:0;height:100%;overflow:hidden;background:#f6e3c6;font-family:'B
 #dlgN{font-weight:800;font-size:13px}
 #dlgT{font-weight:700;font-size:15px;color:#3b2a1e;line-height:1.3;margin:2px 0 4px;min-height:38px}
 #dlgC{text-align:right;font-size:12px;font-weight:800;color:#c96a2f;animation:bp 1s infinite}
+#ocard{position:fixed;z-index:6;left:10px;top:calc(104px + env(safe-area-inset-top,0px));display:none;flex-direction:column;gap:6px;max-width:58vw}
+#ocard .oc{background:rgba(255,255,255,.95);border-radius:14px;padding:5px 9px 6px;box-shadow:0 3px 0 #e2c49b;pointer-events:auto}
+#ocard .oh{font-size:11px;font-weight:800;color:#c96a2f}
+#ocard .oi{font-size:22px;line-height:1.15;display:flex;gap:3px;flex-wrap:wrap}
+#ocard .ob{height:5px;border-radius:3px;background:#f1e2cc;overflow:hidden;margin-top:3px}
+#ocard .ob div{height:100%;border-radius:3px}
 #flash{position:fixed;inset:0;z-index:25;background:#fff;opacity:0;pointer-events:none;transition:opacity .4s}
 </style>
 <link rel="manifest" href="manifest.webmanifest">
@@ -88,6 +94,7 @@ html,body{margin:0;height:100%;overflow:hidden;background:#f6e3c6;font-family:'B
 <button id="musBtn" onclick="toggleMusic()">🎵</button>
 <div id="side"><button onclick="openMissions()">📋<i id="misN">0</i></button><button onclick="openMap()">🗺️</button><button onclick="openShop()">🎨</button><button onclick="openSave()">💾</button></div>
 <div id="rain"></div>
+<div id="ocard"></div>
 <div id="hint" class="hud">Hareket etmek için ekranı sürükle</div>
 <div id="joy"><div id="knob"></div></div>
 <div id="floats"></div>
@@ -571,7 +578,7 @@ function floatText(txt,wp,cls=''){const v=wp.clone().project(camera);const d=doc
 let player,machines=[],tables=[],staff=[],customers=[],pads=[],reg=null,board=null,solids=[],zones=[],arrow,ring;
 function buildWorld(){
  flyers.forEach(f=>scene.remove(f.obj));flyers.length=0;LATER.length=0;
- if(world)scene.remove(world);world=new THREE.Group();scene.add(world);ensureG();GLOWS.length=0;PADS=padList(G.lvl);TOK=null;FUNZ=null;tokT=60;WCS=null;if(OUT)OUT.slots.forEach(s=>{if(s.ch)scene.remove(s.ch.root);if(s.veh)scene.remove(s.veh);if(s.bub)scene.remove(s.bub)});OUT=null;TRAFFIC.forEach(o=>scene.remove(o.c));TRAFFIC=[];WAVES=null;OUT_PLANE=null;WHEEL=null;if(DECOX.cat){scene.remove(DECOX.cat.holder);DECOX.cat=null}
+ if(world)scene.remove(world);world=new THREE.Group();scene.add(world);ensureG();GLOWS.length=0;OCARD_Q='~';PADS=padList(G.lvl);TOK=null;FUNZ=null;tokT=60;WCS=null;if(OUT)OUT.slots.forEach(s=>{if(s.ch)scene.remove(s.ch.root);if(s.veh)scene.remove(s.veh);if(s.bub)scene.remove(s.bub)});OUT=null;TRAFFIC.forEach(o=>scene.remove(o.c));TRAFFIC=[];WAVES=null;OUT_PLANE=null;WHEEL=null;if(DECOX.cat){scene.remove(DECOX.cat.holder);DECOX.cat=null}
  staff.forEach(s=>{scene.remove(s.c.root);s.c.stack.forEach(i=>scene.remove(i))});machines=[];tables=[];staff=[];customers.forEach(c=>scene.remove(c.root));customers=[];pads=[];reg=null;board=null;solids=[];
  const th=curTheme();
  // outside ground + street
@@ -722,9 +729,9 @@ function flash(){$('flash').style.transition='none';$('flash').style.opacity=.55
 const joy={on:false,ox:0,oy:0,dx:0,dy:0,id:null};const keys={};
 function initInput(){
  const el=renderer.domElement;
- el.addEventListener('pointerdown',e=>{audio();if(panelOpen())return;joy.on=true;joy.id=e.pointerId;joy.ox=e.clientX;joy.oy=e.clientY;joy.dx=joy.dy=0;$('joy').style.display='block';$('joy').style.left=e.clientX+'px';$('joy').style.top=e.clientY+'px';$('knob').style.transform='';hideHint()});
+ el.addEventListener('pointerdown',e=>{audio();if(panelOpen())return;joy.t0=performance.now();joy.sx=e.clientX;joy.sy=e.clientY;joy.on=true;joy.id=e.pointerId;joy.ox=e.clientX;joy.oy=e.clientY;joy.dx=joy.dy=0;$('joy').style.display='block';$('joy').style.left=e.clientX+'px';$('joy').style.top=e.clientY+'px';$('knob').style.transform='';hideHint()});
  addEventListener('pointermove',e=>{if(!joy.on||e.pointerId!==joy.id)return;let dx=e.clientX-joy.ox,dy=e.clientY-joy.oy;const d=Math.hypot(dx,dy),m=55;if(d>m){dx*=m/d;dy*=m/d}joy.dx=dx/m;joy.dy=dy/m;$('knob').style.transform=`translate(${dx}px,${dy}px)`});
- const end=e=>{if(e.pointerId!==joy.id)return;joy.on=false;joy.dx=joy.dy=0;$('joy').style.display='none'};
+ const end=e=>{if(e.pointerId!==joy.id)return;if(joy.on&&performance.now()-joy.t0<280&&Math.hypot(e.clientX-joy.sx,e.clientY-joy.sy)<12)outTap(e.clientX,e.clientY);joy.on=false;joy.dx=joy.dy=0;$('joy').style.display='none'};
  addEventListener('pointerup',end);addEventListener('pointercancel',end);
  addEventListener('keydown',e=>keys[e.key.toLowerCase()]=true);addEventListener('keyup',e=>keys[e.key.toLowerCase()]=false);
 }
@@ -753,9 +760,9 @@ function updatePlayer(dt){
  for(const mc of machines){if(near(player,mc.zone)&&mc.tray.length&&player.stack.length<capacity()&&(!player.stack.length||true)){const it=mc.tray.pop();takeTo(player,it);actT=.09;return}}
  if(reg){
   if(near(player,{x:REGZ.x,z:REGZ.z,r:1.1})){const c=queueFront();if(c&&c.state==='wait'&&!c.served){const i=findItem(player.stack,c.order);if(i>=0){serve(c,player.stack.splice(i,1)[0]);actT=.25;return}const j=findItem(reg.stock,c.order);if(j>=0){const it=reg.stock.splice(j,1)[0];relayoutStock();serve(c,it);actT=.25;return}}}
-  if(near(player,{x:DROP.x,z:DROP.z,r:1.2})&&player.stack.length){if(canStock()){const it=player.stack.pop();dropToStock(it);actT=.08;return}}
+  if(near(player,{x:DROP.x,z:DROP.z,r:1.0})&&player.stack.length&&canStock()){const j=pickFree(k=>canDrop(k));if(j>=0){const it=player.stack.splice(j,1)[0];dropToStock(it);actT=.08;return}}
   if(near(player,{x:PILE.x,z:PILE.z+.2,r:1.5})&&reg.pile.length){collectPile();actT=.03;return}
-  if(player.stack.length&&near(player,{x:TRASH.x,z:TRASH.z,r:1.15})){const it=player.stack.pop();trashItem(it,player);actT=.08;return}
+  if(player.stack.length&&near(player,{x:TRASH.x,z:TRASH.z,r:1.25})){player.binT=(player.binT||0)+(pv.length()<1.4?dt:0);if(player.binT>.25){const nd=needItem();const j=pickFree(k=>k!==nd);if(j>=0){const it=player.stack.splice(j,1)[0];trashItem(it,player);actT=.08;return}}}else player.binT=0;
  }
  if(outDeliver())return;
  if(WCS&&WCS.dirt>0&&near(player,WCS.zone)){WCS.clean+=.07;player.squash=Math.max(player.squash||0,.3);if(WCS.clean>=1)cleanWC();actT=.06;return}
@@ -918,6 +925,7 @@ function guideTarget(){
  if(!machines.length||!reg)return nextPad;
  if(nextPad&&G.money>=nextPad.cost-nextPad.paid)return nextPad;
  if(TOK)return{x:TOK.x,z:TOK.z};
+ if(OUT&&OUT.focus&&GT<OUT.focus.t){const s=OUT.slots[OUT.focus.i];if(s&&s.state==='wait'&&player.stack.some(i=>s.left.includes(i.userData.kind)))return s.zone}
  {const og=outGuide();if(og)return og}
  if(board&&GT>boardCool){const u=UPG.filter(u=>G.upg[u.k]<u.max).map(upCost).sort((a,b)=>a-b)[0];if(u&&G.money>=u&&(!nextPad||u<(nextPad.cost-nextPad.paid)*.6))return{x:board.zone.x,z:board.zone.z}}
  const pileT={x:PILE.x,z:PILE.z+.9};
@@ -1317,6 +1325,9 @@ function updateOut(dt){
   if(s.state==='walkOut'){const done=goTo(ch.root,1.6);ch.tHeading=Math.atan2(vel.x,vel.z)||ch.tHeading;animChar(ch,dt,vel);if(done){if(ch.case)ch.root.remove(ch.case);scene.remove(ch.root);s.ch=null;s.state='empty';s.t=outReqTime()}return}
   if(s.state==='leaveV'){if(OUT.lv===0&&!s.boarded){const d=new V3(s.veh.position.x-p.x,0,s.veh.position.z-p.z);if(d.length()>.15){d.normalize();p.addScaledVector(d,2*dt);ch.tHeading=Math.atan2(d.x,d.z);animChar(ch,dt,d.multiplyScalar(2));return}s.boarded=1;ch.sit=1}
    const done=goTo(s.veh,7);p.copy(s.veh.position).add(new V3(-.35,.22,0));ch.tHeading=s.veh.rotation.y+Math.PI/2;animChar(ch,dt,new V3());if(done){scene.remove(s.veh);scene.remove(ch.root);s.ch=null;s.veh=null;s.boarded=0;s.state='empty';s.t=outReqTime()}}})}
+// items the player must keep for outside orders (courier / beach / drive-thru)
+function outReserved(){const r={};if(!OUT)return r;OUT.slots.forEach(s=>{if(s.state==='wait'&&s.left)s.left.forEach(k=>r[k]=(r[k]||0)+1)});return r}
+function pickFree(filter){const res=outReserved(),cnt={};player.stack.forEach(i=>{const k=i.userData.kind;cnt[k]=(cnt[k]||0)+1});for(let j=player.stack.length-1;j>=0;j--){const k=player.stack[j].userData.kind;if(cnt[k]>(res[k]||0)&&filter(k))return j}return -1}
 function outNeeds(k){return!!OUT&&OUT.slots.some(s=>s.state==='wait'&&s.left.includes(k))}
 function outDeliver(){if(!OUT)return false;for(const s of OUT.slots){if(s.state!=='wait'||!near(player,s.zone))continue;const i=player.stack.findIndex(it=>s.left.includes(it.userData.kind));if(i<0)continue;
  const it=player.stack.splice(i,1)[0];const k=it.userData.kind;s.left.splice(s.left.indexOf(k),1);const tp=s.ch.root.position.clone().add(new V3(0,1.1,0));if(s.veh&&OUT.lv!==0)tp.copy(s.veh.position).add(new V3(0,1,0));
@@ -1558,6 +1569,20 @@ function updateSheila(dt){const k=DOG.o;if(!k)return;k.mx.update(dt);k.ears.forE
  let dh=k.heading-k.holder.rotation.y;dh=Math.atan2(Math.sin(dh),Math.cos(dh));k.holder.rotation.y+=dh*Math.min(1,dt*7);
  k.tag.visible=dP<5;k.tag.position.y=1.0+Math.sin(GT*3)*.03}
 
+// ---- outside orders: always-visible card + tap the courier to see the order ----
+let OCARD_Q='';
+function outCard(){const el=$('ocard');if(!OUT){if(el.style.display!=='none')el.style.display='none';return}
+ const w=OUT.slots.filter(s=>s.state==='wait'&&s.left&&s.left.length);
+ const q=w.map(s=>s.left.join(',')+(s.pat/s.pat0<.3?'!':'')+Math.round(s.pat/s.pat0*20)).join('|');if(q===OCARD_Q)return;OCARD_Q=q;
+ if(!w.length){el.style.display='none';return}
+ el.style.display='flex';el.innerHTML=w.map((s,i)=>{const f=Math.max(0,s.pat/s.pat0),col=f>.5?'#5fd06e':f>.3?'#ffb02e':'#ff4d4d';
+  const items=s.order.map((k,j)=>{const left=s.left.slice();let done=true;const n=s.order.slice(0,j+1).filter(x=>x===k).length,remain=left.filter(x=>x===k).length,tot=s.order.filter(x=>x===k).length;done=n<=tot-remain;return `<span style="opacity:${done?.35:1}">${PROD[k].ic}${done?'<b style="color:#2f9a46;font-size:12px">✓</b>':''}</span>`}).join('');
+  return `<div class="oc" onclick="outFocus(${OUT.slots.indexOf(s)})"><div class="oh">${OUT.cfg.ic} ${OUT.cfg.n}</div><div class="oi">${items}</div><div class="ob"><div style="width:${f*100}%;background:${col}"></div></div></div>`}).join('')}
+function outFocus(i){const s=OUT&&OUT.slots[i];if(!s||!s.left)return;const need=s.left.map(k=>PROD[k].ic+' '+PROD[k].n).join(', ');showHint(OUT.cfg.ic+' İstediği: '+need);OUT.focus={i,t:GT+6}}
+function outTap(cx,cy){if(!OUT)return false;const r=new THREE.Raycaster(),v=new THREE.Vector2(cx/innerWidth*2-1,-(cy/innerHeight)*2+1);r.setFromCamera(v,camera);
+ let best=null,bd=1.6;OUT.slots.forEach((s,i)=>{if(s.state!=='wait'||!s.ch)return;const p=(s.veh||s.ch.root).position.clone();p.y=.8;const d=r.ray.distanceToPoint(p);if(d<bd){bd=d;best=i}});
+ if(best===null)return false;outFocus(best);const s=OUT.slots[best];if(s.bub){s.bub.userData.pop={t:0,s:1.6}}SFX.unlock();return true}
+
 // ================= UI PANELS =================
 function panelOpen(){return $('panel').classList.contains('open')||$('over').classList.contains('open')||$('dlg').classList.contains('open')}
 function openBoard(){joy.on=false;$('joy').style.display='none';
@@ -1598,7 +1623,7 @@ function step(dt,now){GT+=dt;for(let i=LATER.length-1;i>=0;i--)if(LATER[i].t<=GT
  if(started){updateMachines(dt);updateCustomers(dt);updateStaff(dt);
   hintTimer-=dt;if(hintTimer<0&&hintTimer>-dt*1.5)$('hint').style.opacity=0;
   saveT+=dt;if(saveT>5){saveT=0;save()}
-  updateFun(dt);updateToken(dt,now);updateSky(dt);updateBin(dt);updateWC(dt);updateDeco(dt);updateOut(dt);updateScenery(dt);updateSheila(dt);if(reg&&reg.trash&&reg.trash.userData.pump>0){const tc=reg.trash;tc.userData.pump-=dt;const k=Math.sin(tc.userData.pump/.2*Math.PI)*.12;tc.scale.set(1+k,1-k,1+k);if(tc.userData.pump<=0)tc.scale.setScalar(1)}}
+  updateFun(dt);updateToken(dt,now);updateSky(dt);updateBin(dt);updateWC(dt);updateDeco(dt);updateOut(dt);updateScenery(dt);updateSheila(dt);outCard();if(reg&&reg.trash&&reg.trash.userData.pump>0){const tc=reg.trash;tc.userData.pump-=dt;const k=Math.sin(tc.userData.pump/.2*Math.PI)*.12;tc.scale.set(1+k,1-k,1+k);if(tc.userData.pump<=0)tc.scale.setScalar(1)}}
  // flyers (arc tweens)
  for(let i=flyers.length-1;i>=0;i--){const f=flyers[i];f.t+=dt/f.dur;const t=Math.min(1,f.t),e=t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2;
   const to=f.targetFn();f.obj.position.lerpVectors(f.from,to,e);f.obj.position.y+=Math.sin(t*Math.PI)*f.h;f.obj.rotation.y=f.r0+t*Math.PI*2*f.spin*.5;f.obj.rotation.x=Math.sin(t*Math.PI)*.4*f.spin;
