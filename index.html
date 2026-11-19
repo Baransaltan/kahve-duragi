@@ -1482,6 +1482,30 @@ function dlgTap(){if(!DLG)return;if($('dlgT').textContent.length<DLG.full.length
 function storyStart(){G.story=G.story||{};if(G.story.s)return;G.story.s=1;const st=STORY[LVI()];if(CYC()>0)storyQueue([['cat','⭐ Yıldızlı Tur: '+L().name+'! Bu kez müşteriler daha zengin, hedefler daha büyük.']]);else storyQueue(st.start);save()}
 function storyBeat(k){G.story=G.story||{};if(G.story[k])return;G.story[k]=1;const L2={fun:['cat',FUNI().ic+' '+FUNI().n+' açıldı! Burada müşteriler 3 kat bahşiş bırakır.'],out:['cat',OUTC().ic+' '+OUTC().n+'! Dışarıdaki siparişleri sen götürmelisin, iyi para var!'],wc:['kupa','Tuvalet mi açtın? MegaCup\'ın tuvaletleri pırıl pırıl, seninki kirlenecek! Hah!'],next:['cat','Yeni şube için para birikti mi? Hadi bir adım daha!']}[k];if(L2)storyQueue([L2])}
 
+// ---- Sheila's round, fluffy pom body (built on top of the slim base model) ----
+function fluffBall(g,rx,ry,rz,n,cols,bump){const main=new THREE.Mesh(new THREE.SphereGeometry(1,20,16),new THREE.MeshStandardMaterial({color:cols[0],roughness:1}));main.scale.set(rx,ry,rz);g.add(main);
+ for(let i=0;i<n;i++){const u=Math.random()*2-1,a=Math.random()*Math.PI*2,r=Math.sqrt(1-u*u);const d=new V3(r*Math.cos(a),u,r*Math.sin(a));const s=new THREE.Mesh(new THREE.SphereGeometry(1,10,8),new THREE.MeshStandardMaterial({color:cols[i%cols.length],roughness:1}));
+  const k=bump*rnd(.75,1.1);s.scale.setScalar(k);s.position.set(d.x*rx*.9,d.y*ry*.9,d.z*rz*.9);g.add(s)}return g}
+function poofSheila(cs,bones,holder){holder.updateMatrixWorld(true);const W=n=>{const v=new V3();bones[n].getWorldPosition(v);return v};if(!bones.Back||!bones.Neck1||!bones.Torso2)return;
+ const back=W('Back'),neck=W('Neck1'),head=W('Head'),len=back.distanceTo(neck);
+ const attach=(bn,center,dir,build)=>{const b=bones[bn];const ws=new V3(),wq=new THREE.Quaternion();b.getWorldScale(ws);b.getWorldQuaternion(wq);const g=new THREE.Group();g.position.copy(b.worldToLocal(center.clone()));
+  const q=new THREE.Quaternion().setFromUnitVectors(new V3(0,0,1),dir.clone().normalize());g.quaternion.copy(wq.clone().invert().multiply(q));g.scale.setScalar(1/ws.x);b.add(g);build(g);return g};
+ const dir=neck.clone().sub(back);dir.y=0;
+ const W1=0xfffdf8,C1=0xfcf4e6,C2=0xf6e6cc;
+ // round oval body: a big soft ball of fur that hides the slim torso
+ window.__dogLen=len;const c=back.clone().lerp(neck,.42);c.y-=len*.16;attach('Torso2',c,dir,g=>fluffBall(g,len*.46,len*.52,len*.64,30,[W1,W1,C1,W1,C2],len*.13));
+ // huge chest ruff / mane
+ const m=neck.clone().lerp(head,.12);m.y-=len*.14;attach('Neck1',m,dir,g=>fluffBall(g,len*.36,len*.34,len*.26,22,[W1,W1,C1],len*.11));
+ // chubby cheeks
+ attach('Head',head.clone().add(new V3(0,-len*.04,0)),dir,g=>{for(const sx of[-1,1]){const s=new THREE.Mesh(new THREE.SphereGeometry(len*.15,12,10),new THREE.MeshStandardMaterial({color:W1,roughness:1}));s.position.set(sx*len*.15,-len*.04,-len*.02);g.add(s)}
+  {const cr=new THREE.Group();cr.position.set(0,len*.04,-len*.14);g.add(cr);fluffBall(cr,len*.26,len*.24,len*.18,14,[W1,C1],len*.09)}
+  const pink=std(0xff6fae,{roughness:.4});const bow=new THREE.Group();bow.position.set(len*.12,len*.3,-len*.02);const b1=new THREE.Mesh(new THREE.ConeGeometry(len*.08,len*.15,8),pink);b1.rotation.z=Math.PI/2;b1.position.x=len*.08;const b2=b1.clone();b2.rotation.z=-Math.PI/2;b2.position.x=-len*.08;bow.add(b1,b2,new THREE.Mesh(new THREE.SphereGeometry(len*.045,8,6),pink));g.add(bow)});
+ ['Ear1L','Ear1R'].forEach(n=>{if(bones[n])bones[n].scale.setScalar(.62)});
+ // plume tail curling over the back
+ if(bones.Tail1){const t=W('Tail1').lerp(back,.15);t.y+=len*.22;attach('Back',t,dir,g=>fluffBall(g,len*.3,len*.26,len*.3,16,[W1,C1,C2],len*.12))}
+ // tiny paws peeking out: puff at each lower leg
+ ['FrontUpperLegL','FrontUpperLegR','BackUpperLegL','BackUpperLegR','FrontLowerLegL','FrontLowerLegR','BackLowerLegL','BackLowerLegR'].forEach(n=>{if(bones[n])attach(n,W(n),new V3(0,1,0),g=>{const s=new THREE.Mesh(new THREE.SphereGeometry(len*(n.includes('Upper')?.15:.11),10,8),new THREE.MeshStandardMaterial({color:W1,roughness:1}));g.add(s)})})}
+
 // ================= SHEILA the Pomeranian (in every branch) =================
 const DOG={o:null};const DOGBED={x:3.4,z:10.4};
 const DOG_SPOTS=[[1.2,-2.4],[1.2,2.0],[1.2,6.4],[-1.0,5.6],[-0.8,9.6],[4.6,-2.8],[4.6,5.2],[-4.4,2.6],[-3.6,8.4]];
@@ -1489,19 +1513,17 @@ function spawnSheila(){if(DOG.o){scene.remove(DOG.o.holder);DOG.o=null}if(!TPL.d
  const cs=THREE.SkeletonUtils.clone(TPL.dog.scene);const bones={};
  cs.traverse(o=>{if(o.isBone)bones[o.name]=o;if(o.isMesh){o.material=o.material.clone();if(o.isSkinnedMesh)o.material.skinning=true;o.castShadow=true;const n=o.material.name;
   if(n==='Main')o.material.color.setHex(0xf6e6cc);else if(n==='Main_Light')o.material.color.setHex(0xffffff);o.material.roughness=.85}});
- const holder=new THREE.Group();cs.scale.setScalar(normScale('dog',.72));holder.add(cs);holder.position.set(DOGBED.x,0,DOGBED.z);scene.add(holder);holder.updateMatrixWorld(true);
+ const holder=new THREE.Group();cs.scale.setScalar(normScale('dog',.62));holder.add(cs);holder.position.set(DOGBED.x,0,DOGBED.z);scene.add(holder);holder.updateMatrixWorld(true);
  const fluffM=new THREE.MeshStandardMaterial({color:0xffffff,roughness:1}),creamM=new THREE.MeshStandardMaterial({color:0xf3dcb8,roughness:1});
  const at=(bn,make)=>{const b=bones[bn];if(!b)return;const ws=new V3();b.getWorldScale(ws);const g=new THREE.Group();g.scale.setScalar(1/ws.x);b.add(g);make(g)};
- // fluffy ruff around the neck, puffy tail, pink bow
- at('Neck1',g=>{for(let i=0;i<14;i++){const a=i/14*Math.PI*2;const s=new THREE.Mesh(new THREE.SphereGeometry(.055,10,8),i%3?fluffM:creamM);s.position.set(Math.cos(a)*.085,Math.sin(a)*.085+.02,rnd(-.02,.02));g.add(s)}});
- at('Tail3',g=>{for(let i=0;i<5;i++){const s=new THREE.Mesh(new THREE.SphereGeometry(.08,10,8),i%2?fluffM:creamM);s.position.set(rnd(-.04,.04),rnd(-.04,.06),rnd(-.04,.04));g.add(s)}});
- at('Head',g=>{const pink=std(0xff6fae,{roughness:.4});const b1=new THREE.Mesh(new THREE.ConeGeometry(.045,.08,8),pink);b1.rotation.z=Math.PI/2;b1.position.set(.05,.12,-.02);const b2=b1.clone();b2.rotation.z=-Math.PI/2;b2.position.x=-.05;const k=new THREE.Mesh(new THREE.SphereGeometry(.025,8,6),pink);k.position.set(0,.12,-.02);g.add(b1,b2,k)});
+ poofSheila(cs,bones,holder);
+
  const mx=new THREE.AnimationMixer(cs);const A={};const pick=(k,n)=>{const c=TPL.dog.animations.find(a=>a.name.endsWith('|'+n));if(c)A[k]=mx.clipAction(c)};
  pick('idle','Idle');pick('idle2','Idle_2');pick('low','Idle_2_HeadLow');pick('walk','Walk');pick('run','Gallop');pick('jump','Jump_ToIdle');pick('eat','Eating');
  if(A.jump){A.jump.setLoop(THREE.LoopOnce);A.jump.clampWhenFinished=true}
  const nm=canvasTex(160,52,(c,w,h)=>{c.fillStyle='rgba(255,255,255,.92)';rr(c,4,4,w-8,h-8,20);c.fill();c.fillStyle='#ff4f9a';c.font='bold 28px "Baloo 2",sans-serif';c.textAlign='center';c.textBaseline='middle';c.fillText('🐾 Sheila',w/2,h/2+2)});
  const tag=new THREE.Sprite(new THREE.SpriteMaterial({map:nm,transparent:true,depthWrite:false}));tag.scale.set(.8,.26,1);tag.position.y=1.0;holder.add(tag);
- DOG.o={holder,mx,A,cur:null,state:'nap',t:4,path:[],heading:0,petT:0,visitT:8,sp:0,tag};dogPlay('low');
+ DOG.o={tail:bones.Tail1,ears:['Ear1L','Ear1R'].map(n=>bones[n]).filter(Boolean),holder,mx,A,cur:null,state:'nap',t:4,path:[],heading:0,petT:0,visitT:8,sp:0,tag};dogPlay('low');
  if(!META.sheila){META.sheila=1;saveMeta();if(typeof storyQueue==='function')setTimeout(()=>storyQueue([['cat','Bu da Sheila! Nine\'nin pamuk gibi Pomeranian\'ı 🐶 Müşteriler onu çok sever, kafeye ün kazandırır.']]),9000)}}
 function buildDogBed(){const g=new THREE.Group();g.position.set(DOGBED.x,0,DOGBED.z);g.add(mesh(new THREE.TorusGeometry(.42,.14,10,24),std(0xff9fc4,{roughness:.9}),0,.14,0,false));g.children[0].rotation.x=Math.PI/2;
  g.add(mesh(new THREE.CylinderGeometry(.42,.42,.08,24),std(0xfff3f8,{roughness:1}),0,.06,0));const bt=canvasTex(128,48,(c,w,h)=>{c.fillStyle='#fff';rr(c,2,2,w-4,h-4,20);c.fill();c.fillStyle='#ff4f9a';c.font='bold 26px "Baloo 2",sans-serif';c.textAlign='center';c.textBaseline='middle';c.fillText('SHEILA',w/2,h/2+2)});
@@ -1510,7 +1532,7 @@ function dogPlay(n,fade=.25){const k=DOG.o;if(!k||k.cur===n||!k.A[n])return;cons
 function dogGoto(x,z){const k=DOG.o,p=k.holder.position;k.path=Math.abs(p.x-x)>2.5||Math.sign(p.x-1.2)!==Math.sign(x-1.2)?[{x:1.2,z:p.z},{x:1.2,z},{x,z}]:[{x,z}]}
 function dogEmo(e,h=1.0){const p=DOG.o.holder.position;const s=new THREE.Sprite(new THREE.SpriteMaterial({map:emojiTex(e),transparent:true,depthWrite:false}));s.position.set(p.x,h,p.z);s.scale.setScalar(.01);scene.add(s);hearts.push({s,t:0})}
 function bark(){tone(620,.06,'square',.03,420);tone(700,.07,'square',.03,460,.12)}
-function updateSheila(dt){const k=DOG.o;if(!k)return;k.mx.update(dt);const p=k.holder.position;k.t-=dt;k.petT-=dt;k.visitT-=dt;
+function updateSheila(dt){const k=DOG.o;if(!k)return;k.mx.update(dt);k.ears.forEach(b=>b.scale.setScalar(.62));if(k.tail)k.tail.scale.setScalar(.3);const p=k.holder.position;k.t-=dt;k.petT-=dt;k.visitT-=dt;
  const pp=player.root.position,dP=Math.hypot(pp.x-p.x,pp.z-p.z);
  // the player can pet her
  if(dP<1.1&&k.petT<=0&&k.state!=='follow'){k.petT=14;dogEmo('💖',1.1);bark();floatText('Sheila: Hav! 🐶',new V3(p.x,1.5,p.z),'y');repAdd(.005);k.state='happy';k.t=1.6;dogPlay('jump',.15);k.heading=Math.atan2(pp.x-p.x,pp.z-p.z);k.path=[]}
