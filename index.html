@@ -8,6 +8,8 @@
 // ===== DEVICE FIT: telefon / tablet otomatik algılama =====
 // Tablette tüm arayüz (HUD, paneller, yazılar) viewport ölçeğiyle büyütülür; 3D sahne keskin kalsın diye pixelRatio telafi edilir.
 window.DEV={tab:false,land:false,u:1,S:1};
+window.SET={sfx:1,vib:1,q:'auto'};try{Object.assign(SET,JSON.parse(localStorage.getItem('kahve_set')||'{}'))}catch(e){}
+window.QLOW=SET.q==='low';
 function fitDevice(){
  const sw=screen.width||innerWidth,sh=screen.height||innerHeight,mn=Math.min(sw,sh),mx=Math.max(sw,sh);
  const land=(window.matchMedia&&matchMedia('(orientation: landscape)').matches)||innerWidth>innerHeight;
@@ -61,6 +63,7 @@ html,body{margin:0;height:100%;overflow:hidden;background:#f6e3c6;font-family:'B
 .close{position:absolute;right:12px;top:10px;width:38px;height:38px;border-radius:50%;border:none;background:#f1e2cc;font-size:20px;font-weight:800;color:#8a6d55}
 #over{position:fixed;inset:0;z-index:20;display:none;align-items:center;justify-content:center;background:rgba(60,35,15,.45);padding:20px}
 #over.open{display:flex}
+#over.open~#dlg,#panel.open~#dlg{display:none!important}
 .card{background:#fff8ee;border-radius:26px;padding:22px 20px;max-width:360px;width:100%;text-align:center;box-shadow:0 10px 0 #e2c49b,0 20px 40px rgba(0,0,0,.25);animation:ci .45s cubic-bezier(.2,1.5,.4,1)}
 @keyframes ci{from{transform:scale(.6);opacity:0}}
 .card h1{margin:0;font-size:30px;line-height:1.1}
@@ -122,7 +125,7 @@ html,body{margin:0;height:100%;overflow:hidden;background:#f6e3c6;font-family:'B
   <div id="lvlBox"><div id="lvlName"></div><div id="lvlSub"></div><div id="dayLine"></div><div class="pb"><div id="lvlP"></div></div></div>
 </div>
 <div id="boost" class="hud"><b>⚡ 2x</b><span id="bt">40s</span></div>
-<button id="musBtn" onclick="toggleMusic()">🎵</button>
+<button id="musBtn" onclick="openSettings()">⚙️</button>
 <div id="side"><button onclick="openMissions()">📋<i id="misN">0</i></button><button onclick="openMap()">🗺️</button><button onclick="openShop()">🎨</button><button onclick="openSave()">💾</button></div>
 <div id="rain"></div>
 <div id="ocard"></div>
@@ -357,7 +360,7 @@ function startMusic(){if(!AC||MUS)return;const master=AC.createGain();master.gai
   if(e===0||e===4)kick(t);brush(t,e%2?.05:.025);
   const m=mel[step%64];if(m&&Math.floor(step/64)%2===0)ep(m+12,t,.05,.9);
   next+=beat/2;step++}},120)}}
-function toggleMusic(){musicOn=!musicOn;try{localStorage.setItem('kahve_music',musicOn?'1':'0')}catch(e){}if(MUS)MUS.master.gain.value=musicOn?.13:0;$('musBtn').textContent=musicOn?'🎵':'🔇'}
+function toggleMusic(){musicOn=!musicOn;try{localStorage.setItem('kahve_music',musicOn?'1':'0')}catch(e){}if(MUS)MUS.master.gain.value=musicOn?.13:0;}
 
 
 const UPG=[
@@ -379,7 +382,7 @@ let G=null;
 function fresh(lvl=0,carry){return{lvl,money:carry?carry:30,unl:[],padPaid:{},upg:{spd:0,cap:0,mach:0,staff:0,price:0},t:Date.now(),rate:0,total:0,rep:3,mis:[],sd:[],custom:{wall:0,floor:0,cloth:0}}}
 // autosave: main slot + backup slot, so a crash mid-write can never lose the run
 let lastSaveStr='';
-function save(){if(!G)return;try{G.t=Date.now();G.rate=autoRate();const str=JSON.stringify(G);localStorage.setItem('kahve_v2',str);if(str.length>50)localStorage.setItem('kahve_v2_bak',str);lastSaveStr=str}catch(e){}saveMeta();cloudQueue()}
+function save(){if(!G||window._resetting)return;try{G.t=Date.now();G.rate=autoRate();const str=JSON.stringify(G);localStorage.setItem('kahve_v2',str);if(str.length>50)localStorage.setItem('kahve_v2_bak',str);lastSaveStr=str}catch(e){}saveMeta();cloudQueue()}
 function saveSoon(){clearTimeout(window._svT);window._svT=setTimeout(save,250)}
 function load(){const rd=k=>{try{const s=localStorage.getItem(k);const o=s?JSON.parse(s):null;return o&&o.lvl!=null&&Array.isArray(o.unl)?o:null}catch(e){return null}};const a=rd('kahve_v2'),b=rd('kahve_v2_bak');if(a&&b)return(b.t||0)>(a.t||0)?b:a;return a||b}
 const L=()=>LEVELS[((G&&G.lvl)||0)%LEVELS.length];
@@ -392,7 +395,7 @@ const has=id=>G.unl.includes(id);
 // ================= AUDIO =================
 let AC=null;
 function audio(){try{AC=AC||new(window.AudioContext||window.webkitAudioContext)();AC.resume&&AC.resume()}catch(e){}}
-function tone(f,d=.08,type='sine',v=.08,f2=0,delay=0){if(!AC)return;try{const t=AC.currentTime+delay,o=AC.createOscillator(),g=AC.createGain();o.type=type;o.frequency.setValueAtTime(f,t);if(f2)o.frequency.exponentialRampToValueAtTime(f2,t+d);g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(v,t+.008);g.gain.exponentialRampToValueAtTime(.0001,t+d);o.connect(g).connect(AC.destination);o.start(t);o.stop(t+d+.02)}catch(e){}}
+function tone(f,d=.08,type='sine',v=.08,f2=0,delay=0){if(!AC||!SET.sfx)return;try{const t=AC.currentTime+delay,o=AC.createOscillator(),g=AC.createGain();o.type=type;o.frequency.setValueAtTime(f,t);if(f2)o.frequency.exponentialRampToValueAtTime(f2,t+d);g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(v,t+.008);g.gain.exponentialRampToValueAtTime(.0001,t+d);o.connect(g).connect(AC.destination);o.start(t);o.stop(t+d+.02)}catch(e){}}
 let pickN=0,pickT=0;
 const SFX={
  pick:()=>{const n=performance.now();pickN=n-pickT<400?pickN+1:0;pickT=n;tone(520*Math.pow(1.06,Math.min(pickN,14)),.07,'sine',.07)},
@@ -405,7 +408,7 @@ const SFX={
  nope:()=>tone(200,.12,'sawtooth',.03,140),
  trash:()=>{tone(180,.09,'triangle',.07,90);tone(120,.06,'square',.02,0,.05)}
 };
-function buzz(ms){try{navigator.vibrate&&navigator.vibrate(ms)}catch(e){}}
+function buzz(ms){if(!SET.vib)return;try{navigator.vibrate&&navigator.vibrate(ms)}catch(e){}}
 
 // ================= THREE SETUP =================
 let renderer,scene,camera,sun,world;
@@ -415,7 +418,7 @@ const clock=new THREE.Clock();
 function _bgRaw(){const c=scene.background;c.convertLinearToSRGB()}
 function fitPR(){ // gerçek ölçek = ekran CSS genişliği / sayfa genişliği; toplam piksel ~3.6M ile sınırlı
  DEV.S=DEV.tab?Math.max(1,(DEV.curW||innerWidth)/innerWidth):1;
- let pr=Math.min(devicePixelRatio||1,2)*DEV.S;const px=innerWidth*innerHeight*pr*pr;if(px>3.6e6)pr*=Math.sqrt(3.6e6/px);
+ let pr=Math.min(devicePixelRatio||1,QLOW?1.25:2)*DEV.S;const px=innerWidth*innerHeight*pr*pr;if(px>3.6e6)pr*=Math.sqrt(3.6e6/px);
  if(renderer)renderer.setPixelRatio(pr)}
 function initThree(){
  renderer=new THREE.WebGLRenderer({antialias:true});fitPR();renderer.setSize(innerWidth,innerHeight);
@@ -425,7 +428,7 @@ function initThree(){
  scene=new THREE.Scene();scene.background=new THREE.Color(0xe9d2ad);_bgRaw();
  camera=new THREE.PerspectiveCamera(36,innerWidth/innerHeight,.5,200);
  scene.add(new THREE.HemisphereLight(0xfff8f0,0xc9a98a,.75));
- sun=new THREE.DirectionalLight(0xfff1de,1.05);sun.position.set(-9,22,12);sun.castShadow=true;sun.shadow.mapSize.set(2048,2048);
+ sun=new THREE.DirectionalLight(0xfff1de,1.05);sun.position.set(-9,22,12);sun.castShadow=!QLOW;sun.shadow.mapSize.set(2048,2048);
  Object.assign(sun.shadow.camera,{left:-18,right:18,top:18,bottom:-18,near:1,far:60});sun.shadow.bias=-.0005;sun.shadow.normalBias=.02;scene.add(sun,sun.target);
  addEventListener('resize',()=>{fitDevice();fitPR();renderer.setSize(innerWidth,innerHeight);camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix()});
 }
@@ -871,8 +874,8 @@ function emojiTex(e,bubble){const k=e+(bubble?'b':'');if(ETEX[k])return ETEX[k];
 
 // ---- machines ----
 function updateMachines(dt){machines.forEach(m=>{machineFX(m,dt);
- stockLabel(m);if(m.broken){if(Math.random()<dt*5)puff(m.x+rnd(-.3,.3),1.6,m.z,0x55585e,new V3(rnd(-.2,.2),rnd(.6,1),.1),1.4,.3);if(Math.random()<dt*2)puff(m.x+rnd(-.4,.4),1.2,m.z+.5,0xffe08a,new V3(rnd(-1.5,1.5),rnd(1,2),rnd(0,1)),.3,.05)}
- if(!m.broken&&m.tray.length<m.max&&mStock(m.kind)>0){m.prog+=dt/machTime(m)*(staff.some(s=>s.role==='barista'&&(s.m===m||s.craft===m)&&near(s.c,m.zone))?1.35:1);if(m.prog>=1){m.prog=0;G.mstock[m.kind]=mStock(m.kind)-1;let it=m.ghost;if(it){m.ghost=null;it.scale.setScalar(1);it.traverse(o=>{if(o.material)o.material.opacity=1})}else{it=makeItem(m.kind);m.trayG.add(it)}const i=m.tray.length;const p=trayPos(m,i);it.position.copy(p);it.userData.pop={t:0,s:1.3};m.tray.push(it);m.g.userData.pump=.25}}
+ if(EASY()){if(m.sl)m.sl.visible=false}else{stockLabel(m);if(m.sl)m.sl.visible=true}if(m.broken){if(Math.random()<dt*5)puff(m.x+rnd(-.3,.3),1.6,m.z,0x55585e,new V3(rnd(-.2,.2),rnd(.6,1),.1),1.4,.3);if(Math.random()<dt*2)puff(m.x+rnd(-.4,.4),1.2,m.z+.5,0xffe08a,new V3(rnd(-1.5,1.5),rnd(1,2),rnd(0,1)),.3,.05)}
+ if(!m.broken&&m.tray.length<m.max&&mStock(m.kind)>0){m.prog+=dt/machTime(m)*(staff.some(s=>s.role==='barista'&&(s.m===m||s.craft===m)&&near(s.c,m.zone))?1.35:1);if(m.prog>=1){m.prog=0;if(!EASY())G.mstock[m.kind]=mStock(m.kind)-1;let it=m.ghost;if(it){m.ghost=null;it.scale.setScalar(1);it.traverse(o=>{if(o.material)o.material.opacity=1})}else{it=makeItem(m.kind);m.trayG.add(it)}const i=m.tray.length;const p=trayPos(m,i);it.position.copy(p);it.userData.pop={t:0,s:1.3};m.tray.push(it);m.g.userData.pump=.25}}
  m.bar.scale.x=Math.max(.001,m.tray.length>=m.max?1:m.prog);m.bar.material.color.setHex(m.tray.length>=m.max?0xffb04a:0x5fd06e);
  if(m.g.userData.pump>0){m.g.userData.pump-=dt;const k=Math.sin((m.g.userData.pump/.25)*Math.PI)*.06;m.g.scale.set(1+k,1-k,1+k)}
  if(m.light&&m.light.material.color)m.light.material.color?.setHex?.(m.tray.length>=m.max?0xffb04a:0x7dff8a);
@@ -1532,8 +1535,8 @@ function dlgNext(){if(!DLG||!DLG.q.length){$('dlg').classList.remove('open');con
  if($('over').classList.contains('open')){setTimeout(dlgNext,400);return}
  const [who,txt]=DLG.q.shift(),s=SPK[who];$('dlgE').textContent=s.e;$('dlgE').style.background=s.c;$('dlgN').textContent=s.n;$('dlgN').style.color=s.c;$('dlgT').textContent='';$('dlg').classList.add('open');joy.on=false;$('joy').style.display='none';
  let i=0;clearInterval(DLG.tm);DLG.full=txt;DLG.tm=setInterval(()=>{i+=2;$('dlgT').textContent=txt.slice(0,i);if(i>=txt.length)clearInterval(DLG.tm)},22);tone(who==='kupa'?220:who==='cat'?880:520,.06,'sine',.04)}
-function dlgTap(){if(!DLG)return;if($('dlgT').textContent.length<DLG.full.length){clearInterval(DLG.tm);$('dlgT').textContent=DLG.full;return}dlgNext()}
-function storyStart(){G.story=G.story||{};if(G.story.s)return;G.story.s=1;const st=STORY[LVI()];if(CYC()>0)storyQueue([['cat','⭐ Yıldızlı Tur: '+L().name+'! Bu kez müşteriler daha zengin, hedefler daha büyük.']]);else storyQueue(st.start);save()}
+function dlgTap(){if(!DLG||$('over').classList.contains('open')||$('panel').classList.contains('open'))return;if($('dlgT').textContent.length<DLG.full.length){clearInterval(DLG.tm);$('dlgT').textContent=DLG.full;return}dlgNext()}
+function storyStart(){G.story=G.story||{};if(G.story.s)return;G.story.s=1;if(G.lvl===1)storyQueue([['cat','Artık gerçek bir işletmecisin! 🏢 Bu şubede kira, toptancı, maaşlar ve makine arızaları var. Hepsi müdür odasında ödenir, 📦 stokları da takip et!']]);const st=STORY[LVI()];if(CYC()>0)storyQueue([['cat','⭐ Yıldızlı Tur: '+L().name+'! Bu kez müşteriler daha zengin, hedefler daha büyük.']]);else storyQueue(st.start);save()}
 function storyBeat(k){G.story=G.story||{};if(G.story[k])return;G.story[k]=1;const L2={fun:['cat',FUNI().ic+' '+FUNI().n+' açıldı! Burada müşteriler 3 kat bahşiş bırakır.'],out:['cat',OUTC().ic+' '+OUTC().n+'! Dışarıdaki siparişleri sen götürmelisin, iyi para var!'],wc:['kupa','Tuvalet mi açtın? MegaCup\'ın tuvaletleri pırıl pırıl, seninki kirlenecek! Hah!'],next:['cat','Yeni şube için para birikti mi? Hadi bir adım daha!']}[k];if(L2)storyQueue([L2])}
 
 // ---- Sheila's round, fluffy pom body (built on top of the slim base model) ----
@@ -1644,7 +1647,7 @@ function runnerTick(s,go,dt){const c=s.c,p=c.root.position;
  else{const m=machOf(k);if(goVia(m.zone.x,m.zone.z)&&s.timer<=0&&m.tray.length){takeTo(c,m.tray.pop());s.timer=.15}}}
 
 // ================= DAILY BILLS + DECOR REPUTATION =================
-function dayBills(){const M=MULT(),bills=[];
+function dayBills(){const M=MULT(),bills=[];if(EASY())return bills;
  const wages=staff.reduce((a,s)=>a+20*M*(1+.12*((s.d&&s.d.lv||1)-1)),0);if(wages)bills.push(['👥 Maaşlar',wages]);
  
  const on=(G.custom.deco||[]).length;const elec=(8+(FUNZ?12:0)+on*3)*M;bills.push(['💡 Elektrik & su',elec]);
@@ -1713,6 +1716,7 @@ function buildDogBed(){const lv=LVI(),g=new THREE.Group();g.position.set(DOGBED.
 // ================= MACHINE STOCK + WHOLESALER =================
 const stockCap=()=>60+30*(G.upg.stock||0);
 const unitCost=k=>PROD[k].price*MULT()*.3;
+const EASY=()=>G&&G.lvl===0; // ilk şube: kira, toptancı, arıza, müfettiş ve gider yok
 function mStock(k){G.mstock=G.mstock||{};if(G.mstock[k]==null)G.mstock[k]=stockCap();return G.mstock[k]}
 function stockLabel(m){const v=Math.max(0,Math.round(mStock(m.kind))),cap=stockCap();const q=v+'/'+cap;if(m.slq===q)return;m.slq=q;const low=v<=20;
  const t=canvasTex(160,56,(c,w,h)=>{c.fillStyle=low?'#ffe1e1':'#ffffff';rr(c,3,3,w-6,h-6,22);c.fill();c.lineWidth=4;c.strokeStyle=low?'#ff4d4d':'#d8c3a5';rr(c,3,3,w-6,h-6,22);c.stroke();c.fillStyle=low?'#c0504d':'#5a4636';c.font='bold 28px "Baloo 2",sans-serif';c.textAlign='center';c.textBaseline='middle';c.fillText((v?'📦 ':'⛔ ')+v,w/2,h/2+2)});
@@ -1844,7 +1848,7 @@ function officeGuide(){const w=VIS.find(o=>o.state==='wait');if(!w)return null;c
  const P=player.root.position;if(P.x>6.45&&P.z<-5.6)return OFF.pay;if(Math.abs(P.x-6.9)<.45&&P.z<-4.3)return{x:6.9,z:-6.4};return{x:6.9,z:-4.6}}
 // daily events: landlord at noon, inspector some days, wholesaler when stock is low
 let brokeCool=90,inspT=rnd(260,420);
-function updateCalls(dt){if(!started||!has('reg'))return;
+function updateCalls(dt){if(!started||!has('reg')||EASY())return;
  if(PHASE===1&&G.rentPaid!==G.day&&!VIS.some(v=>v.kind==='rent')){G.rentPaid=G.day;const r=Math.round(Math.max(30*MULT(),(G.lastInc||0)*.12));spawnVisitor('rent',r);showHint('🏠 Ev sahibi kira almaya geldi! Müdür odasına git')}
  if(!VIS.some(v=>v.kind==='supplier')){truckCool-=dt;if(truckCool<=0&&machines.some(m=>mStock(m.kind)<=15)){const need=truckNeeds();const cost=Math.round(need.reduce((a,[k,d])=>a+d*unitCost(k),0));spawnVisitor('supplier',cost);truckCool=20;showHint('📦 Toptancı kolilerle geldi! Müdür odasında ödemeyi yap')}}
  // machine breakdowns
@@ -1860,8 +1864,33 @@ function openBoard(){joy.on=false;$('joy').style.display='none';
  if(decorN())h+=`<div style="text-align:center;font-size:13px;font-weight:700;color:#c96a2f;margin:-4px 0 8px">🌸 Dekor bonusu: bahşişler +%${decorN()*15}</div>`;
  UPG.forEach(u=>{const lv=G.upg[u.k],mx=lv>=u.max,c=upCost(u);h+=`<div class="up"><div class="ui">${u.ic}</div><div class="ut"><b>${u.n}</b><small>${u.d}</small><div class="dots">${Array.from({length:u.max},(_,i)=>`<i class="${i<lv?'on':''}"></i>`).join('')}</div></div><button class="bb ${mx?'max':''}" ${mx||G.money<c?'disabled':''} onclick="buyUp('${u.k}')">${mx?'MAKS':'$'+fmt(c)}</button></div>`});
  $('panel').innerHTML=h;$('panel').dataset.k='board';$('panel').classList.add('open')}
+// ================= AYARLAR =================
+const PRIVACY_URL='https://baransaltan.github.io/kahve-duragi/privacy.html';
+function saveSet(){try{localStorage.setItem('kahve_set',JSON.stringify(SET))}catch(e){}}
+function setQuality(low){QLOW=low;if(sun)sun.castShadow=!low;fitPR();if(renderer)renderer.setSize(innerWidth,innerHeight)}
+function setOpt(k,v){if(k==='mus'){if(musicOn!==v)toggleMusic()}else{SET[k]=v;saveSet()}
+ if(k==='q'){setQuality(v==='low'||(v==='auto'&&FPSW.low))}if(k==='vib'&&v)buzz(30);if(k==='sfx'&&v)SFX.unlock&&SFX.unlock();openSettings()}
+function tgl(lbl,ic,k,on){return `<div class="up"><div class="ui">${ic}</div><div class="ut"><b>${lbl}</b></div><button class="bb ${on?'':'max'}" style="min-width:96px;${on?'':'background:#cdbfae;box-shadow:0 4px 0 #a99a88'}" onclick="setOpt('${k}',${on?0:1})">${on?'Açık':'Kapalı'}</button></div>`}
+function openSettings(){joy.on=false;$('joy').style.display='none';
+ const q=SET.q,qb=(v,t)=>`<button class="bb" style="flex:1;min-width:0;${q===v?'':'background:#fff;color:#8a6d55;box-shadow:0 3px 0 #ecd6b8'}" onclick="setOpt('q','${v}')">${t}</button>`;
+ $('panel').innerHTML=`<button class="close" onclick="closePanel()">✕</button><h2>⚙️ Ayarlar</h2>`+
+  tgl('Müzik','🎵','mus',musicOn)+tgl('Ses efektleri','🔊','sfx',!!SET.sfx)+tgl('Titreşim','📳','vib',!!SET.vib)+
+  `<div class="up" style="flex-wrap:wrap"><div class="ui">✨</div><div class="ut"><b>Grafik kalitesi</b><small>${q==='auto'?(QLOW?'Otomatik: telefonun için düşük seçildi':'Otomatik: yüksek'):q==='low'?'Gölgeler kapalı, daha akıcı':'Gölgeler açık, en güzel görüntü'}</small></div>
+  <div style="display:flex;gap:6px;width:100%;margin-top:6px">${qb('auto','Otomatik')}${qb('high','Yüksek')}${qb('low','Düşük')}</div></div>`+
+  `<button class="bb" style="width:100%;margin:2px 0 8px;background:linear-gradient(#6ab8ff,#3a8de0);box-shadow:0 4px 0 #2a6ab0" onclick="openSave()">💾 Kayıt kodu / bulut kaydı</button>`+
+  `<button class="bb" style="width:100%;margin:0 0 8px;background:#fff;color:#8a6d55;box-shadow:0 3px 0 #ecd6b8" onclick="window.open(PRIVACY_URL,'_blank')">🔒 Gizlilik politikası</button>`+
+  `<button id="rstB" class="bb" style="width:100%;background:linear-gradient(#ff8a7a,#e8453c);box-shadow:0 4px 0 #b02f28" onclick="resetAsk()">🗑️ Oyunu sıfırla</button>`+
+  `<p style="text-align:center;font-size:11px;color:#a08a75;margin:10px 0 0;font-weight:700">Kahve Durağı · sürüm 1.0</p>`;
+ $('panel').dataset.k='set';$('panel').classList.add('open')}
+function resetAsk(){const b=$('rstB');if(!b.dataset.c){b.dataset.c=1;b.textContent='⚠️ Emin misin? Tüm şubeler silinir — tekrar dokun';return}
+ window._resetting=1;['kahve_v2','kahve_v2_bak','kahve_meta'].forEach(k=>{try{localStorage.removeItem(k)}catch(e){}});
+ const go=()=>location.reload();if(CLOUD.ok&&CLOUD.ref){Promise.race([CLOUD.ref.set({g:'',meta:'',t:Date.now(),v:3}),new Promise(r=>setTimeout(r,3000))]).then(go,go)}else go()}
+// FPS gözcüsü: Otomatik kalitede, oyun takılıyorsa gölgeleri kapatır
+const FPSW={n:0,t:0,bad:0,low:false};
+function fpsWatch(rdt){if(SET.q!=='auto'||FPSW.low||!started||document.hidden)return;FPSW.n++;FPSW.t+=rdt;if(FPSW.t<4)return;const fps=FPSW.n/FPSW.t;FPSW.n=0;FPSW.t=0;
+ if(fps<38){if(++FPSW.bad>=2){FPSW.low=true;setQuality(true);showHint('✨ Daha akıcı oyun için grafik ayarı düşürüldü')}}else FPSW.bad=0}
 let boardCool=0;function closePanel(){const k=$('panel').dataset.k;$('panel').classList.remove('open');if(k==='board')boardCool=GT+45}
-function buyUp(k){const u=UPG.find(x=>x.k===k),c=upCost(u);if(G.money<c||G.upg[k]>=u.max)return;saveSoon();G.money-=c;G.upg[k]++;refreshLooks();$('mv').textContent=fmt(G.money);SFX.unlock();buzz(25);confetti(player.root.position,20);player.squash=1;save();openBoard()}
+function buyUp(k){const u=UPG.find(x=>x.k===k),c=upCost(u);if(G.money<c||G.upg[k]>=u.max)return;buzz(20);saveSoon();G.money-=c;G.upg[k]++;refreshLooks();$('mv').textContent=fmt(G.money);SFX.unlock();buzz(25);confetti(player.root.position,20);player.squash=1;save();openBoard()}
 function levelDone(){const end=CYC()===0?STORY[LVI()].end:[['cat','Harika! '+L().name+' yıldızlı turda da tamam ⭐']];storyQueue(end,levelDoneCard)}
 function levelDoneCard(){
  const nx=G.lvl+1,name=BR_NAMES(nx),mega=MEGA(),win=G.rep>=mega,bonus=win?Math.round(60*MULT()*5):0;G.bonusNext=bonus;
@@ -1870,7 +1899,7 @@ function levelDoneCard(){
  $('over').classList.add('open');confetti(player.root.position,80);
 }
 
-function nextLevel(){$('over').classList.remove('open');clearManager();if(!META.branches.some(b=>b.lvl===G.lvl))META.branches.push({lvl:G.lvl,t:Date.now()});saveMeta();const bn=G.bonusNext||0;G=fresh(G.lvl+1,1);G.money=30*MULT()+bn;buildWorld();updateHUD();save();showHint('Yeni şube! İlk makineyi aç');flash();setTimeout(storyStart,600)}
+function nextLevel(){$('over').classList.remove('open');clearManager();if(!META.branches.some(b=>b.lvl===G.lvl))META.branches.push({lvl:G.lvl,t:Date.now()});saveMeta();const bn=G.bonusNext||0,od=G.debt||0;G=fresh(G.lvl+1,1);G.money=30*MULT()+bn;if(od>.5)G.debt=od;/* kapanmamış borç yeni şubeye devreder */buildWorld();updateHUD();save();showHint('Yeni şube! İlk makineyi aç');flash();setTimeout(storyStart,600)}
 function updateHUD(){if(G&&G.rep!=null&&$('dayLine'))updateDayHUD();$('side').style.display=started&&has('reg')?'flex':'none';if(G.mis)misBadge();
  $('mv').textContent=fmt(G.money);$('lvlName').textContent=cafeName();
  const done=PADS.filter(p=>has(p.id)).length;$('lvlSub').textContent=`Şube ${G.lvl+1} · ${done}/${PADS.length}`;$('lvlP').style.width=(done/PADS.length*100)+'%';
@@ -1878,8 +1907,9 @@ function updateHUD(){if(G&&G.rep!=null&&$('dayLine'))updateDayHUD();$('side').st
 function autoRate(){if(!G)return 0;const hasC=G.unl.includes('cash'),hasB=G.unl.includes('bar1');if(!hasC||!hasB)return 0;
  const m=G.unl.filter(x=>/^m\d/.test(x)).length;return .45*(m/ (2.4*Math.pow(.85,G.upg.mach)))*PROD.coffee.price*MULT()*Math.pow(1.2,G.upg.price)}
 function offlineCheck(prev){
- const sec=Math.min(7200,(Date.now()-prev.t)/1000);const earn=Math.floor((prev.rate||0)*sec);
- if(earn>0&&sec>60){$('over').innerHTML=`<div class="card"><div class="em">☕</div><h1>Tekrar hoş geldin!</h1><p>Sen yokken personelin çalıştı (${Math.floor(sec/60)} dk)</p><p class="big">+$${fmt(earn)}</p><button class="bb" onclick="claimOff(${earn})">Topla</button></div>`;$('over').classList.add('open')}}
+ const sec=Math.min(14400,(Date.now()-prev.t)/1000);const own=Math.floor((prev.rate||0)*sec);const br=(META.branches&&META.branches.length&&sec>60)?Math.floor(brPending()):0;const earn=own+br;
+ if(br>0)META.branches.forEach(b=>b.t=Date.now());
+ if(earn>0&&sec>60){$('over').innerHTML=`<div class="card"><div class="em">☕</div><h1>Tekrar hoş geldin!</h1><p>Sen yokken personelin çalıştı (${sec>=3600?Math.floor(sec/3600)+' sa '+Math.floor(sec%3600/60)+' dk':Math.floor(sec/60)+' dk'})</p><p class="big">+$${fmt(earn)}</p>${br>0?`<p style="font-size:13px;margin:-4px 0 4px">☕ Bu şube: $${fmt(own)} · 🏪 Müdürlerin: $${fmt(br)}</p>`:''}<button class="bb" onclick="claimOff(${earn})">Topla</button></div>`;$('over').classList.add('open')}}
 function claimOff(v){$('over').classList.remove('open');addMoney(v,true);confetti(player.root.position,50);save();if(window._pendDaily){window._pendDaily=0;dailyCheck()}}
 
 // ================= LOOP =================
@@ -1887,7 +1917,7 @@ const camPos=new V3(),camLook=new V3();let started=false,saveT=0,titleT=0;
 let GT=0;const LATER=[];function later(fn,ms){LATER.push({t:GT+ms/1000,fn})}
 function loop(){
  requestAnimationFrame(loop);
- const dt=Math.min(clock.getDelta(),.05),now=performance.now();step(dt,now);renderer.render(scene,camera)}
+ const rdt=clock.getDelta(),dt=Math.min(rdt,.05),now=performance.now();fpsWatch(Math.min(rdt,.5));step(dt,now);renderer.render(scene,camera)}
 function step(dt,now){GT+=dt;for(let i=LATER.length-1;i>=0;i--)if(LATER[i].t<=GT){const f=LATER[i].fn;LATER.splice(i,1);f()}
  if(started&&!panelOpen()){updatePlayer(dt)}else if(started)animChar(player,dt,new V3());
  if(started){updateMachines(dt);updateCustomers(dt);updateStaff(dt);
@@ -1929,7 +1959,7 @@ async function boot(){
  buildWorld();updateHUD();camPos.set(0,30,30);
  // title demo: a few wandering customers
  loop();
- $('playBtn').onclick=()=>{audio();startMusic();$('musBtn').textContent=musicOn?'🎵':'🔇';$('title').style.transition='opacity .5s';$('title').style.opacity=0;setTimeout(()=>$('title').remove(),500);started=true;
+ $('playBtn').onclick=()=>{audio();startMusic();$('title').style.transition='opacity .5s';$('title').style.opacity=0;setTimeout(()=>$('title').remove(),500);started=true;
   if(!G.unl.length)showHint('Parlayan kareye yürü ve ilk makineni aç!');else showHint('Hareket etmek için ekranı sürükle');
   if(prev)offlineCheck(prev);if($('over').classList.contains('open'))window._pendDaily=1;else dailyCheck();setTimeout(()=>{if(has('next')){G.story=G.story||{};G.story.s=1;levelDone()}else storyStart()},700);updateHUD();brBackfill()};
  addEventListener('visibilitychange',()=>{if(document.hidden){save();cloudQueue(true);cloudFlush(true)}});addEventListener('pagehide',()=>{save();cloudFlush(true)});addEventListener('beforeunload',save);addEventListener('blur',save);document.addEventListener('freeze',save);
