@@ -339,7 +339,8 @@ const UPG=[
  {k:'cap',n:'Taşıma Kapasitesi',ic:'📦',d:'+2 ürün taşı',max:5,b:55},
  {k:'mach',n:'Makine Hızı',ic:'⚙️',d:'Makineler %15 hızlı',max:5,b:70},
  {k:'staff',n:'Personel',ic:'👥',d:'Personel hızlı ve +1 taşır',max:5,b:90},
- {k:'price',n:'Menü Fiyatı',ic:'🏷️',d:'Fiyatlar +%20',max:5,b:120}
+ {k:'price',n:'Menü Fiyatı',ic:'🏷️',d:'Fiyatlar +%20',max:5,b:120},
+ {k:'stock',n:'Depo Kapasitesi',ic:'🏬',d:'Makine stoğu +50',max:5,b:80}
 ];
 // layout
 const MACH_POS=[[-7.4,-6.6],[-5.1,-6.6],[-2.8,-6.6],[-0.5,-6.6]];
@@ -443,10 +444,12 @@ const PROD={
  noodle:{n:'Noodle',ic:'🥡',m:'k_chinese',h:.26,price:14,time:2.8,st:'fryer',max:5},
  milk:{n:'Süt',ic:'🥛',m:'k_carton-small',h:.26,price:7,time:2.2,st:'freezer',max:6},
  corn:{n:'Mısır',ic:'🌽',m:'k_corn',h:.3,price:11,time:2.6,st:'oven2',max:6},
+ cola:{n:'Kola',ic:'🥤',m:'k_soda-can',h:.24,price:9,time:2.2,st:'freezer',max:6},
+ juice:{n:'Meyve Suyu',ic:'🧃',m:'k_carton',h:.32,price:8,time:2.2,st:'kettle',max:6},
  tea:{n:'Çay',ic:'🍵',m:'k_cup-tea',h:.22,w:.28,price:9,time:2.2,st:'kettle',max:6}
 };
 const ITEM_H={bill:.05};for(const k in PROD)ITEM_H[k]=PROD[k].h+.02;
-const LEVEL_MENU=[['coffee','croissant','tea','donut'],['lemonade','icecream','popsicle','watermelon'],['fries','cupcake','burger','cake'],['hotchoc','waffle','soup','pie'],['frappe','sandwich','sushi','pizza'],['milk','cookie','noodle','pancakes'],['soda','hotdog','lollipop','corn']];
+const LEVEL_MENU=[['coffee','croissant','tea','donut'],['lemonade','icecream','popsicle','watermelon'],['cola','fries','burger','cake'],['hotchoc','waffle','soup','pie'],['frappe','sandwich','sushi','pizza'],['milk','cookie','noodle','pancakes'],['juice','hotdog','lollipop','corn']];
 function levelMenu(){return LEVEL_MENU[LVI()]}
 function makeItem(kind){const g=new THREE.Group();g.userData.kind=kind;
  if(kind==='bill'){g.add(mesh(GEO.bill,MAT.bill,0,.022,0));g.add(mesh(GEO.band,MAT.band,0,.023,0,false));return g}
@@ -496,7 +499,7 @@ let FAIRY=[];
 // ================= ASSETS =================
 const TPL={};
 const FILES_V=['Kate','Coffee','CoffeeMaker','Milk','Butter','IceCream','CoolPancake','Cookieman','Olivia','MoonGirl','Shiro','CoolBunny','RealCake','CoolDrink','AwesomeLemon','TastySandwich','CoolBaguette','Rose','Teddy','Froggy','ChillPenguin','SuperICEPOP','CoolCloud','Jennifer'].map(n=>'v_'+n);
-const FILES_K=['k_cup-coffee','k_cup-tea','k_croissant','k_donut-sprinkles','k_cupcake','k_ice-cream','k_cake','k_waffle','k_muffin','k_kitchenCoffeeMachine','k_kitchenCabinet','k_kitchenStove','k_kitchenFridgeSmall','k_kitchenFridge','k_kitchenMicrowave','k_toaster','k_kitchenBlender','k_kitchenBar','k_kitchenBarEnd','k_tableRound','k_chairCushion','k_chairRounded','k_stoolBar','k_loungeSofa','k_loungeChair','k_tableCoffee','k_rugRound','k_rugRectangle','k_lampRoundFloor','k_lampRoundTable','k_pottedPlant','k_plantSmall1','k_plantSmall2','k_plantSmall3','k_bookcaseOpen','k_books','k_radio','k_speaker','k_coatRackStanding','k_pillowBlue','k_pillow','k_sideTable','k_trashcan','k_plate','k_cup-saucer','k_benchCushion','k_cardboardBoxOpen','k_mug','k_pie','k_sandwich','k_cookie-chocolate','k_pancakes','k_rugRounded','k_frappe','k_hot-dog','k_lollypop','k_soda','k_cocktail','k_popsicle','k_watermelon','k_burger','k_fries','k_bowl-soup','k_sushi-salmon','k_pizza','k_chinese','k_carton-small','k_corn','k_bear','k_toilet','k_bathroomSink','k_bathroomMirror','k_loungeSofaLong','k_televisionModern','k_cabinetTelevision','k_detail-parasol-a','k_detail-awning-wide','k_c_trash','k_c_flowers','k_c_bench','k_planter','k_tree-small','k_lampWall','k_rugDoormat','k_speakerSmall'];
+const FILES_K=['k_cup-coffee','k_cup-tea','k_croissant','k_donut-sprinkles','k_cupcake','k_ice-cream','k_cake','k_waffle','k_muffin','k_kitchenCoffeeMachine','k_kitchenCabinet','k_kitchenStove','k_kitchenFridgeSmall','k_kitchenFridge','k_kitchenMicrowave','k_toaster','k_kitchenBlender','k_kitchenBar','k_kitchenBarEnd','k_tableRound','k_chairCushion','k_chairRounded','k_stoolBar','k_loungeSofa','k_loungeChair','k_tableCoffee','k_rugRound','k_rugRectangle','k_lampRoundFloor','k_lampRoundTable','k_pottedPlant','k_plantSmall1','k_plantSmall2','k_plantSmall3','k_bookcaseOpen','k_books','k_radio','k_speaker','k_coatRackStanding','k_pillowBlue','k_pillow','k_sideTable','k_trashcan','k_plate','k_cup-saucer','k_benchCushion','k_cardboardBoxOpen','k_mug','k_pie','k_sandwich','k_cookie-chocolate','k_pancakes','k_rugRounded','k_frappe','k_hot-dog','k_lollypop','k_soda','k_cocktail','k_popsicle','k_watermelon','k_burger','k_fries','k_bowl-soup','k_sushi-salmon','k_pizza','k_chinese','k_carton-small','k_corn','k_soda-can','k_carton','k_bear','k_toilet','k_bathroomSink','k_bathroomMirror','k_loungeSofaLong','k_televisionModern','k_cabinetTelevision','k_detail-parasol-a','k_detail-awning-wide','k_c_trash','k_c_flowers','k_c_bench','k_planter','k_tree-small','k_lampWall','k_rugDoormat','k_speakerSmall'];
 const FILES=['anim_src','cat','dog',...FILES_V,...FILES_K];
 async function loadAssets(){
  const L=new THREE.GLTFLoader();let done=0;const b64=s=>{const bin=atob(s),u=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)u[i]=bin.charCodeAt(i);return u.buffer};
@@ -599,7 +602,7 @@ function floatText(txt,wp,cls=''){const v=wp.clone().project(camera);const d=doc
 let player,machines=[],tables=[],staff=[],customers=[],pads=[],reg=null,board=null,solids=[],zones=[],arrow,ring;
 function buildWorld(){
  flyers.forEach(f=>scene.remove(f.obj));flyers.length=0;LATER.length=0;
- if(world)scene.remove(world);world=new THREE.Group();scene.add(world);ensureG();GLOWS.length=0;OCARD_Q='~';PADS=padList(G.lvl);TOK=null;FUNZ=null;tokT=60;WCS=null;if(OUT)OUT.slots.forEach(s=>{if(s.ch)scene.remove(s.ch.root);if(s.veh)scene.remove(s.veh);if(s.bub)scene.remove(s.bub)});OUT=null;TRAFFIC.forEach(o=>scene.remove(o.c));TRAFFIC=[];WAVES=null;OUT_PLANE=null;WHEEL=null;if(DECOX.cat){scene.remove(DECOX.cat.holder);DECOX.cat=null}
+ if(world)scene.remove(world);world=new THREE.Group();scene.add(world);ensureG();GLOWS.length=0;OCARD_Q='~';clearTruck();PADS=padList(G.lvl);TOK=null;FUNZ=null;tokT=60;WCS=null;if(OUT)OUT.slots.forEach(s=>{if(s.ch)scene.remove(s.ch.root);if(s.veh)scene.remove(s.veh);if(s.bub)scene.remove(s.bub)});OUT=null;TRAFFIC.forEach(o=>scene.remove(o.c));TRAFFIC=[];WAVES=null;OUT_PLANE=null;WHEEL=null;if(DECOX.cat){scene.remove(DECOX.cat.holder);DECOX.cat=null}
  staff.forEach(s=>{scene.remove(s.c.root);s.c.stack.forEach(i=>scene.remove(i))});machines=[];tables=[];staff=[];customers.forEach(c=>scene.remove(c.root));customers=[];pads=[];reg=null;board=null;solids=[];
  const th=curTheme();
  // outside ground + street
@@ -834,7 +837,7 @@ function emojiTex(e,bubble){const k=e+(bubble?'b':'');if(ETEX[k])return ETEX[k];
 
 // ---- machines ----
 function updateMachines(dt){machines.forEach(m=>{machineFX(m,dt);
- if(m.tray.length<m.max){m.prog+=dt/machTime(m);if(m.prog>=1){m.prog=0;let it=m.ghost;if(it){m.ghost=null;it.scale.setScalar(1);it.traverse(o=>{if(o.material)o.material.opacity=1})}else{it=makeItem(m.kind);m.trayG.add(it)}const i=m.tray.length;const p=trayPos(m,i);it.position.copy(p);it.userData.pop={t:0,s:1.3};m.tray.push(it);m.g.userData.pump=.25}}
+ stockLabel(m);if(m.tray.length<m.max&&mStock(m.kind)>0){m.prog+=dt/machTime(m);if(m.prog>=1){m.prog=0;G.mstock[m.kind]=mStock(m.kind)-1;let it=m.ghost;if(it){m.ghost=null;it.scale.setScalar(1);it.traverse(o=>{if(o.material)o.material.opacity=1})}else{it=makeItem(m.kind);m.trayG.add(it)}const i=m.tray.length;const p=trayPos(m,i);it.position.copy(p);it.userData.pop={t:0,s:1.3};m.tray.push(it);m.g.userData.pump=.25}}
  m.bar.scale.x=Math.max(.001,m.tray.length>=m.max?1:m.prog);m.bar.material.color.setHex(m.tray.length>=m.max?0xffb04a:0x5fd06e);
  if(m.g.userData.pump>0){m.g.userData.pump-=dt;const k=Math.sin((m.g.userData.pump/.25)*Math.PI)*.06;m.g.scale.set(1+k,1-k,1+k)}
  if(m.light&&m.light.material.color)m.light.material.color?.setHex?.(m.tray.length>=m.max?0xffb04a:0x7dff8a);
@@ -946,6 +949,7 @@ function canDrop(k){return reg&&reg.stock.length<20&&reg.stock.filter(i=>i.userD
 function guideTarget(){
  const nextPad=pads[0];
  if(!machines.length||!reg)return nextPad;
+ if(TRUCK&&TRUCK.state==='wait'&&(machines.some(m=>mStock(m.kind)<=10)||G.money>=(TRUCK.cost-TRUCK.paid)*.5))return{x:TRK.x,z:TRK.z};
  if(nextPad&&G.money>=nextPad.cost-nextPad.paid)return nextPad;
  if(TOK)return{x:TOK.x,z:TOK.z};
  if(OUT&&OUT.focus&&GT<OUT.focus.t){const s=OUT.slots[OUT.focus.i];if(s&&s.state==='wait'&&player.stack.some(i=>s.left.includes(i.userData.kind)))return s.zone}
@@ -970,7 +974,7 @@ function guideTarget(){
 let META={daily:{last:'',streak:0},branches:[],owned:{wall:[0],floor:[0],cloth:[0]}};
 function loadMeta(){try{const m=JSON.parse(localStorage.getItem('kahve_meta')||'null');if(m)Object.assign(META,m)}catch(e){}}
 function saveMeta(){try{localStorage.setItem('kahve_meta',JSON.stringify(META))}catch(e){}}
-function ensureG(){G.rep=G.rep??3;G.mis=G.mis||[];G.sd=G.sd||[];G.custom=G.custom||{wall:0,floor:0,cloth:0};G.custom.deco=G.custom.deco||[];G.custom.signc=G.custom.signc||0;}
+function ensureG(){G.rep=G.rep??3;G.mis=G.mis||[];G.sd=G.sd||[];G.custom=G.custom||{wall:0,floor:0,cloth:0};G.custom.deco=G.custom.deco||[];G.upg.stock=G.upg.stock||0;G.mstock=G.mstock||{};G.custom.signc=G.custom.signc||0;}
 
 // ================= REPUTATION =================
 function repAdd(d,wp){const o=G.rep;G.rep=clamp(G.rep+d,1,5);if(wp&&Math.abs(d)>=.05)floatText((d>0?'+':'')+d.toFixed(1)+' ⭐',wp,d>0?'y':'r');if(Math.floor(o*2)!==Math.floor(G.rep*2))updateHUD()}
@@ -1529,11 +1533,11 @@ function poofSheila(cs,bones,holder){holder.updateMatrixWorld(true);const W=n=>{
  // round oval body: a big soft ball of fur that hides the slim torso
  window.__dogLen=len;const c=back.clone().lerp(neck,.42);c.y-=len*.16;attach('Torso2',c,dir,g=>fluffBall(g,len*.46,len*.52,len*.64,30,[W1,W1,C1,W1,C2],len*.13));
  // huge chest ruff / mane
- const m=neck.clone().lerp(head,.12);m.y-=len*.14;attach('Neck1',m,dir,g=>fluffBall(g,len*.36,len*.34,len*.26,22,[W1,W1,C1],len*.11));
+ const m=neck.clone().lerp(head,.12);m.y-=len*.14;attach('Neck1',m,dir,g=>{fluffBall(g,len*.36,len*.34,len*.26,22,[W1,W1,C1],len*.11);sheilaNeck(g,len)});
  // chubby cheeks
  attach('Head',head.clone().add(new V3(0,-len*.04,0)),dir,g=>{for(const sx of[-1,1]){const s=new THREE.Mesh(new THREE.SphereGeometry(len*.15,12,10),new THREE.MeshStandardMaterial({color:W1,roughness:1}));s.position.set(sx*len*.15,-len*.04,-len*.02);g.add(s)}
   {const cr=new THREE.Group();cr.position.set(0,len*.04,-len*.14);g.add(cr);fluffBall(cr,len*.26,len*.24,len*.18,14,[W1,C1],len*.09)}
-  const pink=std(0xff6fae,{roughness:.4});const bow=new THREE.Group();bow.position.set(len*.12,len*.3,-len*.02);const b1=new THREE.Mesh(new THREE.ConeGeometry(len*.08,len*.15,8),pink);b1.rotation.z=Math.PI/2;b1.position.x=len*.08;const b2=b1.clone();b2.rotation.z=-Math.PI/2;b2.position.x=-len*.08;bow.add(b1,b2,new THREE.Mesh(new THREE.SphereGeometry(len*.045,8,6),pink));g.add(bow)});
+  sheilaHead(g,len)});
  ['Ear1L','Ear1R'].forEach(n=>{if(bones[n])bones[n].scale.setScalar(.62)});
  // plume tail curling over the back
  if(bones.Tail1){const t=W('Tail1').lerp(back,.15);t.y+=len*.22;attach('Back',t,dir,g=>fluffBall(g,len*.3,len*.26,len*.3,16,[W1,C1,C2],len*.12))}
@@ -1543,7 +1547,7 @@ function poofSheila(cs,bones,holder){holder.updateMatrixWorld(true);const W=n=>{
 // ================= SHEILA the Pomeranian (in every branch) =================
 const DOG={o:null};const DOGBED={x:3.4,z:10.4};
 const DOG_SPOTS=[[1.2,-2.4],[1.2,2.0],[1.2,6.4],[-1.0,5.6],[-0.8,9.6],[4.6,-2.8],[4.6,5.2],[-4.4,2.6],[-3.6,8.4]];
-function spawnSheila(){if(DOG.o){scene.remove(DOG.o.holder);DOG.o=null}if(!TPL.dog)return;
+function spawnSheila(){DOGX.balloon=null;if(DOG.o){scene.remove(DOG.o.holder);DOG.o=null}if(!TPL.dog)return;
  const cs=THREE.SkeletonUtils.clone(TPL.dog.scene);const bones={};
  cs.traverse(o=>{if(o.isBone)bones[o.name]=o;if(o.isMesh){o.material=o.material.clone();if(o.isSkinnedMesh)o.material.skinning=true;o.castShadow=true;const n=o.material.name;
   if(n==='Main')o.material.color.setHex(0xf6e6cc);else if(n==='Main_Light')o.material.color.setHex(0xffffff);o.material.roughness=.85}});
@@ -1559,14 +1563,11 @@ function spawnSheila(){if(DOG.o){scene.remove(DOG.o.holder);DOG.o=null}if(!TPL.d
  const tag=new THREE.Sprite(new THREE.SpriteMaterial({map:nm,transparent:true,depthWrite:false}));tag.scale.set(.8,.26,1);tag.position.y=1.0;holder.add(tag);
  DOG.o={tail:bones.Tail1,ears:['Ear1L','Ear1R'].map(n=>bones[n]).filter(Boolean),holder,mx,A,cur:null,state:'nap',t:4,path:[],heading:0,petT:0,visitT:8,sp:0,tag};dogPlay('low');
  if(!META.sheila){META.sheila=1;saveMeta();if(typeof storyQueue==='function')setTimeout(()=>storyQueue([['cat','Bu da Sheila! Nine\'nin pamuk gibi Pomeranian\'ı 🐶 Müşteriler onu çok sever, kafeye ün kazandırır.']]),9000)}}
-function buildDogBed(){const g=new THREE.Group();g.position.set(DOGBED.x,0,DOGBED.z);g.add(mesh(new THREE.TorusGeometry(.42,.14,10,24),std(0xff9fc4,{roughness:.9}),0,.14,0,false));g.children[0].rotation.x=Math.PI/2;
- g.add(mesh(new THREE.CylinderGeometry(.42,.42,.08,24),std(0xfff3f8,{roughness:1}),0,.06,0));const bt=canvasTex(128,48,(c,w,h)=>{c.fillStyle='#fff';rr(c,2,2,w-4,h-4,20);c.fill();c.fillStyle='#ff4f9a';c.font='bold 26px "Baloo 2",sans-serif';c.textAlign='center';c.textBaseline='middle';c.fillText('SHEILA',w/2,h/2+2)});
- const s=mesh(new THREE.PlaneGeometry(.6,.22),new THREE.MeshBasicMaterial({map:bt,transparent:true}),0,.32,.55,false);s.rotation.x=-.5;g.add(s);g.add(mesh(new THREE.CylinderGeometry(.13,.11,.07,14),std(0xff6fae),.62,.04,.1));world.add(g)}
 function dogPlay(n,fade=.25){const k=DOG.o;if(!k||k.cur===n||!k.A[n])return;const a=k.A[n],b=k.A[k.cur];a.reset().play();if(b)a.crossFadeFrom(b,fade,false);k.cur=n}
 function dogGoto(x,z){const k=DOG.o,p=k.holder.position;k.path=Math.abs(p.x-x)>2.5||Math.sign(p.x-1.2)!==Math.sign(x-1.2)?[{x:1.2,z:p.z},{x:1.2,z},{x,z}]:[{x,z}]}
 function dogEmo(e,h=1.0){const p=DOG.o.holder.position;const s=new THREE.Sprite(new THREE.SpriteMaterial({map:emojiTex(e),transparent:true,depthWrite:false}));s.position.set(p.x,h,p.z);s.scale.setScalar(.01);scene.add(s);hearts.push({s,t:0})}
 function bark(){tone(620,.06,'square',.03,420);tone(700,.07,'square',.03,460,.12)}
-function updateSheila(dt){const k=DOG.o;if(!k)return;k.mx.update(dt);k.ears.forEach(b=>b.scale.setScalar(.62));if(k.tail)k.tail.scale.setScalar(.3);const p=k.holder.position;k.t-=dt;k.petT-=dt;k.visitT-=dt;
+function updateSheila(dt){const k=DOG.o;if(!k)return;k.mx.update(dt);k.ears.forEach(b=>b.scale.setScalar(.62));if(k.tail)k.tail.scale.setScalar(.3);if(DOGX.balloon)DOGX.balloon.position.x=(-.25+Math.sin(GT*1.3)*.05)*window.__dogLen;const p=k.holder.position;k.t-=dt;k.petT-=dt;k.visitT-=dt;
  const pp=player.root.position,dP=Math.hypot(pp.x-p.x,pp.z-p.z);
  // the player can pet her
  if(dP<1.1&&k.petT<=0&&k.state!=='follow'){k.petT=14;dogEmo('💖',1.1);bark();floatText('Sheila: Hav! 🐶',new V3(p.x,1.5,p.z),'y');repAdd(.005);k.state='happy';k.t=1.6;dogPlay('jump',.15);k.heading=Math.atan2(pp.x-p.x,pp.z-p.z);k.path=[]}
@@ -1662,6 +1663,70 @@ function clearManager(){if(MGR){scene.remove(MGR.c.root);MGR=null}}
 // passive income from handed-over branches is paid out while you play, too
 let brT=0;function branchTick(dt){if(!META.branches.length||!started)return;brT+=dt;if(brT<30)return;brT=0;const v=brPending();if(v<1)return;META.branches.forEach(b=>b.t=Date.now());saveMeta();addMoney(v,true);floatText('🏪 Şube geliri +$'+fmt(v),new V3(player.root.position.x,2.6,player.root.position.z),'y')}
 
+// ================= SHEILA: a themed outfit + bed for every branch =================
+const SH_LOOK=['Pembe fiyonk','Güneş gözlüğü & çiçek kolye','Papyon & şapka','Bere & atkı','Pilot şapkası','Mezuniyet kepi','Parti şapkası & balon'];
+function sheilaHead(g,len){const lv=LVI(),M=(c,o={})=>std(c,Object.assign({roughness:.5},o));const add=(m,x,y,z)=>{m.position.set(x*len,y*len,z*len);g.add(m);return m};
+ if(lv===0){const bow=new THREE.Group();bow.position.set(len*.12,len*.3,-len*.02);const b1=new THREE.Mesh(new THREE.ConeGeometry(len*.08,len*.15,8),M(0xff6fae));b1.rotation.z=Math.PI/2;b1.position.x=len*.08;const b2=b1.clone();b2.rotation.z=-Math.PI/2;b2.position.x=-len*.08;bow.add(b1,b2,new THREE.Mesh(new THREE.SphereGeometry(len*.045,8,6),M(0xff6fae)));g.add(bow)}
+ else if(lv===1){const dark=M(0x1d1d28,{roughness:.15,metalness:.3});for(const sx of[-1,1]){const l=add(new THREE.Mesh(new THREE.CylinderGeometry(len*.05,len*.05,len*.02,16),dark),sx*.07,.1,.2);l.rotation.x=Math.PI/2;const f=add(new THREE.Mesh(new THREE.TorusGeometry(len*.05,len*.01,6,16),M(0xff6fae)),sx*.07,.1,.21)}
+  const br=add(new THREE.Mesh(new THREE.BoxGeometry(len*.05,len*.015,len*.015),M(0xff6fae)),0,.1,.21);add(new THREE.Mesh(new THREE.SphereGeometry(len*.06,10,8),M(0xff6f91)),.12,.27,-.02);}
+ else if(lv===2){const cap=add(new THREE.Mesh(new THREE.SphereGeometry(len*.15,14,10,0,Math.PI*2,0,Math.PI/2),M(0x3f7cd6)),0,.2,-.02);const vis=add(new THREE.Mesh(new THREE.CylinderGeometry(len*.13,len*.13,len*.02,16,1,false,-Math.PI/2,Math.PI),M(0x2d5fa8)),0,.2,.06);vis.scale.z=.9;add(new THREE.Mesh(new THREE.SphereGeometry(len*.03,8,6),M(0xffffff)),0,.35,-.02)}
+ else if(lv===3){add(new THREE.Mesh(new THREE.SphereGeometry(len*.16,14,10,0,Math.PI*2,0,Math.PI/2),M(0xc0504d,{roughness:.95})),0,.2,-.03);add(new THREE.Mesh(new THREE.TorusGeometry(len*.15,len*.035,8,20),M(0xffffff,{roughness:1})),0,.2,-.03).rotation.x=Math.PI/2;add(new THREE.Mesh(new THREE.SphereGeometry(len*.07,10,8),M(0xffffff,{roughness:1})),0,.38,-.03)}
+ else if(lv===4){add(new THREE.Mesh(new THREE.CylinderGeometry(len*.17,len*.15,len*.08,18),M(0x14213d)),0,.26,-.02);const v=add(new THREE.Mesh(new THREE.CylinderGeometry(len*.15,len*.15,len*.02,16,1,false,-Math.PI/2,Math.PI),M(0x111111,{roughness:.2})),0,.22,.06);add(new THREE.Mesh(new THREE.BoxGeometry(len*.09,len*.05,len*.02),M(0xffd166,{metalness:.6,roughness:.3})),0,.27,.15)}
+ else if(lv===5){add(new THREE.Mesh(new THREE.CylinderGeometry(len*.12,len*.13,len*.08,14),M(0x1d1d28)),0,.24,-.02);add(new THREE.Mesh(new THREE.BoxGeometry(len*.36,len*.025,len*.36),M(0x1d1d28)),0,.29,-.02).rotation.y=Math.PI/4;const t=add(new THREE.Mesh(new THREE.CylinderGeometry(len*.012,len*.012,len*.16,6),M(0xffd166)),.17,.22,-.02);add(new THREE.Mesh(new THREE.SphereGeometry(len*.03,8,6),M(0xffd166)),.17,.14,-.02)}
+ else{const tt=canvasTex(64,64,(c,w,h)=>{for(let i=0;i<8;i++){c.fillStyle=i%2?'#ff4f9a':'#ffd23f';c.fillRect(i*8,0,8,h)}});add(new THREE.Mesh(new THREE.ConeGeometry(len*.11,len*.3,14),std(0xffffff,{map:tt})),.05,.38,-.02).rotation.z=-.2;add(new THREE.Mesh(new THREE.SphereGeometry(len*.04,8,6),M(0x4fd0ff)),.08,.54,-.02)}}
+function sheilaNeck(g,len){const lv=LVI(),M=(c)=>std(c,{roughness:.6});
+ if(lv===1){const cols=[0xff6f91,0xffd166,0xffffff,0x4fd0ff,0xff9a3d];for(let i=0;i<14;i++){const a=i/14*Math.PI*2;const s=new THREE.Mesh(new THREE.SphereGeometry(len*.06,8,6),M(cols[i%5]));s.position.set(Math.cos(a)*len*.3,Math.sin(a)*len*.3-len*.04,len*.18);g.add(s)}}
+ else if(lv===2){for(const sx of[-1,1]){const c=new THREE.Mesh(new THREE.ConeGeometry(len*.07,len*.13,8),M(0xc0504d));c.rotation.z=sx*Math.PI/2;c.position.set(sx*len*.07,-len*.12,len*.3);g.add(c)}const k=new THREE.Mesh(new THREE.SphereGeometry(len*.04,8,6),M(0xc0504d));k.position.set(0,-len*.12,len*.3);g.add(k)}
+ else if(lv===3){const st=canvasTex(64,16,(c,w,h)=>{for(let i=0;i<8;i++){c.fillStyle=i%2?'#ffffff':'#c0504d';c.fillRect(i*8,0,8,h)}});const sc=new THREE.Mesh(new THREE.TorusGeometry(len*.3,len*.08,10,24),std(0xffffff,{map:st,roughness:1}));sc.position.set(0,-len*.04,len*.12);g.add(sc);
+  const tail=new THREE.Mesh(new THREE.BoxGeometry(len*.12,len*.3,len*.04),std(0xffffff,{map:st,roughness:1}));tail.position.set(len*.15,-len*.3,len*.32);tail.rotation.z=.3;g.add(tail)}
+ else if(lv===4){const sc=new THREE.Mesh(new THREE.TorusGeometry(len*.3,len*.06,10,24),M(0xffffff));sc.position.set(0,-len*.04,len*.12);g.add(sc)}
+ else if(lv===6){const str=new THREE.Mesh(new THREE.CylinderGeometry(len*.008,len*.008,len*2,4),M(0xffffff));str.position.set(-len*.25,len*1.0,0);g.add(str);const b=new THREE.Mesh(new THREE.SphereGeometry(len*.28,14,12),std(0xff4f9a,{roughness:.25}));b.scale.y=1.2;b.position.set(-len*.25,len*2.2,0);g.add(b);DOGX.balloon=b}}
+const DOGX={balloon:null};
+function buildDogBed(){const lv=LVI(),g=new THREE.Group();g.position.set(DOGBED.x,0,DOGBED.z);world.add(g);const M=(c,o={})=>std(c,Object.assign({roughness:.9},o));
+ const pad=(c)=>g.add(mesh(new THREE.CylinderGeometry(.42,.42,.08,24),M(c),0,.06,0));
+ if(lv===0){const r=mesh(new THREE.TorusGeometry(.42,.14,10,24),M(0xff9fc4),0,.14,0,false);r.rotation.x=Math.PI/2;g.add(r);pad(0xfff3f8)}
+ else if(lv===1){const st=canvasTex(128,16,(c,w,h)=>{for(let i=0;i<8;i++){c.fillStyle=i%2?'#ffffff':'#ff5f5f';c.fillRect(i*16,0,16,h)}});const r=mesh(new THREE.TorusGeometry(.42,.17,12,28),std(0xffffff,{map:st,roughness:.3}),0,.17,0,false);r.rotation.x=Math.PI/2;g.add(r);pad(0x7fd8ea);propC('k_detail-parasol-a',1.4,.55,-.3,0,g)}
+ else if(lv===2){const ct=canvasTex(64,64,(c,w,h)=>{c.fillStyle='#e6dcff';c.fillRect(0,0,w,h);c.fillStyle='rgba(122,92,255,.45)';for(let i=0;i<w;i+=16){c.fillRect(i,0,6,h);c.fillRect(0,i,w,6)}});const b=rbox(.95,.18,.8,.12,std(0xffffff,{map:ct,roughness:1}));g.add(b)}
+ else if(lv===3){const bk=mesh(new THREE.CylinderGeometry(.48,.4,.28,20,1,true),M(0xb98a5a,{side:THREE.DoubleSide}),0,.14,0);g.add(bk);pad(0xf3e3c3);const bl=canvasTex(64,64,(c,w,h)=>{c.fillStyle='#c0504d';c.fillRect(0,0,w,h);c.fillStyle='rgba(255,255,255,.6)';for(let i=0;i<w;i+=16){c.fillRect(i,0,3,h);c.fillRect(0,i,w,3)}});const b=mesh(new THREE.BoxGeometry(.5,.05,.4),std(0xffffff,{map:bl,roughness:1}),.12,.22,.1);b.rotation.y=.4;g.add(b)}
+ else if(lv===4){const car=rbox(.95,.6,.7,.15,M(0x3f7cd6,{roughness:.5}));car.position.set(0,0,-.15);g.add(car);g.add(mesh(new THREE.BoxGeometry(.6,.35,.02),new THREE.MeshStandardMaterial({color:0xcfe6ff,transparent:true,opacity:.5}),0,.33,.21,false));pad(0xffffff);g.children[g.children.length-1].position.z=.25}
+ else if(lv===5){const bb=mesh(new THREE.SphereGeometry(.5,18,12),M(0x2f7a5a),0,.12,0);bb.scale.y=.35;g.add(bb);for(let i=0;i<3;i++)g.add(mesh(new THREE.BoxGeometry(.32,.06,.24),M([0xd96c4f,0xffcf5a,0x3f7cd6][i]),.62,.04+i*.065,-.1))}
+ else{const sh=new THREE.Shape();for(let i=0;i<10;i++){const a=i/10*Math.PI*2-Math.PI/2,r=i%2?.26:.52;sh[i?'lineTo':'moveTo'](Math.cos(a)*r,Math.sin(a)*r)}const st=new THREE.Mesh(new THREE.ExtrudeGeometry(sh,{depth:.16,bevelEnabled:true,bevelSize:.04,bevelThickness:.04}),M(0xffd23f,{roughness:.6}));st.rotation.x=-Math.PI/2;st.position.y=.02;g.add(st)}
+ const bt=canvasTex(128,48,(c,w,h)=>{c.fillStyle='#fff';rr(c,2,2,w-4,h-4,20);c.fill();c.fillStyle='#ff4f9a';c.font='bold 26px "Baloo 2",sans-serif';c.textAlign='center';c.textBaseline='middle';c.fillText('SHEILA',w/2,h/2+2)});
+ const s=mesh(new THREE.PlaneGeometry(.6,.22),new THREE.MeshBasicMaterial({map:bt,transparent:true}),0,.36,.6,false);s.rotation.x=-.5;g.add(s);g.add(mesh(new THREE.CylinderGeometry(.13,.11,.07,14),std(0xff6fae),.68,.04,.2))}
+
+// ================= MACHINE STOCK + WHOLESALER =================
+const stockCap=()=>100+50*(G.upg.stock||0);
+const unitCost=k=>PROD[k].price*MULT()*.3;
+function mStock(k){G.mstock=G.mstock||{};if(G.mstock[k]==null)G.mstock[k]=stockCap();return G.mstock[k]}
+function stockLabel(m){const v=Math.max(0,Math.round(mStock(m.kind))),cap=stockCap();const q=v+'/'+cap;if(m.slq===q)return;m.slq=q;const low=v<=20;
+ const t=canvasTex(160,56,(c,w,h)=>{c.fillStyle=low?'#ffe1e1':'#ffffff';rr(c,3,3,w-6,h-6,22);c.fill();c.lineWidth=4;c.strokeStyle=low?'#ff4d4d':'#d8c3a5';rr(c,3,3,w-6,h-6,22);c.stroke();c.fillStyle=low?'#c0504d':'#5a4636';c.font='bold 28px "Baloo 2",sans-serif';c.textAlign='center';c.textBaseline='middle';c.fillText((v?'📦 ':'⛔ ')+v,w/2,h/2+2)});
+ if(!m.sl){m.sl=new THREE.Sprite(new THREE.SpriteMaterial({transparent:true,depthWrite:false}));m.sl.scale.set(.75,.26,1);m.sl.position.set(.62,1.75,.6);m.g.add(m.sl)}if(m.sl.material.map)m.sl.material.map.dispose();m.sl.material.map=t;m.sl.material.needsUpdate=true}
+let TRUCK=null,truckCool=0;const TRK={x:-6.4,z:13.9,van:[-11,14.9]};
+function trkSpot(){if(OUTDOOR_FUN(LVI())){TRK.x=-9.4;TRK.z=13.9;TRK.van=[-12.2,15.6]}else{TRK.x=-5.6;TRK.z=14.0;TRK.van=[-5.0,18.4]}}
+function truckNeeds(){const out=[];[...new Set(machines.map(m=>m.kind))].forEach(k=>{const d=stockCap()-mStock(k);if(d>0)out.push([k,d])});return out}
+function spawnTruck(){const need=truckNeeds();if(!need.length)return;trkSpot();const cost=Math.round(need.reduce((a,[k,d])=>a+d*unitCost(k),0));
+ const van=new THREE.Group();const body=rbox(2.6,1.3,1.4,.25,std(0xffffff,{roughness:.4}));body.position.y=.35;van.add(body);const cab=rbox(1.0,1.0,1.4,.25,std(0x2f9a46,{roughness:.4}));cab.position.set(1.65,.35,0);van.add(cab);
+ const lt=canvasTex(256,96,(c,w,h)=>{c.fillStyle='#2f9a46';c.font='bold 40px "Baloo 2",sans-serif';c.textAlign='center';c.textBaseline='middle';c.fillText('📦 TOPTANCI',w/2,h/2+3)});for(const sz of[.71,-.71]){const l=mesh(new THREE.PlaneGeometry(2.2,.8),new THREE.MeshBasicMaterial({map:lt,transparent:true}),0,1.0,sz,false);if(sz<0)l.rotation.y=Math.PI;van.add(l)}
+ for(const [x,z]of[[.9,.7],[.9,-.7],[-.8,.7],[-.8,-.7]]){const w=mesh(new THREE.CylinderGeometry(.3,.3,.2,14),std(0x2b2b30),x,.3,z);w.rotation.x=Math.PI/2;van.add(w)}
+ van.position.set(-30,0,TRK.van[1]);van.rotation.y=Math.PI;scene.add(van);
+ const drv=makeChar('v_Butter',1.5);drv.root.position.set(TRK.van[0]-1.6,0,TRK.van[1]-1.2);drv.root.visible=false;scene.add(drv.root);
+ const g=new THREE.Group();g.position.set(TRK.x,.03,TRK.z);const pm=mesh(new THREE.PlaneGeometry(1.9,1.9),new THREE.MeshBasicMaterial({transparent:true,depthWrite:false}),0,0,0,false);pm.rotation.x=-Math.PI/2;g.add(pm);world.add(g);
+ TRUCK={van,drv,g,pm,cost,paid:0,state:'drive',t:0,wait:0,lq:''};truckPadTex();showHint('🚚 Toptancı geldi! Kapının önüne gidip ürün parasını öde');SFX.unlock()}
+function truckPadTex(){const T=TRUCK,left=Math.max(0,T.cost-T.paid),q=Math.round(left);if(T.lq===q)return;T.lq=q;if(T.pm.material.map)T.pm.material.map.dispose();T.pm.material.map=padTex({n:'Toptancı',ic:'📦'},left);T.pm.material.needsUpdate=true}
+function truckDone(credit){window.__trucks=(window.__trucks||0)+1;if(credit)window.__credit=(window.__credit||0)+1;const T=TRUCK;const need=truckNeeds();if(credit){G.debt=(G.debt||0)+(T.cost-T.paid);showHint('🚚 Toptancı veresiye verdi: $'+fmt(T.cost-T.paid)+' borç yazıldı');updateDayHUD()}
+ need.forEach(([k])=>{G.mstock[k]=stockCap()});machines.forEach(m=>{m.slq='';const b=TPL['k_cardboardBoxOpen']?propC('k_cardboardBoxOpen',.4,0,0,0,scene):mesh(new THREE.BoxGeometry(.4,.3,.4),std(0xc89a62));b.position.set(TRK.van[0]+1,1,TRK.van[1]-.6);fly(b,()=>new V3(m.x,1.4,m.z+.4),.35,1.6,()=>{scene.remove(b);m.g.userData.pump=.25})});
+ confetti(new V3(TRK.x,.5,TRK.z),40);SFX.unlock();world.remove(T.g);T.state='leave';T.drv.root.visible=false;misHit('earn',null,0);save()}
+function updateTruck(dt){if(!started||!has('reg'))return;
+ if(!TRUCK){truckCool-=dt;if(truckCool<=0&&machines.some(m=>mStock(m.kind)<=20)){spawnTruck();truckCool=20}return}
+ const T=TRUCK,v=T.van;
+ if(T.state==='drive'){const d=TRK.van[0]-v.position.x;v.position.x+=Math.sign(d)*Math.min(Math.abs(d),9*dt*Math.min(1,Math.abs(d)/4+.25));if(Math.abs(d)<.05){T.state='wait';T.drv.root.visible=true}}
+ else if(T.state==='wait'){T.wait+=dt;T.drv.tHeading=0;animChar(T.drv,dt,new V3());truckPadTex();
+  if(near(player,{x:TRK.x,z:TRK.z,r:1.1})&&G.money>0){const pay=Math.min(G.money,T.cost-T.paid,Math.max(1,T.cost*.05));G.money-=pay;T.paid+=pay;$('mv').textContent=fmt(G.money);if(Math.random()<.4)SFX.coin();if(T.paid>=T.cost-.5)truckDone(false)}
+  // never deadlock: if a station is empty and you cannot pay, the wholesaler gives credit
+  else if(T.wait>25&&machines.some(m=>mStock(m.kind)<=0)&&G.money<(T.cost-T.paid)*.5)truckDone(true)}
+ else if(T.state==='leave'){v.position.x-=8*dt;if(v.position.x<-34){scene.remove(v);scene.remove(T.drv.root);TRUCK=null}}}
+function clearTruck(){if(TRUCK){scene.remove(TRUCK.van);scene.remove(TRUCK.drv.root);TRUCK=null}truckCool=0}
+
 // ================= UI PANELS =================
 function panelOpen(){return $('panel').classList.contains('open')||$('over').classList.contains('open')||$('dlg').classList.contains('open')}
 function openBoard(){joy.on=false;$('joy').style.display='none';
@@ -1670,7 +1735,7 @@ function openBoard(){joy.on=false;$('joy').style.display='none';
  UPG.forEach(u=>{const lv=G.upg[u.k],mx=lv>=u.max,c=upCost(u);h+=`<div class="up"><div class="ui">${u.ic}</div><div class="ut"><b>${u.n}</b><small>${u.d}</small><div class="dots">${Array.from({length:u.max},(_,i)=>`<i class="${i<lv?'on':''}"></i>`).join('')}</div></div><button class="bb ${mx?'max':''}" ${mx||G.money<c?'disabled':''} onclick="buyUp('${u.k}')">${mx?'MAKS':'$'+fmt(c)}</button></div>`});
  $('panel').innerHTML=h;$('panel').dataset.k='board';$('panel').classList.add('open')}
 let boardCool=0;function closePanel(){const k=$('panel').dataset.k;$('panel').classList.remove('open');if(k==='board')boardCool=GT+45}
-function buyUp(k){const u=UPG.find(x=>x.k===k),c=upCost(u);if(G.money<c||G.upg[k]>=u.max)return;saveSoon();G.money-=c;G.upg[k]++;refreshLooks();$('mv').textContent=fmt(G.money);SFX.unlock();buzz(25);confetti(player.root.position,20);player.squash=1;save();openBoard()}
+function buyUp(k){const u=UPG.find(x=>x.k===k),c=upCost(u);if(G.money<c||G.upg[k]>=u.max)return;saveSoon();G.money-=c;G.upg[k]++;refreshLooks();if(k==='stock')for(const kk in G.mstock)G.mstock[kk]+=50;$('mv').textContent=fmt(G.money);SFX.unlock();buzz(25);confetti(player.root.position,20);player.squash=1;save();openBoard()}
 function levelDone(){const end=CYC()===0?STORY[LVI()].end:[['cat','Harika! '+L().name+' yıldızlı turda da tamam ⭐']];storyQueue(end,levelDoneCard)}
 function levelDoneCard(){
  const nx=G.lvl+1,name=BR_NAMES(nx),mega=MEGA(),win=G.rep>=mega,bonus=win?Math.round(60*MULT()*5):0;G.bonusNext=bonus;
@@ -1702,7 +1767,7 @@ function step(dt,now){GT+=dt;for(let i=LATER.length-1;i>=0;i--)if(LATER[i].t<=GT
  if(started){updateMachines(dt);updateCustomers(dt);updateStaff(dt);
   hintTimer-=dt;if(hintTimer<0&&hintTimer>-dt*1.5)$('hint').style.opacity=0;
   saveT+=dt;if(saveT>2){saveT=0;save()}
-  updateFun(dt);updateToken(dt,now);updateSky(dt);updateBin(dt);updateWC(dt);updateDeco(dt);updateOut(dt);updateScenery(dt);updateSheila(dt);updateManager(dt);branchTick(dt);outCard();if(reg&&reg.trash&&reg.trash.userData.pump>0){const tc=reg.trash;tc.userData.pump-=dt;const k=Math.sin(tc.userData.pump/.2*Math.PI)*.12;tc.scale.set(1+k,1-k,1+k);if(tc.userData.pump<=0)tc.scale.setScalar(1)}}
+  updateFun(dt);updateToken(dt,now);updateSky(dt);updateBin(dt);updateWC(dt);updateDeco(dt);updateOut(dt);updateScenery(dt);updateSheila(dt);updateManager(dt);branchTick(dt);updateTruck(dt);outCard();if(reg&&reg.trash&&reg.trash.userData.pump>0){const tc=reg.trash;tc.userData.pump-=dt;const k=Math.sin(tc.userData.pump/.2*Math.PI)*.12;tc.scale.set(1+k,1-k,1+k);if(tc.userData.pump<=0)tc.scale.setScalar(1)}}
  // flyers (arc tweens)
  for(let i=flyers.length-1;i>=0;i--){const f=flyers[i];f.t+=dt/f.dur;const t=Math.min(1,f.t),e=t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2;
   const to=f.targetFn();f.obj.position.lerpVectors(f.from,to,e);f.obj.position.y+=Math.sin(t*Math.PI)*f.h;f.obj.rotation.y=f.r0+t*Math.PI*2*f.spin*.5;f.obj.rotation.x=Math.sin(t*Math.PI)*.4*f.spin;
