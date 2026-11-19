@@ -164,7 +164,7 @@ function rtBuild(target,src){
 'use strict';
 const $=id=>document.getElementById(id);
 const V3=THREE.Vector3;
-const clamp=(v,a,b)=>Math.max(a,Math.min(b,v)),lerp=(a,b,t)=>a+(b-a)*t,rnd=(a,b)=>a+Math.random()*(b-a);
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v)),lerp=(a,b,t)=>a+(b-a)*t;let rnd=(a,b)=>a+Math.random()*(b-a);
 const easeOutBack=t=>{const c=1.9;return 1+(c+1)*Math.pow(t-1,3)+c*Math.pow(t-1,2)};
 const easeOutElastic=t=>t===0?0:t===1?1:Math.pow(2,-10*t)*Math.sin((t*10-.75)*2*Math.PI/3)+1;
 function fmt(n){n=Math.floor(n);if(n<1000)return''+n;const u=['K','M','B','T'];let i=-1;while(n>=1000&&i<3){n/=1000;i++}return(n<10?n.toFixed(2):n<100?n.toFixed(1):Math.floor(n))+u[i]}
@@ -1030,8 +1030,8 @@ function clothTex(){const th=L().theme,it=SHOP.cloth.items[(G.custom&&G.custom.c
    else if(it.mode==='dots'){for(let y=12;y<h;y+=30)for(let x=(y/30%2)*15+8;x<w;x+=30){c.beginPath();c.arc(x,y,6,0,7);c.fill()}}
    else{c.globalAlpha=.5;for(let y=0;y<h;y+=48)for(let x=(y/48%2)*24;x<w;x+=48){c.beginPath();c.moveTo(x,y-14);c.quadraticCurveTo(x+12,y,x,y+14);c.quadraticCurveTo(x-12,y,x,y-14);c.fill()}c.globalAlpha=1}}
   c.restore();c.strokeStyle=gold?'#e2b13c':'#fff';c.lineWidth=gold?10:5;c.setLineDash(gold?[]:[10,8]);c.beginPath();c.arc(128,128,gold?118:92,0,7);c.stroke()})}
-function applyCustom(){const th=curTheme();if(INT.floor){INT.floor.material.map=floorTex(th);INT.floor.material.needsUpdate=true}
- if(INT.walls){const wt=wallTex(th);INT.walls.forEach(m=>{m.material.map=wt;m.material.needsUpdate=true})}
+function applyCustom(cat){const th=curTheme();if(cat==='cloth'){refreshLooks();return}if(INT.floor&&cat!=='wall'){INT.floor.material.map=floorTex(th);INT.floor.material.needsUpdate=true}
+ if(INT.walls&&cat!=='floor'){const wt=wallTex(th);INT.walls.forEach(m=>{m.material.map=wt;m.material.needsUpdate=true})}
  refreshLooks()}
 const INT={};
 
@@ -1111,7 +1111,7 @@ function pickSignC(i){const sc=SIGN_COLS[i],own=META.owned.signc=META.owned.sign
 function pickDeco(id){const d=DECO.find(x=>x.id===id),own=META.owned.deco=META.owned.deco||[];if(!own.includes(id)){const cost=Math.round(d.p*MULT());if(G.money<cost)return;G.money-=cost;own.push(id);saveMeta();updateHUD();G.custom.deco.push(id);confetti(player.root.position,40);showHint(d.ic+' '+d.n+' kafene eklendi!')}
  else if(G.custom.deco.includes(id))G.custom.deco=G.custom.deco.filter(x=>x!==id);else G.custom.deco.push(id);buildDeco();save();SFX.unlock();openShop2()}
 function shopPick(cat,i){const it=SHOP[cat].items[i],own=META.owned[cat]=META.owned[cat]||[0];if(!own.includes(i)){const cost=Math.round(it.p*MULT());if(G.money<cost)return;G.money-=cost;own.push(i);updateHUD();saveMeta()}
- G.custom[cat]=i;applyCustom();SFX.unlock();confetti(player.root.position,30);save();openShop()}
+ G.custom[cat]=i;applyCustom(cat);SFX.unlock();confetti(player.root.position,30);save();openShop()}
 
 // ================= STAFF LIFE =================
 const STAFF_NAMES=['Elif','Can','Zeynep','Mert','Ayşe','Deniz','Ece','Kaan','Selin','Emre'];
@@ -1127,11 +1127,11 @@ const staffBonus=s=>1+.1*(s.d.lv-1);
 
 function emo(ch,e,h=2.3){const s=new THREE.Sprite(new THREE.SpriteMaterial({map:emojiTex(e),transparent:true,depthWrite:false}));s.position.copy(ch.root.position).add(new V3(0,h,0));s.scale.setScalar(.01);scene.add(s);hearts.push({s,t:0})}
 function comboTex(a,b){const k='cb'+a+b;if(ETEX[k])return ETEX[k];ETEX[k]=canvasTex(192,128,(g,w)=>{g.fillStyle='#fff';g.shadowColor='rgba(0,0,0,.2)';g.shadowBlur=8;rr(g,6,8,180,96,44);g.fill();g.beginPath();g.moveTo(84,100);g.lineTo(96,124);g.lineTo(108,100);g.fill();g.shadowBlur=0;g.font='50px sans-serif';g.textAlign='center';g.textBaseline='middle';g.fillText(a,58,58);g.fillText(b,134,58);g.fillStyle='#ff9a3d';g.font='bold 30px sans-serif';g.fillText('+',96,56)});return ETEX[k]}
-function floorTex(th){const mode=th.floorMode;const t=canvasTex(512,512,(g,w,h)=>{
+function floorTex(th){const mode=th.floorMode;let seed=1234567;const rnd0=rnd;rnd=(a,b)=>{seed=(seed*16807)%2147483647;return a+(b-a)*(seed/2147483647)};let t;try{t=canvasTex(512,512,(g,w,h)=>{
  if(mode==='check'){const n=8,s=w/n;for(let y=0;y<n;y++)for(let x=0;x<n;x++){g.fillStyle=(x+y)%2?th.floorA:th.floorB;g.fillRect(x*s,y*s,s,s)}g.fillStyle='rgba(0,0,0,.05)';for(let i=0;i<=n;i++){g.fillRect(i*s-1,0,2,h);g.fillRect(0,i*s-1,w,2)}}
  else if(mode==='hex'){g.fillStyle=th.floorB;g.fillRect(0,0,w,h);const r=22;for(let y=0,row=0;y<h+r;y+=r*1.5,row++)for(let x=(row%2)*r*.87;x<w+r;x+=r*1.74){g.fillStyle=[th.floorA,'#e2f3f8','#fbe3ec','#fff4d0'][(row*3+Math.round(x/40))%4];g.beginPath();for(let k=0;k<6;k++){const a=Math.PI/3*k+Math.PI/6;g.lineTo(x+Math.cos(a)*(r-2),y+Math.sin(a)*(r-2))}g.fill()}}
  else{const n=8,ph=h/n;for(let r=0;r<n;r++){let x=-((r*173)%256);let k=r;while(x<w){const L=rnd(150,260);const sh=[th.floorA,th.floorB,th.floorA,th.floorB][(k++)%4];g.fillStyle=sh;g.fillRect(x,r*ph,L,ph);if(k%3===0){g.fillStyle='rgba(255,255,255,.13)';g.fillRect(x,r*ph,L,ph)}else if(k%5===0){g.fillStyle='rgba(70,35,10,.13)';g.fillRect(x,r*ph,L,ph)}g.fillStyle='rgba(255,255,255,.08)';g.fillRect(x,r*ph+3,L,4);for(let q=0;q<5;q++){g.fillStyle='rgba(120,70,30,.07)';g.fillRect(x+rnd(5,L-40),r*ph+rnd(8,ph-8),rnd(30,90),2)}g.fillStyle='rgba(95,55,25,.45)';g.fillRect(x,r*ph,3,ph);x+=L}g.fillStyle='rgba(95,55,25,.5)';g.fillRect(0,r*ph,w,3)}}});
- t.wrapS=t.wrapT=THREE.RepeatWrapping;t.repeat.set(.26,.26);t.anisotropy=8;return t}
+ }finally{rnd=rnd0}t.wrapS=t.wrapT=THREE.RepeatWrapping;t.repeat.set(.26,.26);t.anisotropy=8;return t}
 function wallTex(th){const wp=canvasTex(256,256,(g,w,h)=>{g.fillStyle=th.wall;g.fillRect(0,0,w,h);g.fillStyle='rgba(255,255,255,.35)';for(let x=0;x<w;x+=32)g.fillRect(x,0,12,h)});wp.wrapS=wp.wrapT=THREE.RepeatWrapping;wp.repeat.set(6,1);return wp}
 
 // ================= CLOUD SAVE (survives the app clearing browser storage) =================
