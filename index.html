@@ -77,6 +77,12 @@ html,body{margin:0;height:100%;overflow:hidden;background:#f6e3c6;font-family:'B
 #ocard .oi{font-size:22px;line-height:1.15;display:flex;gap:3px;flex-wrap:wrap}
 #ocard .ob{height:5px;border-radius:3px;background:#f1e2cc;overflow:hidden;margin-top:3px}
 #ocard .ob div{height:100%;border-radius:3px}
+#daycard{position:fixed;z-index:30;left:50%;top:calc(96px + env(safe-area-inset-top,0px));transform:translate(-50%,-30px);opacity:0;pointer-events:none;transition:.35s;background:#fff;border-radius:18px;padding:10px 14px;box-shadow:0 8px 24px rgba(0,0,0,.2);min-width:230px;font-size:13px}
+#daycard.open{opacity:1;transform:translate(-50%,0);pointer-events:auto}
+#daycard .dh{font-weight:800;font-size:15px;text-align:center;margin-bottom:4px}
+#daycard .dr{display:flex;justify-content:space-between;gap:16px;font-weight:700;padding:1px 0}
+#daycard .dr.s{color:#8a6d55;font-size:12px}
+#daycard .dr.t{border-top:2px dashed #ecd6b8;margin-top:4px;padding-top:4px;font-size:14px}
 #flash{position:fixed;inset:0;z-index:25;background:#fff;opacity:0;pointer-events:none;transition:opacity .4s}
 </style>
 <link rel="manifest" href="manifest.webmanifest">
@@ -95,6 +101,7 @@ html,body{margin:0;height:100%;overflow:hidden;background:#f6e3c6;font-family:'B
 <div id="side"><button onclick="openMissions()">📋<i id="misN">0</i></button><button onclick="openMap()">🗺️</button><button onclick="openShop()">🎨</button><button onclick="openSave()">💾</button></div>
 <div id="rain"></div>
 <div id="ocard"></div>
+<div id="daycard" onclick="this.classList.remove('open')"></div>
 <div id="hint" class="hud">Hareket etmek için ekranı sürükle</div>
 <div id="joy"><div id="knob"></div></div>
 <div id="floats"></div>
@@ -180,16 +187,16 @@ const LEVELS=[
  {name:'Lunapark Kafe',mult:15625,theme:{floorA:'#ffd9e8',floorB:'#ffcade',wall:'#fff0fa',trim:0xff4f9a,trimHex:'#ff4f9a',counter:0x7a5cff,top:0xfffaff,mach:0x4fd0ff,rug:0xffd23f,tile:'#d6f5ff',rug2:0xe0b020,sofa:0x7a5cff,cush:0xff4f9a,cloth:'#fff3c4',cloth2:'#ff4f9a',out:0x9be07a,awn:[0xff4f9a,0xfff066]}}
 ];
 // ================= LEVEL LAYOUTS =================
-const COSTS=[10,20,45,90,70,140,210,260,340,400,480,560,600,680,780,900,980,1080,1180,1280,1380,1500,2000];
+const COSTS=[10,20,45,90,70,140,210,260,340,400,480,560,600,680,780,860,940,1020,1100,1180,1280,1380,1500,2000];
 const PADDEF={m1:{t:'machine',s:0},reg:{t:'register',n:'Kasa',ic:'💰'},t1:{t:'table',s:0,n:'Masa',ic:'🪑'},m2:{t:'machine',s:1},board:{t:'board',n:'Geliştirme Panosu',ic:'⭐'},
  t2:{t:'table',s:1,n:'Masa',ic:'🪑'},cash:{t:'hire',role:'cashier',n:'Kasiyer',ic:'🧑‍💼'},oven:{t:'machine',s:2},t3:{t:'table',s:2,n:'Masa',ic:'🪑'},bar1:{t:'hire',role:'barista',n:'Barista',ic:'🧑‍🍳'},
  t4:{t:'table',s:3,n:'Masa',ic:'🪑'},cln:{t:'hire',role:'cleaner',n:'Temizlikçi',ic:'🧹'},m3:{t:'machine',s:3},t5:{t:'table',s:4,n:'Masa',ic:'🪑'},bar2:{t:'hire',role:'barista',n:'Barista',ic:'🧑‍🍳'},
- t6:{t:'table',s:5,n:'Masa',ic:'🪑'},wc:{t:'wc',n:'Tuvalet',ic:'🚻'},out:{t:'out'},wcc:{t:'hire',role:'wcleaner',n:'Tuvalet Görevlisi',ic:'🧽'},next:{t:'next',n:'Yeni Şube Aç',ic:'🏪'},fun:{t:'fun'},dec1:{t:'decor',k:'plants',n:'Çiçek & Bitkiler',ic:'🪴'},dec2:{t:'decor',k:'art',n:'Halı & Tablolar',ic:'🖼️'}};
+ t6:{t:'table',s:5,n:'Masa',ic:'🪑'},wc:{t:'wc',n:'Tuvalet',ic:'🚻'},out:{t:'out'},wcc:{t:'hire',role:'wcleaner',n:'Tuvalet Görevlisi',ic:'🧽'},run:{t:'hire',role:'runner',n:'Kurye Görevlisi',ic:'🏃'},next:{t:'next',n:'Müdür Ata',ic:'👔'},fun:{t:'fun'},dec1:{t:'decor',k:'plants',n:'Çiçek & Bitkiler',ic:'🪴'},dec2:{t:'decor',k:'art',n:'Halı & Tablolar',ic:'🖼️'}};
 const ORDER=[
- ['m1','reg','t1','m2','board','t2','cash','oven','t3','dec1','bar1','t4','out','fun','cln','m3','wc','t5','dec2','bar2','wcc','t6','next'],
- ['m1','reg','t1','m2','board','t2','fun','cash','oven','t3','out','dec1','bar1','wc','t4','cln','m3','t5','dec2','bar2','wcc','t6','next'],
- ['m1','reg','t1','m2','board','cash','t2','dec1','oven','fun','t3','bar1','out','wc','t4','cln','m3','dec2','t5','bar2','wcc','t6','next']];
-ORDER.push(ORDER[2],['m1','reg','t1','m2','board','t2','out','cash','oven','t3','fun','dec1','bar1','wc','t4','cln','m3','t5','dec2','bar2','wcc','t6','next'],ORDER[0],ORDER[1]);
+ ['m1','reg','t1','m2','board','t2','cash','oven','t3','dec1','bar1','t4','out','fun','cln','m3','wc','run','t5','dec2','bar2','wcc','t6','next'],
+ ['m1','reg','t1','m2','board','t2','fun','cash','oven','t3','out','dec1','bar1','wc','run','t4','cln','m3','t5','dec2','bar2','wcc','t6','next'],
+ ['m1','reg','t1','m2','board','cash','t2','dec1','oven','fun','t3','bar1','out','wc','run','t4','cln','m3','dec2','t5','bar2','wcc','t6','next']];
+ORDER.push(ORDER[2],['m1','reg','t1','m2','board','t2','out','cash','oven','t3','fun','dec1','bar1','wc','run','t4','cln','m3','t5','dec2','bar2','wcc','t6','next'],ORDER[0],ORDER[1]);
 function padList(l){return ORDER[l%7].map((id,i)=>Object.assign({id,c:COSTS[i]},PADDEF[id]))}
 let PADS=padList(0);
 const TABLE_L=[[[3.6,-4.6],[7.2,-4.6],[3.6,-0.6],[7.2,-0.6],[3.6,3.4],[7.2,3.4]],
@@ -553,8 +560,8 @@ class VRig{
  }
  _side(h,k){return new V3(Math.cos(h)*k,0,-Math.sin(h)*k)}
 }
-const PLAYER_KEY='v_Kate',STAFF_KEY={cashier:'v_Olivia',barista:'v_CoffeeMaker',cleaner:'v_Shiro',wcleaner:'v_ChillPenguin'};
-const CUSTOMER_KEYS=FILES_V.filter(k=>!['v_Kate','v_Olivia','v_CoffeeMaker','v_Shiro','v_ChillPenguin'].includes(k));
+const PLAYER_KEY='v_Kate',STAFF_KEY={cashier:'v_Olivia',barista:'v_CoffeeMaker',cleaner:'v_Shiro',wcleaner:'v_ChillPenguin',runner:'v_CoolBunny'};
+const CUSTOMER_KEYS=FILES_V.filter(k=>!['v_Kate','v_Olivia','v_CoffeeMaker','v_Shiro','v_ChillPenguin','v_CoolBunny'].includes(k));
 function makeChar(key,h=1.55){const rig=new VRig(key,h);const root=rig.root;
  const carry=new THREE.Group();carry.position.set(0,h*.5,.34);rig.inner.add(carry);
  return{rig,root,carry,phase:0,speed:0,lean:0,heading:0,tHeading:0,squash:0,sit:0,drink:0,lastStep:0,stack:[],sway:{x:0,z:0,vx:0,vz:0},prevV:new V3(),pos:root.position,maxSpd:4.5,hold:0,sitW:0,sipW:0}}
@@ -689,7 +696,7 @@ function spawnObj(p,anim){
 function spawnStaff(role,anim){
  const col={cashier:{shirt:0x8e6bd1,hat:0x5a3fa0},barista:{shirt:0x2f9a6a,hat:0x1f6e4a},cleaner:{shirt:0xf2c14e,hat:0xd99a1a}}[role];
  const c=makeChar(STAFF_KEY[role],1.55);
- const start=role==='cashier'?REGZ:role==='wcleaner'?{x:4.8,z:10.5}:{x:-6,z:-3.5};c.root.position.set(start.x,0,start.z);scene.add(c.root);
+ const start=role==='cashier'?REGZ:role==='wcleaner'?{x:4.8,z:10.5}:role==='runner'?{x:-3.6,z:10.2}:{x:-6,z:-3.5};c.root.position.set(start.x,0,start.z);scene.add(c.root);
  if(anim){c.rig.play('cheer');confetti(c.root.position,24)}
  c.maxSpd=2.6;const idx=staff.length;G.sd[idx]=G.sd[idx]||{name:STAFF_NAMES[(idx+G.lvl*3)%STAFF_NAMES.length],lv:1,xp:0,en:1};const so={role,c,state:'idle',target:null,timer:0,m:null,d:G.sd[idx]};staff.push(so);staffPlate(so);
 }
@@ -706,7 +713,7 @@ function rr(g,x,y,w,h,r){g.beginPath();g.moveTo(x+r,y);g.arcTo(x+w,y,x+w,y+h,r);
 function padPos(p){
  if(p.t==='machine'){const[x,z]=MACH_POS[p.s];return{x,z:z+1.4}}
  if(p.t==='register')return{x:-3,z:-1.2};if(p.t==='table'){const[x,z]=tablePos(p.s);return{x,z}}if(p.t==='fun')return OUTDOOR_FUN(LVI())?{x:VB.x,z:VB.z}:{x:-6.2,z:FUN.z};if(p.t==='out')return[{x:5.8,z:15.6},{x:7.0,z:15.9},{x:5.8,z:16.9}][OUTC().t];if(p.t==='decor')return p.k==='plants'?{x:-4.4,z:3.2}:{x:1.2,z:-3.0};if(p.t==='board')return{x:BOARD.x,z:BOARD.z};
- if(p.t==='wc')return{x:7.8,z:9.3};if(p.t==='hire'&&p.role==='wcleaner')return{x:4.4,z:6.3};if(p.t==='hire')return p.role==='cashier'?{x:-1.6,z:-4}:p.role==='cleaner'?{x:1.8,z:7}:p.id==='bar1'?{x:-5.4,z:-4}:{x:-8,z:-3.6};
+ if(p.t==='wc')return{x:7.8,z:9.3};if(p.t==='hire'&&p.role==='wcleaner')return{x:4.4,z:6.3};if(p.t==='hire'&&p.role==='runner')return{x:-3.6,z:10.2};if(p.t==='hire')return p.role==='cashier'?{x:-1.6,z:-4}:p.role==='cleaner'?{x:1.8,z:7}:p.id==='bar1'?{x:-5.4,z:-4}:{x:-8,z:-3.6};
  if(p.t==='next')return{x:3.4,z:8.6};
 }
 function refreshPads(){
@@ -724,7 +731,7 @@ function updatePadVis(pd){const left=pd.cost-pd.paid;if(left!==pd.lastShown){pd.
 function completePad(pd){saveSoon();
  const p=pd.p;G.unl.push(p.id);delete G.padPaid[p.id];world.remove(pd.m);pads=pads.filter(x=>x!==pd);
  SFX.unlock();buzz(40);shakeT=.25;confetti(new V3(pd.x,0,pd.z),50);flash();
- if(p.t==='next'){save();later(levelDone,700);return}
+ if(p.t==='next'){save();later(()=>managerArrive(levelDone),500);return}
  spawnObj(p,true);later(refreshPads,500);save();
  if(p.id==='reg'){showHint('Müşteriler geliyor! Bardakları kasaya götür');later(()=>{misFill();updateHUD()},4000)}
  if(p.id==='board')showHint('Panoya basıp geliştirmeleri aç');
@@ -735,6 +742,7 @@ function completePad(pd){saveSoon();
  if(['fun','out','wc'].includes(p.t))storyBeat(p.t);
  if(p.t==='out')showHint(OUTI().ic+' '+OUTI().n+' açıldı! Dışarıdaki siparişleri sen götür, 2 kat öderler');
  if(p.t==='wc')showHint('🚻 Tuvalet açıldı! Kullanıldıkça kirlenir, içine girip temizle 🧽');
+ if(p.role==='runner')showHint('🏃 Kurye görevlisi işe başladı! Dış siparişleri artık o taşıyor');
  if(p.role==='wcleaner')showHint('🧽 Tuvalet görevlisi artık temizliği üstlendi');
 }
 function flash(){$('flash').style.transition='none';$('flash').style.opacity=.55;requestAnimationFrame(()=>{$('flash').style.transition='opacity .4s';$('flash').style.opacity=0})}
@@ -812,7 +820,7 @@ function addBill(val,from){if(!reg)return;const b=makeItem('bill');const i=reg.p
 function pilePos(i){const col=i%4,lay=Math.floor(i/4);return new V3((col%2)*.55-.27,lay*.05,Math.floor(col/2)*.32-.16)}
 function collectPile(){let k=-1;for(let i=reg.pile.length-1;i>=0;i--)if(!reg.pile[i].userData.flying){k=i;break}if(k<0)return;const b=reg.pile.splice(k,1)[0];const v=b.userData.val||0;
  fly(b,()=>player.root.position.clone().add(new V3(0,1,0)),.2,1.2,()=>{scene.remove(b);addMoney(v,true);misHit('earn',null,v)},3)}
-function addMoney(v,fx){G.money+=v;$('mv').textContent=fmt(G.money);if(fx){SFX.coin();const el=$('money');el.classList.remove('pop');void el.offsetWidth;el.classList.add('pop')}}
+function addMoney(v,fx){if(v>0)G.dayInc=(G.dayInc||0)+v;if(v>0&&G.debt>0){const d=Math.min(G.debt,v*.5);v-=d;G.debt-=d;if(G.debt<.5){G.debt=0;updateDayHUD()}}G.money+=v;$('mv').textContent=fmt(G.money);if(fx){SFX.coin();const el=$('money');el.classList.remove('pop');void el.offsetWidth;el.classList.add('pop')}}
 function payPad(pd){
  const left=pd.cost-pd.paid,chunk=Math.min(G.money,Math.max(1,Math.ceil(pd.cost/22)),left);if(chunk<=0)return;
  G.money-=chunk;pd.paid+=chunk;G.padPaid[pd.p.id]=pd.paid;$('mv').textContent=fmt(G.money);
@@ -910,7 +918,7 @@ function updateStaff(dt){staff.forEach(s=>{
   else{s.d.en=Math.min(1,s.d.en+dt/12);s.fx=(s.fx||0)-dt;if(s.fx<0){s.fx=rnd(1.8,2.6);emo(c,Math.random()<.5?'☕':'😌')}staffPlate(s);
    if(near(player,{x:p.x,z:p.z,r:1.5})&&s.d.en<.97){s.d.en=1;emo(c,'💖');floatText(s.d.name+': Teşekkürler! ☕',new V3(p.x,2.6,p.z),'y');SFX.serve();staffPlate(s)}
    if(s.d.en>=1){s.state='idle';s.seated=0;c.sit=0;c.drink=0;s.m=null;s.t=null;c.rig.play('cheer')}}}
- else if(s.d.en<=0&&!c.stack.length&&(s.role!=='barista'||s.state==='idle')&&(s.role!=='cleaner'||!s.t)&&(s.role!=='wcleaner'||!WCS||!WCS.dirt)){
+ else if(s.d.en<=0&&!c.stack.length&&(s.role!=='barista'||s.state==='idle')&&(s.role!=='cleaner'||!s.t)&&(s.role!=='wcleaner'||!WCS||!WCS.dirt)&&(s.role!=='runner')){
   const used=staff.filter(o=>o!==s&&o.state==='break').map(o=>o.bi);s.bi=[0,1,2].find(i=>!used.includes(i))??0;s.state='break';s.seated=0;emo(c,'😮‍💨');
   if(!G.breakHint){G.breakHint=1;showHint(s.d.name+' molada! Yanına git, kahve ısmarla, hemen işe dönsün ☕')}}
  else if(s.role==='cashier'){if(go(REGZ.x,REGZ.z)){c.tHeading=Math.PI;const f=queueFront();if(f&&f.state==='wait'&&!f.served&&s.timer<=0){const i=findItem(reg.stock,f.order);if(i>=0){const it=reg.stock.splice(i,1)[0];relayoutStock();serve(f,it);staffWork(s,.03);s.timer=Math.max(.3,.9-G.upg.staff*.1)/staffBonus(s)}}}}
@@ -919,6 +927,7 @@ function updateStaff(dt){staff.forEach(s=>{
   if(s.state==='toM'){if(go(s.m.zone.x,s.m.zone.z)){if(s.timer<=0&&s.m.tray.length&&c.stack.length<staffCap()&&canDrop(s.m.kind)){takeTo(c,s.m.tray.pop());staffWork(s,.012);s.timer=.15}else if(!canDrop(s.m.kind)&&!c.stack.length){s.state='idle';s.m=null}if(s.m){if(c.stack.length>=staffCap()||(!s.m.tray.length&&c.stack.length)){s.state='toD'}else if(!s.m.tray.length&&!c.stack.length){s.state='idle';s.m=null}}}}
   if(s.state==='toD'){if(go(DROP.x,DROP.z)){if(s.timer<=0&&c.stack.length){if(canStock()){dropToStock(c.stack.pop());staffWork(s,.012);s.timer=.15;s.stuck=0}else{s.timer=.5;s.stuck=(s.stuck||0)+.5;if(s.stuck>15)s.state='toT'}}if(!c.stack.length){s.state='idle';s.m=null}}}
   if(s.state==='toT'){if(go(TRASH.x+.9,TRASH.z)){if(s.timer<=0&&c.stack.length){trashItem(c.stack.pop());s.timer=.15}if(!c.stack.length){s.state='idle';s.m=null;s.stuck=0}}}
+ }else if(s.role==='runner'){runnerTick(s,go,dt)
  }else if(s.role==='wcleaner'){
   if(WCS&&WCS.dirt>0&&!WCS.busy){if(go(WCS.cs.x,WCS.cs.z)){c.tHeading=Math.PI/2;WCS.clean+=dt*.9*staffBonus(s);c.squash=Math.max(c.squash,Math.abs(Math.sin(performance.now()*.02))*.2);if(WCS.clean>=1){cleanWC();staffWork(s,.07)}}}
   else go(4.8,10.5)
@@ -986,7 +995,7 @@ function setupSky(){HEMI=new THREE.HemisphereLight(0xfff8f0,0xc9a98a,.75);scene.
  const P=[];for(let i=0;i<N;i++){P.push(rainSpot({y:rnd(0,14)}))}RAIN={ls,P,pos}}
 function rainSpot(o){let x,z;do{x=rnd(-24,24);z=rnd(-16,30)}while(x>-10.6&&x<10.6&&z>-9.2&&z<12.6);o.x=x;o.z=z;o.y=o.y??14;o.v=LVI()===3?rnd(1.6,2.6):rnd(16,22);return o}
 function updateSky(dt){
- DAYT=(DAYT+dt/DAY_LEN)%1;let i=0;while(i<DKF.length-2&&DAYT>=DKF[i+1][0])i++;const a=DKF[i],b=DKF[i+1],t=(DAYT-a[0])/(b[0]-a[0]),s=t*t*(3-2*t);
+ {const nd=DAYT+dt/DAY_LEN;if(nd>=1)dayEnd();DAYT=nd%1}let i=0;while(i<DKF.length-2&&DAYT>=DKF[i+1][0])i++;const a=DKF[i],b=DKF[i+1],t=(DAYT-a[0])/(b[0]-a[0]),s=t*t*(3-2*t);
  const wx=WX.k;
  {const c=lerpHex(a[1],b[1],s);c.lerp(new THREE.Color(0x8a94a6),wx*.45);scene.background.copy(c).convertLinearToSRGB()}
  if(INT.wins)INT.wins.forEach(w=>w.material.color.copy(lerpHex(0xcff3ff,0x34407a,NIGHT)));
@@ -1002,7 +1011,7 @@ function updateSky(dt){
  if(was>.01&&WX.k<=.01)updateDayHUD();
  RAIN.ls.material.opacity=WX.k*(LVI()===3?.95:.55);if(WX.k>.01){const p=RAIN.pos;RAIN.P.forEach((r,j)=>{r.y-=r.v*dt;if(r.y<0){rainSpot(r);r.y=14}p[j*6]=r.x;p[j*6+1]=r.y;p[j*6+2]=r.z;p[j*6+3]=r.x-.08;p[j*6+4]=r.y+(LVI()===3?.1:.7);p[j*6+5]=r.z-.05});RAIN.ls.geometry.attributes.position.needsUpdate=true}
 }
-function updateDayHUD(){const p=PHASES[Math.max(0,PHASE)];$('dayLine').textContent=`${p.ic} ${p.n}${WX.on?' · ☔':''} · ⭐ ${G.rep.toFixed(1)}`}
+function updateDayHUD(){const p=PHASES[Math.max(0,PHASE)];$('dayLine').innerHTML=`${p.ic} ${p.n}${WX.on?' · ☔':''} · ⭐ ${G.rep.toFixed(1)}`+((G.debt||0)>.5?` · <span style="color:#c0504d">Borç $${fmt(G.debt)}</span>`:'')}
 function glowAt(parent,x,y,z,s,col=0xffc070,o=.9){const sp=new THREE.Sprite(new THREE.SpriteMaterial({map:MAT.soft,color:col,transparent:true,opacity:0,depthWrite:false,blending:THREE.AdditiveBlending}));sp.position.set(x,y,z);sp.scale.setScalar(s);sp.userData.o=o;sp.id2=GLOWS.length;sp.renderOrder=5;parent.add(sp);GLOWS.push(sp);return sp}
 function candle(g){g.add(mesh(new THREE.CylinderGeometry(.045,.05,.16,10),std(0xfff6e6),-.25,.92,.2));g.add(mesh(new THREE.SphereGeometry(.025,8,6),new THREE.MeshBasicMaterial({color:0xffd27a}),-.25,1.03,.2,false));glowAt(g,-.25,1.05,.2,.9,0xffb04a,1)}
 function umbrella(c){const u=new THREE.Group();const col=[0xff6f91,0x4fc3f7,0xffd166,0x9b7fe6,0x6fcf97][Math.floor(Math.random()*5)];
@@ -1096,10 +1105,10 @@ function openMap(){joy.on=false;$('joy').style.display='none';brBackfill();
   c.fillStyle=cur?'#ff7a3d':done?'#36a84a':'#9a8c80';c.beginPath();c.arc(x,y-30,30,0,7);c.fill();c.beginPath();c.moveTo(x-18,y-12);c.lineTo(x,y+8);c.lineTo(x+18,y-12);c.fill();
   c.font='30px sans-serif';c.textAlign='center';c.textBaseline='middle';c.fillText(done?'☕':cur?'📍':'🔒',x,y-30);
   c.font='bold 22px "Baloo 2",sans-serif';c.fillStyle='#3b2a1e';c.fillText(BR_NAMES(l),x,y+26);
-  if(done){c.font='bold 18px "Baloo 2",sans-serif';c.fillStyle='#2f7a3c';c.fillText('+$'+fmt(brRate(l)*60)+'/dk',x,y+48)}
+  if(done){c.font='bold 18px "Baloo 2",sans-serif';c.fillStyle='#2f7a3c';c.fillText('👔 '+mgrName(l)+' · +$'+fmt(brRate(l)*60)+'/dk',x,y+48)}
   if(cur){c.font='bold 18px "Baloo 2",sans-serif';c.fillStyle='#c96a2f';c.fillText('Buradasın',x,y+48)}}
  const pend=brPending();
- $('panel').innerHTML=`<button class="close" onclick="closePanel()">✕</button><h2>🗺️ Şube Haritası</h2><img src="${cv.toDataURL()}" style="width:100%;border-radius:16px;box-shadow:0 3px 0 #ecd6b8"><p style="text-align:center;margin:6px 0;color:#6e5440;font-weight:700;font-size:13px">Tamamlanan şubeler sen yokken de kazanır (en fazla 2 saat birikir)</p><button class="bb" style="width:100%;font-size:18px" ${pend<1?'disabled':''} onclick="collectBranches()">${META.branches.length?'Topla $'+fmt(pend):'İlk şubeni tamamla'}</button>`;
+ $('panel').innerHTML=`<button class="close" onclick="closePanel()">✕</button><h2>🗺️ Şube Haritası</h2><img src="${cv.toDataURL()}" style="width:100%;border-radius:16px;box-shadow:0 3px 0 #ecd6b8"><p style="text-align:center;margin:6px 0;color:#6e5440;font-weight:700;font-size:13px">Müdürlere devrettiğin şubeler oynarken her 30 saniyede bir, sen yokken de en fazla 2 saat boyunca kazanır</p><button class="bb" style="width:100%;font-size:18px" ${pend<1?'disabled':''} onclick="collectBranches()">${META.branches.length?'Topla $'+fmt(pend):'İlk şubeni tamamla'}</button>`;
  $('panel').dataset.k='map';$('panel').classList.add('open')}
 
 // ================= DECOR SHOP =================
@@ -1346,7 +1355,7 @@ function outNeeds(k){return!!OUT&&OUT.slots.some(s=>s.state==='wait'&&s.left.inc
 function outDeliver(){if(!OUT)return false;for(const s of OUT.slots){if(s.state!=='wait'||!near(player,s.zone))continue;const i=player.stack.findIndex(it=>s.left.includes(it.userData.kind));if(i<0)continue;
  const it=player.stack.splice(i,1)[0];const k=it.userData.kind;s.left.splice(s.left.indexOf(k),1);const tp=s.ch.root.position.clone().add(new V3(0,1.1,0));if(s.veh&&OUT.lv!==0)tp.copy(s.veh.position).add(new V3(0,1,0));
  fly(it,()=>tp,.3,1,()=>{scene.remove(it)});misHit('sell',k);SFX.serve();setBub(s);if(!s.left.length)later(()=>outDone(s,true),350);actT=.22;return true}return false}
-function outGuide(){if(!OUT)return null;const w=OUT.slots.filter(s=>s.state==='wait'&&s.left.length);for(const s of w)if(player.stack.some(i=>s.left.includes(i.userData.kind)))return s.zone;
+function outGuide(){if(!OUT||staff.some(s=>s.role==='runner'))return null;const w=OUT.slots.filter(s=>s.state==='wait'&&s.left.length);for(const s of w)if(player.stack.some(i=>s.left.includes(i.userData.kind)))return s.zone;
  if(w.length&&!needItem()&&player.stack.length<capacity()){const k=w.sort((a,b)=>a.pat-b.pat)[0].left[0];if(reg&&findItem(reg.stock,k)>=0)return{x:DROP.x,z:DROP.z};const m=machOf(k);if(m)return m.zone}return null}
 
 // ---- volleyball (Sahil Kafe's fun corner, out on the sand) ----
@@ -1597,6 +1606,62 @@ function outTap(cx,cy){if(!OUT)return false;const r=new THREE.Raycaster(),v=new 
  let best=null,bd=1.6;OUT.slots.forEach((s,i)=>{if(s.state!=='wait'||!s.ch)return;const p=(s.veh||s.ch.root).position.clone();p.y=.8;const d=r.ray.distanceToPoint(p);if(d<bd){bd=d;best=i}});
  if(best===null)return false;outFocus(best);const s=OUT.slots[best];if(s.bub){s.bub.userData.pop={t:0,s:1.6}}SFX.unlock();return true}
 
+// ================= COURIER RUNNER (staff that handles outside orders) =================
+const RUN_OUT=[[-6.6,-2.6],[-6.6,1.0],[-4.4,6.2],[-0.6,9.6],[0,11.8],[0,13.6]];
+function runRoute(s,from,toOut){const r=toOut?RUN_OUT.slice():RUN_OUT.slice().reverse();// trim waypoints already behind us
+ let best=0,bd=1e9;r.forEach((w,i)=>{const d=Math.hypot(w[0]-from.x,w[1]-from.z);if(d<bd){bd=d;best=i}});s.route=r.slice(best).map(w=>({x:w[0],z:w[1]}))}
+const isOutside=p=>p.z>11.5;
+function runnerTick(s,go,dt){const c=s.c,p=c.root.position;
+ // follow a door route when crossing between kitchen and street
+ const goVia=(x,z)=>{const tgtOut=z>11.5;if(isOutside(p)!==tgtOut){if(!s.route||!s.route.length||s.routeOut!==tgtOut){runRoute(s,p,tgtOut);s.routeOut=tgtOut}const w=s.route[0];if(go(w.x,w.z))s.route.shift();return false}s.route=null;return go(x,z)};
+ if(!OUT){goVia(-6.4,-3.6);return}
+ const waiting=OUT.slots.filter(o=>o.state==='wait'&&o.left&&o.left.length);
+ if(c.stack.length){const sl=waiting.find(o=>c.stack.some(i=>o.left.includes(i.userData.kind)));
+  if(sl){if(goVia(sl.zone.x,sl.zone.z)&&s.timer<=0){const i=c.stack.findIndex(it=>sl.left.includes(it.userData.kind));const it=c.stack.splice(i,1)[0];const k=it.userData.kind;sl.left.splice(sl.left.indexOf(k),1);
+    const tp=(sl.veh&&OUT.lv!==0?sl.veh.position:sl.ch.root.position).clone().add(new V3(0,1.05,0));fly(it,()=>tp,.3,1,()=>scene.remove(it));misHit('sell',k);SFX.serve();setBub(sl);staffWork(s,.02);s.timer=.25;if(!sl.left.length)later(()=>outDone(sl,true),350)}return}
+  // order is gone: put the items back on the counter (or bin them)
+  if(goVia(DROP.x,DROP.z)&&s.timer<=0){const it=c.stack.pop();if(canStock()&&canDrop(it.userData.kind))dropToStock(it);else trashItem(it);s.timer=.15}return}
+ const sl=waiting.sort((a,b)=>a.pat-b.pat)[0];if(!sl){goVia(1.2,13.4);c.tHeading=0;return}
+ const need=sl.left.slice();const k=need.find(k=>findItem(reg.stock,k)>=0)||need.find(k=>{const m=machOf(k);return m&&m.tray.length});if(!k){goVia(-4.4,-3.0);return}
+ if(findItem(reg.stock,k)>=0){if(goVia(DROP.x,DROP.z)&&s.timer<=0){need.forEach(kk=>{if(c.stack.length>=staffCap())return;const j=findItem(reg.stock,kk);if(j>=0&&c.stack.filter(i=>i.userData.kind===kk).length<need.filter(x=>x===kk).length){const it=reg.stock.splice(j,1)[0];takeTo(c,it)}});relayoutStock();s.timer=.2}}
+ else{const m=machOf(k);if(goVia(m.zone.x,m.zone.z)&&s.timer<=0&&m.tray.length){takeTo(c,m.tray.pop());s.timer=.15}}}
+
+// ================= DAILY BILLS + DECOR REPUTATION =================
+function dayBills(){const M=MULT(),bills=[];
+ const wages=staff.reduce((a,s)=>a+20*M*(1+.12*((s.d&&s.d.lv||1)-1)),0);if(wages)bills.push(['👥 Maaşlar',wages]);
+ const maint=machines.length*12*M*(1+.2*G.upg.mach);if(maint)bills.push(['🔧 Makine bakımı',maint]);
+ const on=(G.custom.deco||[]).length;const elec=(8+(FUNZ?12:0)+on*3)*M;bills.push(['💡 Elektrik & su',elec]);
+ bills.push(['🏠 Kira',20*M]);if(WCS)bills.push(['🧴 Temizlik malzemesi',6*M]);
+ return bills}
+function decoRep(){const c=G.custom||{};let r=0,parts=[];const d=(c.deco||[]).length;if(d){r+=.02*d;parts.push(d+' süs')}
+ const dp=['dec1','dec2'].filter(has).length;if(dp){r+=.03*dp}
+ const st=['wall','floor','cloth'].filter(k=>c[k]).length+(c.name?1:0)+(c.signc?1:0);if(st){r+=.015*st}
+ return Math.min(.2,r)}
+function dayEnd(){if(!started||!has('reg'))return;G.day=(G.day||1)+1;const inc=G.dayInc||0;G.dayInc=0;
+ const bills=dayBills(),tot=bills.reduce((a,b)=>a+b[1],0),paid=Math.min(G.money,tot);G.money-=paid;$('mv').textContent=fmt(G.money);G.dayExp=tot;
+ const owe=tot-paid,late=(G.debt||0)>.5;if(late)repAdd(-.05);G.debt=(G.debt||0)+(owe>.5?owe:0);updateDayHUD();const dr=decoRep();if(dr>0)repAdd(dr);
+ const net=inc-tot;
+ $('daycard').innerHTML=`<div class="dh">🌅 ${G.day-1}. gün bitti</div><div class="dr"><span>Gelir</span><b style="color:#2f9a46">+$${fmt(inc)}</b></div>`+bills.map(b=>`<div class="dr s"><span>${b[0]}</span><b>-$${fmt(b[1])}</b></div>`).join('')+
+  `<div class="dr t"><span>Net</span><b style="color:${net>=0?'#2f9a46':'#c0504d'}">${net>=0?'+':'-'}$${fmt(Math.abs(net))}</b></div>`+(dr>0?`<div class="dr s"><span>🌸 Dekor ünü</span><b style="color:#c96a2f">+${dr.toFixed(2)} ⭐</b></div>`:'')+(owe>.5?`<div class="dr s" style="color:#c0504d">Kasada $${fmt(owe)} eksik kaldı → borç olarak sonraki kazançlardan düşülecek</div>`:'')+(late?`<div class="dr s" style="color:#c0504d">Dünkü borç kapanmadı (-0.05 ⭐)</div>`:'');
+ $('daycard').classList.add('open');clearTimeout(window._dcT);window._dcT=setTimeout(()=>$('daycard').classList.remove('open'),7000);SFX.unlock();save()}
+
+// ================= MANAGER HAND-OVER (each finished branch keeps earning) =================
+const MGR_NAMES=['Selim Bey','Derya Hanım','Kemal Bey','Aslı Hanım','Murat Bey','Nil Hanım','Okan Bey'];
+const MGR_KEYS=['v_Rose','v_Jennifer','v_TastySandwich','v_MoonGirl','v_CoolBaguette','v_Teddy','v_AwesomeLemon'];
+const mgrName=l=>MGR_NAMES[l%7];
+let MGR=null;
+function managerArrive(done){const key=MGR_KEYS[LVI()];const c=makeChar(TPL[key]?key:CUSTOMER_KEYS[0],1.62);c.root.position.set(DOOR.x,0,DOOR.z+1);scene.add(c.root);
+ const tg=canvasTex(256,64,(g,w,h)=>{g.fillStyle='#2f3b35';rr(g,4,4,w-8,h-8,24);g.fill();g.fillStyle='#ffd166';g.font='bold 30px "Baloo 2",sans-serif';g.textAlign='center';g.textBaseline='middle';g.fillText('👔 '+mgrName(G.lvl),w/2,h/2+2)});
+ const sp=new THREE.Sprite(new THREE.SpriteMaterial({map:tg,transparent:true,depthWrite:false}));sp.scale.set(1.4,.35,1);sp.position.y=c.rig.h*1.18+.3;c.root.add(sp);
+ MGR={c,path:[{x:-.6,z:8},{x:-.6,z:1.2},{x:REG.x+.2,z:REG.z+1.0}],done,t:0};showHint('👔 '+mgrName(G.lvl)+' şubeyi devralmaya geldi!')}
+function updateManager(dt){if(!MGR)return;const c=MGR.c,p=c.root.position;let vel=new V3();
+ if(MGR.path.length){const t=MGR.path[0],d=new V3(t.x-p.x,0,t.z-p.z),L=d.length();if(L<.08)MGR.path.shift();else{vel=d.normalize().multiplyScalar(Math.min(2.2,L/dt));c.tHeading=Math.atan2(vel.x,vel.z)}}
+ else{MGR.t+=dt;if(MGR.t<.1){c.tHeading=0;c.rig.play('wave');emo(c,'🤝',2.3)}if(MGR.t>1.6&&MGR.done){const f=MGR.done;MGR.done=null;f()}}
+ p.addScaledVector(vel,dt);animChar(c,dt,vel)}
+function clearManager(){if(MGR){scene.remove(MGR.c.root);MGR=null}}
+// passive income from handed-over branches is paid out while you play, too
+let brT=0;function branchTick(dt){if(!META.branches.length||!started)return;brT+=dt;if(brT<30)return;brT=0;const v=brPending();if(v<1)return;META.branches.forEach(b=>b.t=Date.now());saveMeta();addMoney(v,true);floatText('🏪 Şube geliri +$'+fmt(v),new V3(player.root.position.x,2.6,player.root.position.z),'y')}
+
 // ================= UI PANELS =================
 function panelOpen(){return $('panel').classList.contains('open')||$('over').classList.contains('open')||$('dlg').classList.contains('open')}
 function openBoard(){joy.on=false;$('joy').style.display='none';
@@ -1610,11 +1675,11 @@ function levelDone(){const end=CYC()===0?STORY[LVI()].end:[['cat','Harika! '+L()
 function levelDoneCard(){
  const nx=G.lvl+1,name=BR_NAMES(nx),mega=MEGA(),win=G.rep>=mega,bonus=win?Math.round(60*MULT()*5):0;G.bonusNext=bonus;
  const FN=['🎮 Oyun Köşesi','🏐 Plaj Voleybolu','🎤 Müzik Sahnesi','🔥 Şömine Köşesi','✈️ Seyir Terası','📚 Kütüphane Köşesi','🎠 Atlıkarınca'][nx%7],ON=OUTCFG[nx%7].ic+' '+OUTCFG[nx%7].n;
- $('over').innerHTML=`<div class="card"><div class="em">🎉</div><h1>${cafeName()} tamamlandı!</h1><p style="margin:6px 0">Ünün <b>⭐ ${G.rep.toFixed(1)}</b> · MegaCup <b>⭐ ${mega.toFixed(1)}</b></p><p style="font-weight:800;color:${win?'#2f9a46':'#c0504d'}">${win?'MegaCup\'ı geçtin! Bonus: $'+fmt(bonus):'MegaCup bu sefer önde. Bir sonrakinde ünü yükselt!'}</p><p>Sıradaki durak:</p><p class="big" style="color:#ff7a3d">${name}</p><p>Yeni menü · ${FN} · ${ON}</p><button class="bb" onclick="nextLevel()">Şubeyi Aç →</button></div>`;
+ $('over').innerHTML=`<div class="card"><div class="em">🎉</div><h1>${cafeName()} tamamlandı!</h1><p style="margin:6px 0">Ünün <b>⭐ ${G.rep.toFixed(1)}</b> · MegaCup <b>⭐ ${mega.toFixed(1)}</b></p><p style="font-weight:800;color:${win?'#2f9a46':'#c0504d'}">${win?'MegaCup\'ı geçtin! Bonus: $'+fmt(bonus):'MegaCup bu sefer önde. Bir sonrakinde ünü yükselt!'}</p><p style="margin:6px 0;font-weight:700">👔 <b>${mgrName(G.lvl)}</b> şubeyi devraldı. Bu şube sana her dakika <b style="color:#2f9a46">$${fmt(brRate(G.lvl)*60)}</b> kazandıracak.</p><p>Sıradaki durak:</p><p class="big" style="color:#ff7a3d">${name}</p><p>Yeni menü · ${FN} · ${ON}</p><button class="bb" onclick="nextLevel()">Şubeyi Aç →</button></div>`;
  $('over').classList.add('open');confetti(player.root.position,80);
 }
 
-function nextLevel(){$('over').classList.remove('open');if(!META.branches.some(b=>b.lvl===G.lvl))META.branches.push({lvl:G.lvl,t:Date.now()});saveMeta();const bn=G.bonusNext||0;G=fresh(G.lvl+1,1);G.money=30*MULT()+bn;buildWorld();updateHUD();save();showHint('Yeni şube! İlk makineyi aç');flash();setTimeout(storyStart,600)}
+function nextLevel(){$('over').classList.remove('open');clearManager();if(!META.branches.some(b=>b.lvl===G.lvl))META.branches.push({lvl:G.lvl,t:Date.now()});saveMeta();const bn=G.bonusNext||0;G=fresh(G.lvl+1,1);G.money=30*MULT()+bn;buildWorld();updateHUD();save();showHint('Yeni şube! İlk makineyi aç');flash();setTimeout(storyStart,600)}
 function updateHUD(){if(G&&G.rep!=null&&$('dayLine'))updateDayHUD();$('side').style.display=started&&has('reg')?'flex':'none';if(G.mis)misBadge();
  $('mv').textContent=fmt(G.money);$('lvlName').textContent=cafeName();
  const done=PADS.filter(p=>has(p.id)).length;$('lvlSub').textContent=`Şube ${G.lvl+1} · ${done}/${PADS.length}`;$('lvlP').style.width=(done/PADS.length*100)+'%';
@@ -1637,7 +1702,7 @@ function step(dt,now){GT+=dt;for(let i=LATER.length-1;i>=0;i--)if(LATER[i].t<=GT
  if(started){updateMachines(dt);updateCustomers(dt);updateStaff(dt);
   hintTimer-=dt;if(hintTimer<0&&hintTimer>-dt*1.5)$('hint').style.opacity=0;
   saveT+=dt;if(saveT>2){saveT=0;save()}
-  updateFun(dt);updateToken(dt,now);updateSky(dt);updateBin(dt);updateWC(dt);updateDeco(dt);updateOut(dt);updateScenery(dt);updateSheila(dt);outCard();if(reg&&reg.trash&&reg.trash.userData.pump>0){const tc=reg.trash;tc.userData.pump-=dt;const k=Math.sin(tc.userData.pump/.2*Math.PI)*.12;tc.scale.set(1+k,1-k,1+k);if(tc.userData.pump<=0)tc.scale.setScalar(1)}}
+  updateFun(dt);updateToken(dt,now);updateSky(dt);updateBin(dt);updateWC(dt);updateDeco(dt);updateOut(dt);updateScenery(dt);updateSheila(dt);updateManager(dt);branchTick(dt);outCard();if(reg&&reg.trash&&reg.trash.userData.pump>0){const tc=reg.trash;tc.userData.pump-=dt;const k=Math.sin(tc.userData.pump/.2*Math.PI)*.12;tc.scale.set(1+k,1-k,1+k);if(tc.userData.pump<=0)tc.scale.setScalar(1)}}
  // flyers (arc tweens)
  for(let i=flyers.length-1;i>=0;i--){const f=flyers[i];f.t+=dt/f.dur;const t=Math.min(1,f.t),e=t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2;
   const to=f.targetFn();f.obj.position.lerpVectors(f.from,to,e);f.obj.position.y+=Math.sin(t*Math.PI)*f.h;f.obj.rotation.y=f.r0+t*Math.PI*2*f.spin*.5;f.obj.rotation.x=Math.sin(t*Math.PI)*.4*f.spin;
