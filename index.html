@@ -265,15 +265,18 @@ const ORDER=[
 ORDER.push(['m1', 'reg', 'm2', 't1', 'board', 'dec1', 't2', 'cash', 'oven', 't3', 'bar1', 'fun', 't4', 'out', 'run', 'cln', 'wc', 'm3', 'dec2', 't5', 'wcc', 'bar2', 't6', 'next'],['m1', 'reg', 't1', 'm2', 'board', 't2', 'out', 'cash', 'oven', 't3', 'fun', 'dec1', 'bar1', 'wc', 'run', 't4', 'cln', 'm3', 't5', 'dec2', 'bar2', 'wcc', 't6', 'next'],['m1', 'reg', 't1', 'm2', 'board', 'cash', 't2', 'oven', 't3', 'dec1', 'bar1', 'fun', 't4', 'out', 'cln', 'm3', 'wc', 'run', 't5', 'dec2', 'bar2', 'wcc', 't6', 'next'],['m1', 'reg', 't1', 'm2', 'board', 't2', 'fun', 'cash', 'oven', 't3', 'dec1', 'out', 'bar1', 'wc', 'run', 't4', 'cln', 'm3', 't5', 'dec2', 'bar2', 'wcc', 't6', 'next']);
 function padList(l){return ORDER[l%7].map((id,i)=>Object.assign({id,c:COSTS[i]},PADDEF[id]))}
 let PADS=padList(0);
-const TABLE_L=[[[3.6,-4.6],[7.2,-4.6],[3.6,-0.6],[7.2,-0.6],[3.6,3.4],[7.2,3.4]],
- [[3.4,-4.8],[7.4,-3.6],[3.4,-1.0],[7.4,0.2],[3.4,2.8],[7.4,4.0]],
- [[3.6,-4.8],[7.4,-4.8],[2.9,-1.2],[6.4,-1.0],[3.6,2.6],[7.4,2.9]],
- [[3.4,-4.6],[7.4,-4.6],[3.0,-0.8],[6.8,-0.4],[3.6,3.0],[7.4,3.6]],
- [[3.0,-4.8],[6.0,-4.8],[8.6,-2.8],[3.6,-1.0],[7.2,0.8],[4.4,3.6]],
- [[3.6,-4.6],[7.2,-4.6],[3.6,-1.6],[7.2,-1.6],[3.6,1.4],[7.2,1.4]],
- [[3.2,-4.4],[7.4,-5.0],[5.2,-1.8],[2.8,1.0],[7.6,1.2],[5.0,4.0]]];
-TABLE_L.forEach(L=>L.forEach(t=>{if(t[0]>5.4&&t[1]<-3.3)t[1]=-3.2}));
+const TABLE_L=[ // her çift aynı halıyı paylaşır; halılar düz (yamuk yok), müdür odasından (x>6.4,z<-5.6) uzak
+ [[3.4,-4.0],[7.4,-4.0],[3.4,0.0],[7.4,0.0],[3.4,4.0],[7.4,4.0]],          // düzenli ızgara
+ [[2.9,-3.9],[6.6,-3.9],[3.9,0.1],[7.6,0.1],[2.9,4.1],[6.6,4.1]],          // zikzak sıralar
+ [[3.3,-4.1],[3.3,-0.6],[7.5,-4.1],[7.5,-0.6],[3.3,3.6],[7.5,3.6]],        // dikey çiftler
+ [[3.2,-3.7],[7.6,-3.7],[3.2,0.5],[7.6,0.5],[3.2,4.6],[7.6,4.6]],          // geniş aralık
+ [[3.9,-3.9],[7.6,-3.9],[2.9,0.1],[6.6,0.1],[3.9,4.1],[7.6,4.1]],          // ters zikzak
+ [[3.4,-4.1],[7.4,-4.1],[3.4,-0.3],[7.4,-0.3],[3.4,3.5],[7.4,3.5]],        // sıkı ızgara
+ [[3.3,-4.1],[3.3,-0.6],[7.5,-4.1],[7.5,-0.6],[3.0,3.8],[7.0,3.8]]];       // dikey + ön sıra
 const tablePos=s=>TABLE_L[LVI()][s];
+// şubeye özel mobilya: masa tipi, sandalye tipi, ahşap rengi
+const TSTYLE=[{t:'round',ch:'k_chairCushion',w:0xc68752},{t:'round',ch:'k_chairRounded',w:0xe8c9a0},{t:'rect',ch:'k_chairRounded',w:0x5a3d2b},{t:'rect',ch:'k_benchCushionLow',w:0x8a5a36,chH:.55},
+ {t:'round',ch:'k_loungeChair',w:0xdfe4ea,chH:.95},{t:'rect',ch:'k_chairCushion',w:0xb98c66},{t:'round',ch:'k_chairRounded',w:0xffffff,rainbow:1}];
 const FUN={x:-6.3,z:8.85},TRASH={x:-9.0,z:-2.6};
 const FUNI=()=>[{n:'Oyun Köşesi',ic:'🎮',e:'🎮'},{n:'Plaj Voleybolu',ic:'🏐',e:'🏐'},{n:'Müzik Sahnesi',ic:'🎤',e:'🎵'},{n:'Şömine Köşesi',ic:'🔥',e:'🔥'},{n:'Seyir Terası',ic:'✈️',e:'✈️'},{n:'Kütüphane Köşesi',ic:'📚',e:'📚'},{n:'Atlıkarınca',ic:'🎠',e:'🎠'}][LVI()];
 const decorN=()=>['dec1','dec2'].filter(has).length;
@@ -530,8 +533,19 @@ function makeItem(kind){const g=new THREE.Group();g.userData.kind=kind;
  if(kind==='bill'){g.add(mesh(GEO.bill,MAT.bill,0,.022,0));g.add(mesh(GEO.band,MAT.band,0,.023,0,false));return g}
  const P=PROD[kind];const o=TPL[P.m].scene.clone(true);const s=P.w?fitScale(P.m,P.w):normScale(P.m,P.h);o.scale.setScalar(s);const b=new THREE.Box3().setFromObject(o);if(!P.hh){P.hh=b.max.y-b.min.y;ITEM_H[kind]=P.hh+.025}const c=b.getCenter(new V3());o.position.set(-c.x,-b.min.y,-c.z);g.add(o);return g}
 // machine models per station
+function counterTex(lv){return canvasTex(256,128,(c,w,h)=>{c.fillStyle='#fff';c.fillRect(0,0,w,h);
+ if(lv===0){c.fillStyle='rgba(0,0,0,.09)';for(let x=0;x<w;x+=16)c.fillRect(x,0,3,h)}
+ else if(lv===1){for(let y=0;y<h;y+=32)for(let x=0;x<w;x+=32){c.fillStyle=((x+y)/32)%2?'rgba(255,255,255,.0)':'rgba(255,255,255,.35)';c.fillRect(x+2,y+2,28,28)}c.strokeStyle='rgba(0,0,0,.08)';c.lineWidth=2;for(let x=0;x<=w;x+=32){c.beginPath();c.moveTo(x,0);c.lineTo(x,h);c.stroke()}for(let y=0;y<=h;y+=32){c.beginPath();c.moveTo(0,y);c.lineTo(w,y);c.stroke()}}
+ else if(lv===2){c.fillStyle='rgba(120,50,30,.35)';c.fillRect(0,0,w,h);c.fillStyle='rgba(255,255,255,.55)';for(let y=0;y<h;y+=16){c.fillRect(0,y,w,2);for(let x=(y/16%2)*16;x<w;x+=32)c.fillRect(x,y,2,16)}}
+ else if(lv===3){for(let y=0;y<h;y+=21){c.fillStyle=['rgba(90,50,20,.25)','rgba(90,50,20,.12)','rgba(90,50,20,.2)'][(y/21|0)%3];c.fillRect(0,y,w,20);c.fillStyle='rgba(60,30,10,.35)';c.fillRect(0,y+20,w,1.5);c.beginPath();c.arc((y*37)%w,y+10,3,0,7);c.fill()}}
+ else if(lv===4){const g2=c.createLinearGradient(0,0,0,h);g2.addColorStop(0,'rgba(255,255,255,.6)');g2.addColorStop(.5,'rgba(120,140,170,.25)');g2.addColorStop(1,'rgba(255,255,255,.5)');c.fillStyle=g2;c.fillRect(0,0,w,h);c.fillStyle='rgba(0,0,0,.12)';for(let x=0;x<w;x+=64)c.fillRect(x,0,2,h)}
+ else if(lv===5){c.fillStyle='rgba(40,70,55,.55)';c.fillRect(0,16,w,h-32);c.fillStyle='rgba(255,255,255,.7)';c.font='18px "Comic Sans MS",cursive';['a²+b²','☕=♥','π≈3.14','A+'].forEach((t,i)=>c.fillText(t,10+i*62,h/2+6))}
+ else {for(let x=0;x<w;x+=32){c.fillStyle=(x/32)%2?'rgba(255,255,255,.0)':'rgba(255,255,255,.55)';c.fillRect(x,0,32,h)}c.fillStyle='rgba(255,210,63,.9)';for(let x=16;x<w;x+=32){c.beginPath();c.arc(x,12,5,0,7);c.fill()}}})}
 function stationModel(kind,g){const P=PROD[kind];const add=(k,h,x,y,z,ry=0,mx)=>propC(k,h,x,z,ry,g,y,mx);
- const th=L().theme;const tn=o=>tint(o,{metal:th.mach,woodDark:0xb07a4f});tn(add('k_kitchenCabinet',1.05,0,0,0));
+ const th=L().theme,lv=LVI();const WD=[0xb07a4f,0xe8c9a0,0x4a3428,0x7a4a2a,0xc9d2de,0x9a6a48,0xffffff][lv];const tn=o=>tint(o,{metal:th.mach,woodDark:WD,wood:lv===4?0xe4e9f0:lv===2?0x6b4a38:0xd9a56e});tn(add([1,3,5].includes(lv)?'k_kitchenBar':'k_kitchenCabinet',1.05,0,0,0));
+ if(lv===2||lv===4){g.add(mesh(new THREE.BoxGeometry(1.0,.05,.06),std(lv===2?0xffd166:0x3f7cd6,{emissive:lv===2?0xffb020:0x3f7cd6,emissiveIntensity:.6}),0,.2,.5,false))}
+ if(lv===3){const r=mesh(new THREE.BoxGeometry(1.1,.08,.75),std(0x6b4a32),0,1.07,0,false);g.add(r)}
+ if(lv===6){for(let i=0;i<5;i++)g.add(mesh(new THREE.SphereGeometry(.04,8,6),new THREE.MeshBasicMaterial({color:[0xff5f8f,0xffd23f,0x4fc3e8,0x8f6bff,0x6fcf97][i]}),-.4+i*.2,1.02,.4,false))}
  if(P.st==='coffee'){add('k_kitchenCoffeeMachine',.75,0,1.05,-.12);add('k_mug',.18,.42,1.05,.15);add('k_mug',.18,-.45,1.05,.18,1)}
  else if(P.st==='kettle'){add('k_kitchenBlender',.62,.2,1.05,-.15);add('k_cup-saucer',.12,-.35,1.05,.1,0,true)}
  else if(P.st==='oven'||P.st==='oven2'){g.children.pop();tn(add('k_kitchenStove',1.08,0,0,0));add('k_kitchenMicrowave',.42,0,1.08,-.18)}
@@ -680,7 +694,7 @@ let FAIRY=[];
 // ================= ASSETS =================
 const TPL={};
 const FILES_V=['Kate','Coffee','CoffeeMaker','Milk','Butter','IceCream','CoolPancake','Cookieman','Olivia','MoonGirl','Shiro','CoolBunny','RealCake','CoolDrink','AwesomeLemon','TastySandwich','CoolBaguette','Rose','Teddy','Froggy','ChillPenguin','SuperICEPOP','CoolCloud','Jennifer'].map(n=>'v_'+n);
-const FILES_K=['k_cup-coffee','k_cup-tea','k_croissant','k_donut-sprinkles','k_cupcake','k_ice-cream','k_cake','k_waffle','k_muffin','k_kitchenCoffeeMachine','k_kitchenCabinet','k_kitchenStove','k_kitchenFridgeSmall','k_kitchenFridge','k_kitchenMicrowave','k_toaster','k_kitchenBlender','k_kitchenBar','k_kitchenBarEnd','k_tableRound','k_chairCushion','k_chairRounded','k_stoolBar','k_loungeSofa','k_loungeChair','k_tableCoffee','k_rugRound','k_rugRectangle','k_lampRoundFloor','k_lampRoundTable','k_pottedPlant','k_plantSmall1','k_plantSmall2','k_plantSmall3','k_bookcaseOpen','k_books','k_radio','k_speaker','k_coatRackStanding','k_pillowBlue','k_pillow','k_sideTable','k_trashcan','k_plate','k_cup-saucer','k_benchCushion','k_cardboardBoxOpen','k_mug','k_pie','k_sandwich','k_cookie-chocolate','k_pancakes','k_rugRounded','k_frappe','k_hot-dog','k_lollypop','k_soda','k_cocktail','k_popsicle','k_watermelon','k_burger','k_fries','k_bowl-soup','k_sushi-salmon','k_pizza','k_chinese','k_carton-small','k_corn','k_soda-can','k_carton','k_bear','k_toilet','k_bathroomSink','k_bathroomMirror','k_loungeSofaLong','k_televisionModern','k_cabinetTelevision','k_detail-parasol-a','k_detail-awning-wide','k_c_trash','k_c_flowers','k_c_bench','k_planter','k_tree-small','k_lampWall','k_rugDoormat','k_speakerSmall'];
+const FILES_K=['k_cup-coffee','k_cup-tea','k_croissant','k_donut-sprinkles','k_cupcake','k_ice-cream','k_cake','k_waffle','k_muffin','k_kitchenCoffeeMachine','k_kitchenCabinet','k_kitchenStove','k_kitchenFridgeSmall','k_kitchenFridge','k_kitchenMicrowave','k_toaster','k_kitchenBlender','k_kitchenBar','k_kitchenBarEnd','k_tableRound','k_chairCushion','k_chairRounded','k_stoolBar','k_loungeSofa','k_loungeChair','k_tableCoffee','k_rugRound','k_rugRectangle','k_lampRoundFloor','k_lampRoundTable','k_pottedPlant','k_plantSmall1','k_plantSmall2','k_plantSmall3','k_bookcaseOpen','k_books','k_radio','k_speaker','k_coatRackStanding','k_pillowBlue','k_pillow','k_sideTable','k_trashcan','k_plate','k_cup-saucer','k_benchCushion','k_cardboardBoxOpen','k_mug','k_pie','k_sandwich','k_cookie-chocolate','k_pancakes','k_rugRounded','k_frappe','k_hot-dog','k_lollypop','k_soda','k_cocktail','k_popsicle','k_watermelon','k_burger','k_fries','k_bowl-soup','k_sushi-salmon','k_pizza','k_chinese','k_carton-small','k_corn','k_soda-can','k_carton','k_bear','k_toilet','k_bathroomSink','k_bathroomMirror','k_loungeSofaLong','k_televisionModern','k_cabinetTelevision','k_detail-parasol-a','k_detail-awning-wide','k_c_trash','k_c_flowers','k_c_bench','k_planter','k_tree-small','k_lampWall','k_rugDoormat','k_speakerSmall','k_tableCloth','k_benchCushionLow'];
 const FILES=['anim_src','cat','dog',...FILES_V,...FILES_K];
 async function loadAssets(){
  const L=new THREE.GLTFLoader();let done=0;const b64=s=>{const bin=atob(s),u=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)u[i]=bin.charCodeAt(i);return u.buffer};
@@ -841,7 +855,7 @@ function spawnObj(p,anim){
   solids.push({x0:x-1,x1:x+1,z0:z-.7,z1:z+1.55});
  }else if(p.t==='register'){
   const g=new THREE.Group();
-  const tg=canvasTex(256,128,(c,w,h)=>{c.fillStyle='#fff';c.fillRect(0,0,w,h);c.fillStyle='rgba(0,0,0,.09)';for(let x=0;x<w;x+=16)c.fillRect(x,0,3,h)});tg.wrapS=THREE.RepeatWrapping;tg.repeat.set(5,1);const c1=rbox(6.4,1.1,1.2,.15,std(th.counter,{map:tg}));c1.position.set(-3.7,0,-1.2);g.add(c1);const mb=canvasTex(512,128,(c,w,h)=>{c.fillStyle='#fbf7f2';c.fillRect(0,0,w,h);c.strokeStyle='rgba(150,140,160,.25)';for(let k=0;k<14;k++){c.lineWidth=rnd(.6,2);c.beginPath();let x=rnd(0,w),y=0;c.moveTo(x,y);while(y<h){x+=rnd(-14,14);y+=rnd(6,14);c.lineTo(x,y)}c.stroke()}});const t1=rbox(6.6,.12,1.4,.15,std(0xffffff,{map:mb,roughness:.25}));t1.position.set(-3.7,1.08,-1.2);g.add(t1);
+  const tg=counterTex(LVI());tg.wrapS=THREE.RepeatWrapping;tg.repeat.set(5,1);const c1=rbox(6.4,1.1,1.2,.15,std(th.counter,{map:tg}));c1.position.set(-3.7,0,-1.2);g.add(c1);const mb=canvasTex(512,128,(c,w,h)=>{c.fillStyle='#fbf7f2';c.fillRect(0,0,w,h);c.strokeStyle='rgba(150,140,160,.25)';for(let k=0;k<14;k++){c.lineWidth=rnd(.6,2);c.beginPath();let x=rnd(0,w),y=0;c.moveTo(x,y);while(y<h){x+=rnd(-14,14);y+=rnd(6,14);c.lineTo(x,y)}c.stroke()}});const t1=rbox(6.6,.12,1.4,.15,std(0xffffff,{map:mb,roughness:.25}));t1.position.set(-3.7,1.08,-1.2);g.add(t1);
   const rg=new THREE.Group();rg.position.set(REG.x,1.2,REG.z);rg.add(mesh(new THREE.BoxGeometry(.7,.35,.5),std(0x3a3f47)));rg.add(mesh(new THREE.BoxGeometry(.5,.28,.06),std(0x9be3f2,{emissive:0x4ab8d8,emissiveIntensity:.4}),0,.3,.05));rg.children[1].rotation.x=-.4;g.add(rg);
   const pileG=new THREE.Group();pileG.position.set(PILE.x,1.18,PILE.z);g.add(pileG);
   const stockG=new THREE.Group();stockG.position.set(DROP.x,1.16,-1.2);g.add(stockG);
@@ -857,12 +871,12 @@ function spawnObj(p,anim){
   solids.push({x0:-7,x1:-0.3,z0:-1.95,z1:-.45});
  }else if(p.t==='table'){
   const[x,z]=tablePos(p.s),g=new THREE.Group();g.position.set(x,0,z);
-  const tobj=tint(propC('k_tableRound',.82,0,0,0,g),{wood:0xc68752});
+  const TS=TSTYLE[LVI()];const tobj=TS.t==='rect'?tint(propC('k_tableCloth',.82,0,0,Math.PI/2,g),{wood:TS.w,carpet:th.cloth}):tint(propC('k_tableRound',.82,0,0,0,g),{wood:TS.w});
   const ct=canvasTex(256,256,(c,w,h)=>{c.fillStyle=th.cloth;c.beginPath();c.arc(128,128,126,0,7);c.fill();c.fillStyle=th.cloth2;for(let a=0;a<24;a++){const r=a*Math.PI/12;c.beginPath();c.arc(128+Math.cos(r)*112,128+Math.sin(r)*112,9,0,7);c.fill()}c.strokeStyle='#fff';c.lineWidth=5;c.setLineDash([10,8]);c.beginPath();c.arc(128,128,92,0,7);c.stroke()});
-  const cl=mesh(new THREE.CircleGeometry(.62,32),std(0xffffff,{map:clothTex(),transparent:true,roughness:.8}),0,.835,0,false);cl.rotation.x=-Math.PI/2;g.add(cl);
+  const cl=mesh(new THREE.CircleGeometry(.62,32),std(0xffffff,{map:clothTex(),transparent:true,roughness:.8}),0,.835,0,false);cl.rotation.x=-Math.PI/2;cl.visible=TS.t!=='rect';g.add(cl);
   const vase=new THREE.Group();vase.position.set(.32,.84,-.26);vase.add(mesh(new THREE.CylinderGeometry(.06,.05,.16,10),std(0xffffff,{roughness:.2}),0,.08,0));
   [0xff6f91,0xffc94d,0xff9fb5].forEach((c,k)=>{vase.add(mesh(new THREE.CylinderGeometry(.008,.008,.16,4),std(0x5aa95a),(k-1)*.03,.22,0,false));vase.add(mesh(new THREE.SphereGeometry(.045,8,6),std(c),(k-1)*.035,.31+(k%2)*.03,0))});g.add(vase);
-  const seats=[];for(const sx of[-1,1]){const ch=tint(propC('k_chairCushion',1.0,sx*1.15,0,sx<0?Math.PI/2:-Math.PI/2,g),{carpet:th.cush,wood:0xc68752});
+  const seats=[];for(const sx of[-1,1]){const ch=tint(propC(TS.ch,TS.chH||1.0,sx*1.15,0,sx<0?Math.PI/2:-Math.PI/2,g),{carpet:th.cush,wood:TS.rainbow?[0xff6f91,0x4fc3e8,0xffd23f,0x8f6bff,0x6fcf97][(p.s*2+(sx>0))%5]:TS.w});
    seats.push({x:x+sx*1.15,z,rot:sx<0?Math.PI/2:-Math.PI/2,cust:null,res:false})}
   const mess=new THREE.Group();mess.position.y=.86;g.add(mess);
   world.add(g);if(anim)popIn(g);
