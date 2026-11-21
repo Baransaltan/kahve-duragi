@@ -465,7 +465,7 @@ function loadRegion(rid,cb){if(LOADING)return;LOADING=true;const tok=Symbol();wi
   if(ROOT){scene.remove(ROOT);ROOT.traverse(o=>{if(o.isMesh){o.geometry.dispose();o.material.dispose()}})}
   hl.clear();OBJ=[];setRegionData(rid);S.region=rid;save();
   ROOT=g.scene;scene.add(ROOT);ROOT.updateMatrixWorld(true);
-  ROOT.traverse(o=>{if(!o.isMesh)return;let nm=o.name,m=BYID[nm];if(!m&&o.parent)m=BYID[o.parent.name];if(!m)return;if(m.drop){o.visible=false;return}o.userData.m=m;m.o=m.o||[];m.o.push(o);o.material=mat(m.c,m);o.userData.base=o.material.color.clone();OBJ.push(o);if(m.c==='att'){o.visible=false;o.renderOrder=3;o.material=new THREE.MeshBasicMaterial({color:m.k==='origin'?0xff2d55:0x2f7bff,depthTest:false,transparent:true,opacity:.95});o.userData.base=o.material.color.clone()}});
+  ROOT.traverse(o=>{if(!o.isMesh)return;let nm=o.name,m=BYID[nm];if(!m&&o.parent)m=BYID[o.parent.name];if(!m)return;if(m.drop){o.visible=false;return}o.userData.m=m;m.o=m.o||[];m.o.push(o);o.material=mat(m.c,m);o.userData.base=o.material.color.clone();OBJ.push(o);if(m.c==='att'){o.visible=false;o.renderOrder=6;o.material=new THREE.MeshBasicMaterial({color:m.k==='origin'?0xff2d55:0x2f7bff,depthTest:false,transparent:true,opacity:.95});o.userData.base=o.material.color.clone()}});
   const bb=new THREE.Box3();OBJ.forEach(o=>{if(o.userData.m.c!=='att'&&!o.userData.m.ctx)bb.expandByObject(o)});bb.getCenter(CENTER);RAD=bb.getSize(new THREE.Vector3()).length()/2;SZ=bb.getSize(new THREE.Vector3());
   buildCH();document.querySelectorAll('#layers button').forEach(b=>b.style.display=OBJ.some(o=>o.userData.m.c===b.dataset.c)?'':'none');vis={bone:1,muscle:1,nerve:1,artery:1,vein:rid==='ul'?0:1,organ:1};resetView(true);applyVis();if(typeof applyCosmetics==='function')applyCosmetics();$('load').style.display='none';LOADING=false;cb&&cb()},e=>loadFail(rid,String(e&&e.message||e)))).catch(e=>loadFail(rid,e.message))}
 function boot(){const r=REGS.some(x=>x.id===S.region)?S.region:'ul';loadRegion(r,start)}
@@ -479,10 +479,11 @@ function focusOn(objs,zoom=2.2){const bb=new THREE.Box3();objs.forEach(o=>bb.exp
 let ghost=null,xray=false,isoSet=null,hl=new Map();
 function applyVis(){OBJ.forEach(o=>{const m=o.userData.m;if(m.c==='att')return;let v=m.c==='organ'?vis.organ!==0:!!vis[m.c];if(isoSet)v=isoSet.has(o);o.visible=v;
  let op=1;if(xray&&m.c==='muscle')op=.18;if(xray&&m.c==='bone')op=.35;if(ghost&&ghost.has(m.c)&&!(isoSet&&isoSet.has(o)))op=Math.min(op,m.c==='bone'?.28:.12);if(m.ctx)op=Math.min(op,.35);if(m.shell&&!SHELLON)op=Math.min(op,.2);if(xray&&m.c==='organ')op=Math.min(op,.2);
- o.material.opacity=op;o.material.depthWrite=op>.9;o.userData.pick=v&&op>.5});
+ if(SPOT){if(SPOT.has(o)){op=1;v=true;o.visible=true}else op=Math.min(op,m.c==='bone'?.22:.08)}o.material.opacity=op;o.material.depthWrite=op>.9;o.userData.pick=v&&op>.5});
  document.querySelectorAll('#layers button').forEach(b=>b.classList.toggle('on',!!vis[b.dataset.c]))}
 function setHL(objs,color,glow=.55){objs.forEach(o=>{hl.set(o,{c:color,g:glow});o.material.emissive.set(color);o.material.emissiveIntensity=glow})}
-function clearHL(){hl.forEach((v,o)=>{o.material.emissive.set(0);o.material.emissiveIntensity=0});hl.clear();OBJ.forEach(o=>{if(o.userData.m.c==='att')o.visible=false})}
+let SPOT=null;function spotlight(objs){if(SPOT)SPOT.forEach(o=>{if(o.userData.spc){o.material.color.copy(o.userData.spc);delete o.userData.spc}});SPOT=objs&&objs.length?new Set(objs):null;OBJ.forEach(o=>{const on=SPOT&&SPOT.has(o);o.material.depthTest=!on;o.renderOrder=on?4:0;if(on){o.userData.spc=o.material.color.clone();o.material.color.set(0xffb020);o.material.emissive.set(0xff8a00)}});applyVis()}
+function clearHL(){if(SPOT)spotlight(null);hl.forEach((v,o)=>{o.material.emissive.set(0);o.material.emissiveIntensity=0});hl.clear();OBJ.forEach(o=>{if(o.userData.m.c==='att')o.visible=false})}
 function flash(objs,color,ms=900){setHL(objs,color,.9);setTimeout(()=>{objs.forEach(o=>{if(hl.get(o)&&hl.get(o).c===color){o.material.emissive.set(0);hl.delete(o)}})},ms)}
 const itemObjs=it=>it.parts.flatMap(n=>(BYNAME[n]&&BYNAME[n].o)||[]);
 // ---------- etiket ----------
@@ -649,15 +650,15 @@ function nextQ(){if(!RUN)return;const R=RUN;
  if(R.boss&&R.boss.hp<=0)return endRun(true);if(!R.def.free&&R.hearts<=0)return endRun(false);if(!R.boss&&R.i>=R.list.length)return endRun(true);
  if(R.boss&&R.i>=R.list.length){R.list=shuf(R.list.slice());R.i=0}
  const it=R.list[R.i];Q={cur:it,done:false};setShell(isShell(it));clearHL();hideLabel();$('opts').style.display='none';$('casebox').style.display='none';$('qbox').style.display='block';
- if(R.boss)setProg(1-R.boss.hp/R.boss.max,1);else setProg(R.i,R.list.length);R.qt=R.qtMax;R.frozen=0;hudUI();
+ if(R.boss)setProg(1-R.boss.hp/R.boss.max,1);else setProg(R.i,R.list.length);R.qt=R.qtMax;R.frozen=1.2;hudUI();
  if(R.def.t==='clinic')return clinicQ(it);
  let type=R.def.t;if(type==='boss'){type=it.mu&&Math.random()<.35?'card':Math.random()<.5?'find':'name'}Q.type=type;
  const t1=S.lang==='la'?it.la:it.en,t2=S.lang==='la'?it.en:it.la,lab=R.boss?'⚔️ '+R.boss.name:(R.def.free?'':(R.def.lab||R.def.id)+' · ')+(R.def.ti||''),df=R.def.df||0;
  if(type==='find'){$('qmode').textContent=`BUL · ${CATN[it.c]} ${R.boss?'':'· '+(R.i+1)+'/'+R.list.length}`;$('qt').textContent=t1;$('qe').textContent=df>=.55?(df>=.8?'İpucu yok — sadece '+(S.lang==='la'?'Latince':'İngilizce'):'🔒 Çeviri gizli'):t2;layerFor(it.c);if(df<.15&&!R.boss){resetView();setTimeout(()=>{if(Q&&Q.cur===it&&!Q.done)focusOn(itemObjs(it),7)},350)}else resetView()}
- else if(type==='name'){$('qmode').textContent='İSİMLENDİR';$('qt').textContent='Parlayan yapı hangisi?';$('qe').textContent=CATN[it.c];layerFor(it.c);const objs=itemObjs(it);setHL(objs,0x7c5cff,.85);focusOn(objs,2.6);
+ else if(type==='name'){$('qmode').textContent='İSİMLENDİR';$('qt').textContent='Parlayan yapı hangisi?';$('qe').textContent=CATN[it.c];layerFor(it.c);const objs=itemObjs(it);spotlight(objs);focusOn(objs,1.5);
   const opts=shuf([it,...distract(it,allItems().filter(x=>x.c===it.c&&x.k!==it.k&&!/\(sol\)/.test(x.en)),3,df)]);showOpts(opts.map(o=>({h:(S.lang==='la'?o.la:o.en)+(df>=.8?'':`<small>${S.lang==='la'?o.en:o.la}</small>`),ok:o===it})))}
  else if(type==='card'){const mu=it.mu,F=[['N','Innervasyonu (N)?'],['A','Fonksiyonu (A)?'],['O','Origosu (O)?'],['I','İnsersiyosu (I)?']];const [f,qq]=F[Math.random()*4|0];
-  $('qmode').textContent='KAS KARTI';$('qt').textContent=(S.lang==='la'?mu.la:mu.en);$('qe').textContent=qq;vis={bone:1,muscle:1,nerve:0,artery:0,vein:0};ghost=null;applyVis();const objs=itemObjs(it);setHL(objs,0x7c5cff,.6);focusOn(objs,2.4);if(f==='O'||f==='I')showOI(it);
+  $('qmode').textContent='KAS KARTI';$('qt').textContent=(S.lang==='la'?mu.la:mu.en);$('qe').textContent=qq;vis={bone:1,muscle:1,nerve:0,artery:0,vein:0};ghost=null;applyVis();const objs=itemObjs(it);spotlight(objs);focusOn(objs,1.8);if(f==='O'||f==='I')showOI(it);
   const wrong=(df>=.3?shuf(MUSCLES.filter(m=>m.k!==mu.k&&m[f]!==mu[f])).sort((a,b)=>(b.g===mu.g)-(a.g===mu.g)):shuf(MUSCLES.filter(m=>m.k!==mu.k&&m[f]!==mu[f]))).reduce((a,m)=>{if(a.length<3&&!a.includes(m[f]))a.push(m[f]);return a},[]);showOpts(shuf([{h:mu[f],ok:true},...wrong.map(w=>({h:w,ok:false}))]))}
  $('qbox').querySelector('#qmode').insertAdjacentHTML('afterbegin',lab&&!R.def.free?`<span style="color:var(--pri)">${lab}</span> · `:'')}
 function showOpts(list,cb){const box=$('opts');box.innerHTML='';box.style.display='flex';list.forEach(o=>{const b=document.createElement('button');b.innerHTML=o.h;if(o.ok)b.dataset.ok=1;b.onclick=()=>{if(Q.done||b.disabled)return;Q.done=true;b.classList.add(o.ok?'ok':'bad');if(!o.ok)box.querySelector('[data-ok]').classList.add('ok');answer(o.ok);cb&&cb(o.ok)};box.appendChild(b)})}
@@ -771,7 +772,7 @@ function start(){updTop();applyCosmetics();if(!S.name){$('welcome').style.displa
 
 // ---------- döngü ----------
 const _v=new THREE.Vector3();
-let _lt=performance.now();function loop(){requestAnimationFrame(loop);const _n=performance.now(),_dt=Math.min(.1,(_n-_lt)/1000);_lt=_n;gameTick(_dt);if(focusAnim){const k=Math.min(1,(performance.now()-focusAnim.t0)/650),e=1-Math.pow(1-k,3);controls.target.lerpVectors(focusAnim.ft,focusAnim.tt,e);camera.position.lerpVectors(focusAnim.fp,focusAnim.tp,e);if(k>=1)focusAnim=null}
+let _lt=performance.now();function loop(){requestAnimationFrame(loop);const _n=performance.now(),_dt=Math.min(.1,(_n-_lt)/1000);_lt=_n;gameTick(_dt);if(SPOT){const p=.45+.4*Math.sin(_n/170);SPOT.forEach(o=>{if(!Q||!Q.done){o.material.emissive.set(0xff8a00);o.material.emissiveIntensity=p}})}if(focusAnim){const k=Math.min(1,(performance.now()-focusAnim.t0)/650),e=1-Math.pow(1-k,3);controls.target.lerpVectors(focusAnim.ft,focusAnim.tt,e);camera.position.lerpVectors(focusAnim.fp,focusAnim.tp,e);if(k>=1)focusAnim=null}
  controls.update();const t=performance.now()/1000;hl.forEach((v,o)=>{o.material.emissiveIntensity=v.g*(.75+.25*Math.sin(t*5))});
  if(labelObj){const bb=new THREE.Box3().setFromObject(labelObj);bb.getCenter(_v);_v.project(camera);if(_v.z>1){$('label').style.display='none'}else{$('label').style.display='block';$('label').style.left=((_v.x+1)/2*innerWidth)+'px';$('label').style.top=((1-_v.y)/2*innerHeight)+'px'}}
  renderer.render(scene,camera)}
