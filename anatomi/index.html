@@ -72,6 +72,29 @@ button{font:inherit;border:none;cursor:pointer;color:inherit}
 #sres{background:#fff;border-radius:14px;margin-top:6px;max-height:40vh;overflow:auto;box-shadow:0 6px 20px rgba(70,40,150,.15)}#sres div{padding:9px 12px;font-weight:800;font-size:13.5px;border-bottom:1px solid #f3f0fb}#sres div small{display:block;color:var(--sub);font-weight:700}
 #load{position:fixed;inset:0;z-index:40;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#f6f1ff;font-weight:900;color:var(--sub)}#load .ico{font-size:50px;animation:bob 1.5s infinite}
 .conf{position:fixed;z-index:50;pointer-events:none;font-size:22px;animation:cf 1.4s ease-out forwards}@keyframes cf{to{transform:translate(var(--dx),var(--dy)) rotate(540deg);opacity:0}}
+
+#hud{display:flex;justify-content:center;gap:10px;font-size:13px;font-weight:900;margin-bottom:2px}#hud .cmb{color:#ff6a3d}
+#tbar{height:6px;background:#ece6ff;border-radius:4px;margin-top:5px;overflow:hidden;display:none}#tbar div{height:100%;background:linear-gradient(90deg,#ffb347,#7c5cff);width:100%;transition:width .1s linear}#tbar.fz div{background:#8fd3ff!important}
+#boss{display:none;pointer-events:auto;margin:0 52px 6px;background:linear-gradient(135deg,#2d2350,#4b3a8a);color:#fff;border-radius:16px;padding:8px 12px;box-shadow:0 6px 18px rgba(45,35,80,.35)}
+#boss .bh{font-weight:900;font-size:14px}#boss .hp{height:10px;background:rgba(255,255,255,.2);border-radius:6px;margin-top:5px;overflow:hidden}#boss .hp div{height:100%;width:100%;background:linear-gradient(90deg,#ff5a6a,#ffb347);transition:width .4s}
+#bossSay{font-size:12px;font-weight:700;margin-top:4px;opacity:.9}#bossSay.pop{animation:pop .35s}@keyframes pop{0%{transform:scale(.8)}60%{transform:scale(1.08)}}
+#pups{position:fixed;right:8px;top:calc(160px + env(safe-area-inset-top));z-index:6;display:none;flex-direction:column;gap:6px}#pups button{width:46px;height:50px;border-radius:14px;background:#fff;box-shadow:var(--sh);font-size:19px;line-height:1}#pups small{display:block;font-size:10px;font-weight:900;color:#c9971a;margin-top:2px}
+.shk{animation:shk .35s}@keyframes shk{20%{transform:translateX(-6px)}40%{transform:translateX(6px)}60%{transform:translateX(-4px)}80%{transform:translateX(3px)}}
+.ftx{position:fixed;left:50%;top:22%;z-index:9;font-weight:900;font-size:28px;pointer-events:none;animation:ftx .9s ease-out forwards;transform:translateX(-50%)}@keyframes ftx{to{transform:translate(-50%,-40px);opacity:0}}
+.st{display:flex;justify-content:center;gap:6px;font-size:40px;margin:6px 0}.st i{font-style:normal;color:#e6e0f5}.st i.on{color:#ffc93c;animation:stp .5s backwards;text-shadow:0 3px 0 #e0a21a}@keyframes stp{0%{transform:scale(0) rotate(-90deg)}70%{transform:scale(1.3)}}
+.hhead{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}.hn{font-size:21px;font-weight:900}.hhead small{color:var(--sub);font-weight:800}.hs{display:flex;gap:6px}.hs span{background:#fff;border-radius:12px;padding:6px 10px;font-weight:900;box-shadow:var(--sh);font-size:14px}
+.htabs{display:flex;gap:4px;background:#fff;border-radius:16px;padding:4px;box-shadow:var(--sh);margin-bottom:12px;position:sticky;top:0;z-index:2}.htabs button{flex:1;background:none;border-radius:12px;padding:6px 0;font-size:10.5px;font-weight:900;color:var(--sub);display:flex;flex-direction:column;align-items:center}.htabs b{font-size:19px}.htabs button.on{background:var(--pri);color:#fff}
+.daily{width:100%;text-align:left;background:linear-gradient(135deg,#ffb347,#ff6f91);color:#fff;border-radius:18px;padding:12px 16px;box-shadow:0 4px 0 #d9506f;margin-bottom:12px}.daily b{font-size:16px;display:block}.daily small{font-weight:800;opacity:.95}.daily.done{background:linear-gradient(135deg,#9fe3bf,#5cc98f);box-shadow:0 4px 0 #3fa874}
+.chap{background:#fff;border-radius:20px;padding:10px 12px 12px;margin-bottom:12px;box-shadow:var(--sh)}.chh{display:flex;justify-content:space-between;font-weight:900;font-size:16px;margin-bottom:8px}.chh small{color:#e0a21a}
+.path{display:flex;gap:8px;overflow-x:auto;padding:2px 2px 6px}.node{flex:0 0 84px;background:#f4f0ff;border-radius:16px;padding:8px 4px;display:flex;flex-direction:column;align-items:center;gap:2px;box-shadow:0 3px 0 #e2d9ff}
+.node b{font-size:26px;width:46px;height:46px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;box-shadow:0 3px 0 #d8ccff}.node.won b{background:#fff6d8;box-shadow:0 3px 0 #ffd56b}.node .ns{color:#ffc93c;font-size:13px;letter-spacing:1px}.node small{font-size:10px;font-weight:800;color:var(--sub);text-align:center;line-height:1.15;min-height:23px}
+.node.lock{opacity:.45}.node.bossn{background:linear-gradient(160deg,#3b2d70,#6a4fc9);box-shadow:0 3px 0 #2a1f55}.node.bossn small{color:#fff}.node.bossn b{background:#ffd56b}
+.album{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}.card2{background:#f1edf9;border-radius:14px;padding:8px 6px;text-align:center;min-height:74px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;border:2px dashed #ddd3f3}
+.card2 b{font-size:22px}.card2 span{font-size:10.5px;font-weight:800;line-height:1.15;color:var(--sub)}.card2.got{background:#fff;border:2px solid var(--cc);box-shadow:0 3px 0 var(--cc)}.card2.got span{color:var(--ink)}.card2.got.r2{background:linear-gradient(160deg,#fff,#eef6ff)}.card2.got.r3{background:linear-gradient(160deg,#fff8e0,#ffe9f5)}
+.shop{display:grid;grid-template-columns:1fr 1fr;gap:8px}.shopc{background:#fff;border-radius:16px;padding:12px;box-shadow:var(--sh);display:flex;flex-direction:column;align-items:center;gap:3px}.shopc b{font-size:28px}.shopc span{font-weight:900;font-size:14px}.shopc small{font-weight:800;color:#c9971a}.shopc.on{outline:3px solid var(--pri)}
+.achs{display:flex;flex-direction:column;gap:7px}.ach{display:flex;gap:10px;align-items:center;background:#fff;border-radius:14px;padding:9px 12px;box-shadow:var(--sh);opacity:.55}.ach.got{opacity:1}.ach b{font-size:26px}.ach span{font-weight:900;display:block}.ach small{color:var(--sub);font-weight:700}
+body.dark{--ink:#f1edff;--sub:#b3a9d9;--card:#2b2545}body.dark .pill,body.dark #sheet,body.dark #opts button,body.dark #quiz .q,body.dark #casebox,body.dark #nav,body.dark #layers button,body.dark #tools button,body.dark #pups button,body.dark .chap,body.dark .stat,body.dark .goal,body.dark .mode,body.dark .htabs,body.dark .hs span,body.dark .shopc,body.dark .ach,body.dark .card2,body.dark .lang,body.dark #sres{background:#2b2545;color:#f1edff}
+body.dark #home{background:linear-gradient(180deg,#1f1b33,#2a2147)}body.dark .node{background:#352d57}body.dark .node b{background:#2b2545}
 </style>
 </head>
 <body>
@@ -81,8 +104,8 @@ button{font:inherit;border:none;cursor:pointer;color:inherit}
 <div id="layers"></div>
 <div id="tools"><button id="tSearch" title="Ara">🔍</button><button id="tIso" title="Seçileni izole et">🎯</button><button id="tXray" title="Röntgen">🩻</button><button id="tReset" title="Görünümü sıfırla">🔄</button></div>
 <div id="search"><input id="sin" placeholder="Latince veya İngilizce ara…"><div id="sres"></div></div>
-<div id="quiz"><div class="q" id="qbox"><small id="qmode">BUL</small><h4 id="qt">—</h4><div class="en2" id="qe"></div><div id="tracebar"></div><div id="prog"><div></div></div></div><div id="casebox"></div></div>
-<div id="opts"></div>
+<div id="quiz"><div id="boss"><div class="bh"><b id="bossN"></b></div><div class="hp"><div id="bossHp"></div></div><div id="bossSay"></div></div><div class="q" id="qbox"><div id="hud"></div><small id="qmode">BUL</small><h4 id="qt">—</h4><div class="en2" id="qe"></div><div id="tracebar"></div><div id="prog"><div></div></div><div id="tbar"><div></div></div></div><div id="casebox"></div></div>
+<div id="opts"></div><div id="pups"></div>
 <div id="sheet"><button id="x">✕</button><div id="sc"></div></div>
 <div id="label"></div><div id="toast"></div>
 <div id="nav"><button data-m="explore" class="on"><b>🔬</b>Keşfet</button><button data-m="find"><b>🎯</b>Bul</button><button data-m="name"><b>🏷️</b>İsimlendir</button><button data-m="card"><b>🃏</b>Kas Kartı</button><button data-m="clinic"><b>🩺</b>Klinik</button><button data-m="trace"><b>🧵</b>İz Sür</button></div>
@@ -244,7 +267,12 @@ function hideLabel(){labelObj=null;$('label').style.display='none'}
 const ray=new THREE.Raycaster(),mv=new THREE.Vector2();let downP=null;
 cv.addEventListener('pointerdown',e=>{downP={x:e.clientX,y:e.clientY,t:performance.now()}});
 cv.addEventListener('pointerup',e=>{if(!downP)return;const d=Math.hypot(e.clientX-downP.x,e.clientY-downP.y);if(d<8&&performance.now()-downP.t<500)pick(e.clientX,e.clientY);downP=null});
-function pick(x,y){mv.set(x/innerWidth*2-1,-(y/innerHeight)*2+1);ray.setFromCamera(mv,camera);const hits=ray.intersectObjects(OBJ.filter(o=>o.visible&&o.userData.pick),false);
+let LASTTAP={x:0,y:0};
+function nearItem(objs,x,y,px=24){const cand=OBJ.filter(o=>o.visible&&o.userData.m.c!=='att'&&o.material.opacity>.5);const rc=new THREE.Raycaster(),v=new THREE.Vector3();
+ for(const o of objs){if(!o.visible)continue;const p=o.geometry.attributes.position,st=Math.max(1,p.count/60|0);for(let i=0;i<p.count;i+=st){v.fromBufferAttribute(p,i).applyMatrix4(o.matrixWorld);const w=v.clone();v.project(camera);const sx=(v.x+1)/2*innerWidth,sy=(1-v.y)/2*innerHeight;if(Math.hypot(sx-x,sy-y)>px)continue;
+  const dir=w.clone().sub(camera.position),d=dir.length();rc.set(camera.position,dir.normalize());rc.far=d+.003;const h=rc.intersectObjects(cand,false)[0];if(h&&objs.includes(h.object))return true}}return false}
+function pick(x,y){LASTTAP={x,y};mv.set(x/innerWidth*2-1,-(y/innerHeight)*2+1);ray.setFromCamera(mv,camera);const hits=ray.intersectObjects(OBJ.filter(o=>o.visible&&o.userData.pick),false);
+ if(!hits.length&&Q&&!Q.done&&(Q.type==='find'||(RUN&&RUN.def.t==='dissect'))){const objs=Q.type==='find'?itemObjs(Q.cur):RUN.target.o;if(nearItem(objs,x,y))return onPick(objs[0],null)}
  if(!hits.length){if(MODE==='explore'){closeSheet();clearHL();hideLabel();if(ghost){ghost=null;applyVis()}}return}onPick(hits[0].object,hits[0].point)}
 // ---------- UI ----------
 function toast(t,c='#2d2350'){const el=$('toast');el.innerHTML=t;el.style.color=c;el.classList.add('on');clearTimeout(el._t);el._t=setTimeout(()=>el.classList.remove('on'),1100)}
@@ -292,73 +320,195 @@ function addXP(n){const L0=lvlOf(S.xp);S.xp+=n;const L1=lvlOf(S.xp);if(L1>L0){se
 function streakUp(){const y=new Date();y.setDate(y.getDate()-1);S.streak=S.last===dayStr(y)?S.streak+1:(S.last===dayStr()?S.streak:1);S.last=dayStr();setTimeout(()=>{toast('🔥 Günlük hedef tamam!<br>Seri: '+S.streak+' gün');confetti(24)},700)}
 function pickItems(pool,n){const now=Date.now();const sc=pool.map(it=>{const s=S.st[it.k];let w=s?(s.nx<=now?3+(5-s.b):.6/(1+s.b)):2;return{it,w:w*Math.random()}});sc.sort((a,b)=>b.w-a.w);return sc.slice(0,n).map(x=>x.it)}
 const shuf=a=>{for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]]}return a};
-// ---------- modlar ----------
-let MODE='explore',Q=null,COMBO=0;
+// ---------- oyun motoru ----------
+S.coins=S.coins||0;S.lv=S.lv||{};S.ach=S.ach||{};S.owned=S.owned||['th_lav','pal_atlas'];S.theme=S.theme||'th_lav';S.pal=S.pal||'pal_atlas';S.daily=S.daily||{};S.cnt=S.cnt||{ok:0,boss:0,clean:0,dis:0,trace:0,clinic:0};
+let MODE='explore',Q=null,COMBO=0,RUN=null;
 document.querySelectorAll('#nav button').forEach(b=>b.onclick=()=>setMode(b.dataset.m));
-function setMode(m){MODE=m;document.querySelectorAll('#nav button').forEach(b=>b.classList.toggle('on',b.dataset.m===m));closeSheet();clearHL();hideLabel();ghost=null;isoSet=null;xray=false;$('tXray').classList.remove('on');$('tIso').classList.remove('on');
- $('quiz').style.display=m==='explore'?'none':'block';$('opts').style.display='none';$('casebox').style.display='none';$('qbox').style.display='block';$('tracebar').innerHTML='';$('layers').style.display=m==='explore'?'flex':'none';$('tools').style.display=m==='explore'?'flex':'none';$('search').style.display='none';COMBO=0;
- if(m==='explore'){vis={bone:1,muscle:1,nerve:1,artery:1,vein:0};applyVis();return}
- if(m==='find')startRound('find');else if(m==='name')startRound('name');else if(m==='card')startRound('card');else if(m==='clinic')startClinic();else if(m==='trace')startTrace()}
+const HUB=()=>{RUN=null;showHome()};
+function uiReset(){closeSheet();clearHL();hideLabel();ghost=null;isoSet=null;xray=false;$('tXray').classList.remove('on');$('tIso').classList.remove('on');$('opts').style.display='none';$('casebox').style.display='none';$('qbox').style.display='block';$('tracebar').innerHTML='';$('search').style.display='none';$('boss').style.display='none';$('pups').style.display='none';$('tbar').style.display='none';$('hud').innerHTML='';COMBO=0}
+function setMode(m,def){MODE=m;document.querySelectorAll('#nav button').forEach(b=>b.classList.toggle('on',b.dataset.m===m));uiReset();
+ $('quiz').style.display=m==='explore'?'none':'block';$('layers').style.display=m==='explore'?'flex':'none';$('tools').style.display=m==='explore'?'flex':'none';
+ if(m==='explore'){RUN=null;vis={bone:1,muscle:1,nerve:1,artery:1,vein:0};applyVis();return}
+ def=def||{t:m,free:1,n:m==='clinic'?6:10,pool:m==='card'?P.musAll():m==='clinic'?CASES:allItems().filter(it=>m==='find'||it.c!=='vein')};
+ startRun(def)}
 function setProg(i,n){$('prog').firstChild.style.width=(i/n*100)+'%'}
-function layerFor(c){vis={bone:1,muscle:c==='muscle'?1:1,nerve:c==='nerve'?1:0,artery:c==='artery'?1:0,vein:c==='vein'?1:0};ghost=c==='muscle'?null:new Set(['muscle']);if(c!=='muscle'){vis.muscle=1}if(c==='bone'){ghost=new Set(['muscle'])}applyVis()}
-function startRound(kind){const pool=allItems().filter(it=>kind==='card'?it.mu:(it.c!=='vein'||kind==='find'));Q={kind,list:pickItems(pool,10),i:0,ok:0};nextQ()}
-function nextQ(){if(Q.i>=Q.list.length)return endRound();const it=Q.list[Q.i];Q.cur=it;Q.done=false;setProg(Q.i,Q.list.length);clearHL();hideLabel();$('opts').style.display='none';
- const t1=S.lang==='la'?it.la:it.en,t2=S.lang==='la'?it.en:it.la;
- if(Q.kind==='find'){$('qmode').textContent=`BUL · ${Q.i+1}/${Q.list.length} · ${CATN[it.c]}`;$('qt').textContent=t1;$('qe').textContent=t2;layerFor(it.c);resetView()}
- else if(Q.kind==='name'){$('qmode').textContent=`İSİMLENDİR · ${Q.i+1}/${Q.list.length}`;$('qt').textContent='Parlayan yapı hangisi?';$('qe').textContent=CATN[it.c];layerFor(it.c);const objs=itemObjs(it);setHL(objs,0x7c5cff,.85);if(it.c!=='muscle'&&it.c!=='bone'){ghost=new Set(['muscle']);applyVis()}focusOn(objs,2.6);
-  const opts=shuf([it,...shuf(allItems().filter(x=>x.c===it.c&&x.k!==it.k)).slice(0,3)]);showOpts(opts.map(o=>({h:(S.lang==='la'?o.la:o.en)+`<small>${S.lang==='la'?o.en:o.la}</small>`,ok:o===it})),()=>{})}
- else if(Q.kind==='card'){const mu=it.mu,F=[['N','Innervasyonu (N) hangisi?'],['A','Fonksiyonu (A) hangisi?'],['O','Origosu (O) hangisi?'],['I','İnsersiyosu (I) hangisi?']];const [f,qq]=F[Math.random()*4|0];
-  $('qmode').textContent=`KAS KARTI · ${Q.i+1}/${Q.list.length}`;$('qt').textContent=(S.lang==='la'?mu.la:mu.en);$('qe').textContent=qq;vis={bone:1,muscle:1,nerve:0,artery:0,vein:0};ghost=null;applyVis();const objs=itemObjs(it);setHL(objs,0x7c5cff,.6);focusOn(objs,2.4);
-  if(f==='O'||f==='I')showOI(it);
-  const wrong=shuf(MUSCLES.filter(m=>m.k!==mu.k&&m[f]!==mu[f])).reduce((a,m)=>{if(a.length<3&&!a.includes(m[f]))a.push(m[f]);return a},[]);
-  showOpts(shuf([{h:mu[f],ok:true},...wrong.map(w=>({h:w,ok:false}))]),()=>{})}}
-function showOpts(list,cb){const box=$('opts');box.innerHTML='';box.style.display='flex';list.forEach(o=>{const b=document.createElement('button');b.innerHTML=o.h;b.onclick=()=>{if(Q.done)return;Q.done=true;b.classList.add(o.ok?'ok':'bad');if(!o.ok)[...box.children][list.findIndex(x=>x.ok)].classList.add('ok');answer(o.ok);cb(o.ok)};box.appendChild(b)})}
-function answer(ok){const it=Q.cur;if(ok){COMBO++;Q.ok++;sOk();buzz(15);toast(COMBO>=3?`🔥 ${COMBO} kombo! +${10+Math.min(10,COMBO*2)}`:['Harika! ✨','Doğru! 💜','Süpersin! 🎉','Aynen! 👏'][Math.random()*4|0],'#1f8a52')}else{COMBO=0;sBad();buzz([30,40,30]);toast('Olmadı 😅','#e0405a')}
- rec(it,ok);const objs=itemObjs(it);setHL(objs,ok?0x2fb873:0xff9f1a,.8);showLabel(objs[0],S.lang==='la'?it.la:it.en);Q.i++;setTimeout(nextQ,ok?1300:2300)}
-function findAnswer(o){if(!Q||Q.done)return;const it=Q.cur;const ok=itemObjs(it).includes(o);Q.done=true;if(!ok){flash([o],0xff3b5c,800);const w=itemOf(o);if(w)showLabel(o,'✗ '+(S.lang==='la'?w.la:w.en));setTimeout(()=>{const objs=itemObjs(it);focusOn(objs,2.6)},500)}answer(ok)}
-function endRound(){setProg(1,1);const n=Q.list.length,ok=Q.ok;const st=ok===n?'🏆':ok>=n*.7?'🌟':'💪';$('opts').style.display='none';clearHL();hideLabel();
- if(ok===n)confetti(30);openSheet(`<h3>${st} Tur bitti!</h3><div class="en">${ok}/${n} doğru · bugün ${S.today}/${GOAL}</div><div class="fact">${ok===n?'Kusursuz! Profesörlük yakın 🎓':ok>=n*.7?'Çok iyi gidiyorsun Dr. '+(S.name||'')+'!':'Yanlışların birazdan tekrar karşına çıkacak, böyle öğreniliyor 💜'}</div><div class="row"><button class="btn p" id="again">Yeni tur ▶</button><button class="btn" id="tohome">🏠</button></div>`);
- $('again').onclick=()=>{closeSheet();setMode(MODE)};$('tohome').onclick=()=>{closeSheet();showHome()}}
-// klinik
-function startClinic(){const list=shuf(CASES.slice()).slice(0,6);Q={kind:'clinic',list,i:0,ok:0};nextCase()}
-function nextCase(){if(Q.i>=Q.list.length)return endRound();const cs=Q.list[Q.i];const it=allItems().find(x=>x.en===cs.a);Q.cur=it;Q.done=false;setProg(Q.i,Q.list.length);clearHL();hideLabel();
- $('qbox').style.display='none';$('casebox').style.display='block';$('casebox').innerHTML=`<small style="color:var(--sub);font-weight:900">🩺 VAKA ${Q.i+1}/${Q.list.length}</small><br>${cs.t}`;
+function layerFor(c){vis={bone:1,muscle:1,nerve:c==='nerve'?1:0,artery:c==='artery'?1:0,vein:c==='vein'?1:0};ghost=c==='muscle'?null:new Set(['muscle']);applyVis()}
+// havuzlar
+const ITN=n=>allItems().find(i=>i.en===n);
+const P={
+ bonesBig:()=>['Clavicle','Scapula','Humerus','Radius','Ulna'].map(ITN).filter(Boolean),
+ carpal:()=>['Scaphoid bone','Lunate bone','Triquetrum bone','Pisiform bone','Trapezium bone','Trapezoid bone','Capitate bone','Hamate bone'].map(ITN).filter(Boolean),
+ hand:()=>allItems().filter(i=>i.c==='bone'&&/metacarpal|phalanx|bone$/.test(i.en)),
+ bones:()=>allItems().filter(i=>i.c==='bone'),
+ mus:gs=>allItems().filter(i=>i.mu&&gs.some(g=>i.mu.g.startsWith(g))),
+ musAll:()=>allItems().filter(i=>i.mu),
+ nerves:()=>allItems().filter(i=>i.c==='nerve'&&!/branches|digital|Communicating|division/.test(i.en)),
+ vessels:()=>allItems().filter(i=>(i.c==='artery'||i.c==='vein')&&!/digital|metacarpal|carpal|Recurrent|recurrent|circumflex|collateral|veins of hand/.test(i.en)),
+ nerveCases:()=>CASES.filter(c=>{const it=ITN(c.a);return it&&it.c==='nerve'}),
+};
+// kampanya
+const BOSSES=['Prof. Dr. Os 💀','Doç. Dr. Rotator 🛡️','Dr. Biseps 💪','Prof. Fleksör 🦾','Dr. Lumbrikal ✋','Prof. Pleksus ⚡','Dr. Aorta ❤️','Dekan Hoca 🎓'];
+const BOSS_SAY=['Bunu bilmeden geçemezsin!','Sözlüde görüşürüz 😏','Hadi bakalım Dr.!','Bu kadar mı?','Kitabı açmadın galiba?','Zor sorular geliyor…'];
+const CH=[
+ {n:'Kemikler',ic:'🦴',lv:[{t:'find',ti:'Büyük kemikler',pool:P.bonesBig,n:5},{t:'name',ti:'Karpal kemikler',pool:P.carpal,n:8},{t:'find',ti:'El iskeleti',pool:P.hand,n:8}],boss:P.bones},
+ {n:'Omuz',ic:'🛡️',lv:[{t:'find',ti:'Omuz kasları',pool:()=>P.mus(['Omuz','Rotator']),n:8},{t:'card',ti:'Rotator cuff kartları',pool:()=>P.mus(['Rotator','Omuz']),n:8},{t:'dissect',ti:'Diseksiyon: M. subscapularis',target:'Subscapularis muscle'}],boss:()=>P.mus(['Omuz','Rotator'])},
+ {n:'Kol',ic:'💪',lv:[{t:'find',ti:'Kol kasları',pool:()=>P.mus(['Kol']),n:6},{t:'card',ti:'Kol kas kartları',pool:()=>P.mus(['Kol']),n:6},{t:'dissect',ti:'Diseksiyon: N. musculocutaneus',target:'Musculocutaneous nerve'}],boss:()=>P.mus(['Kol','Omuz'])},
+ {n:'Ön kol',ic:'🦾',lv:[{t:'find',ti:'Ön yüz kasları',pool:()=>P.mus(['Ön kol – ön']),n:8},{t:'find',ti:'Arka yüz kasları',pool:()=>P.mus(['Ön kol – arka']),n:8},{t:'card',ti:'Ön kol kas kartları',pool:()=>P.mus(['Ön kol']),n:10},{t:'dissect',ti:'Diseksiyon: N. interosseus anterior',target:'Anterior interosseous nerve of forearm'}],boss:()=>P.mus(['Ön kol'])},
+ {n:'El',ic:'✋',lv:[{t:'find',ti:'El kasları',pool:()=>P.mus(['El']),n:8},{t:'card',ti:'Thenar & hipotenar',pool:()=>P.mus(['El']),n:8},{t:'dissect',ti:'Diseksiyon: M. adductor pollicis',target:'Transverse head of adductor pollicis'}],boss:()=>P.mus(['El']).concat(P.hand())},
+ {n:'Sinirler',ic:'⚡',lv:[{t:'find',ti:'Plexus ve sinirler',pool:P.nerves,n:8},{t:'trace',ti:'Sinir yolları',paths:[0,1,2]},{t:'clinic',ti:'Sinir hasarı vakaları',pool:P.nerveCases,n:6}],boss:P.nerves},
+ {n:'Damarlar',ic:'❤️',lv:[{t:'find',ti:'Arter ve venler',pool:P.vessels,n:8},{t:'trace',ti:'Kan yolları',paths:[3,4,5]},{t:'dissect',ti:'Diseksiyon: A. ulnaris',target:'Ulnar artery'}],boss:P.vessels},
+ {n:'Final',ic:'🏆',lv:[{t:'clinic',ti:'Klinik vakalar',pool:()=>CASES,n:8}],boss:()=>allItems().filter(i=>i.c!=='vein')},
+];
+CH.forEach((c,ci)=>{c.lv.forEach((l,li)=>{l.id=(ci+1)+'-'+(li+1);l.ch=ci});c.lv.push({t:'boss',id:(ci+1)+'-B',ch:ci,ti:BOSSES[ci],pool:c.boss,n:99,boss:{name:BOSSES[ci],hp:ci===7?160:100}})});
+const ALL_LV=CH.flatMap(c=>c.lv);
+const unlocked=l=>{const i=ALL_LV.indexOf(l);return i===0||(S.lv[ALL_LV[i-1].id]||0)>0};
+// ---------- koşu ----------
+function startRun(def){RUN=Object.assign({i:0,ok:0,wr:0,combo:0,coins:0,hearts:def.free?0:3,max:3,qt:0,qtMax:def.free||['clinic','trace','dissect'].includes(def.t)?0:(def.t==='boss'?14:22)},{def});COMBO=0;
+ if(def.t==='dissect')return startDissect(def);if(def.t==='trace')return startTraceRun(def);
+ const pool=typeof def.pool==='function'?def.pool():def.pool;
+ if(def.t==='clinic'){RUN.list=shuf(pool.slice()).slice(0,def.n)}else RUN.list=pickItems(pool,Math.min(def.n,pool.length));
+ if(def.t==='boss'){RUN.boss={name:def.boss.name,hp:def.boss.hp,max:def.boss.hp};RUN.list=shuf(pool.slice());$('boss').style.display='block';bossUI(BOSS_SAY[Math.random()*BOSS_SAY.length|0])}
+ if(!def.free){$('pups').style.display='flex';pupUI()}hudUI();nextQ()}
+function hudUI(){if(!RUN)return;let h='';if(RUN.max&&RUN.hearts>=0&&!RUN.def.free)h+='<span>'+'❤️'.repeat(Math.max(0,RUN.hearts))+'🤍'.repeat(Math.max(0,RUN.max-RUN.hearts))+'</span>';if(RUN.combo>=2)h+=`<span class="cmb">🔥x${RUN.combo}</span>`;h+=`<span>🪙 ${S.coins}</span>`;$('hud').innerHTML=h}
+function bossUI(say){const b=RUN.boss;$('bossN').textContent=b.name;$('bossHp').style.width=Math.max(0,b.hp/b.max*100)+'%';if(say){$('bossSay').textContent='💬 '+say;$('bossSay').classList.remove('pop');void $('bossSay').offsetWidth;$('bossSay').classList.add('pop')}}
+function pupUI(){$('pups').innerHTML=[['hint','💡',30],['freeze','❄️',20],['heart','❤️',50]].map(([k,ic,c])=>`<button data-k="${k}">${ic}<small>${c}</small></button>`).join('');$('pups').querySelectorAll('button').forEach(b=>b.onclick=()=>usePup(b.dataset.k))}
+function usePup(k){const cost={hint:30,freeze:20,heart:50}[k];if(!Q||Q.done&&k!=='heart')return;if(S.coins<cost)return toast('🪙 Yetersiz altın');
+ if(k==='heart'){if(RUN.hearts>=RUN.max)return toast('Canın dolu ❤️');RUN.hearts++}
+ else if(k==='freeze'){if(!RUN.qtMax)return toast('Süre yok ⏱');RUN.frozen=6}
+ else if(k==='hint'){if(Q.type==='find'){const objs=itemObjs(Q.cur);focusOn(objs,4.5);flash(objs,0xffd400,900)}else{const bs=[...$('opts').children].filter(b=>!b.dataset.ok&&!b.disabled);shuf(bs).slice(0,2).forEach(b=>{b.disabled=true;b.style.opacity=.3})}}
+ S.coins-=cost;save();hudUI();tone(880,.08);toast({hint:'💡 İpucu!',freeze:'❄️ Süre durdu',heart:'❤️ +1 can'}[k])}
+function nextQ(){if(!RUN)return;const R=RUN;
+ if(R.boss&&R.boss.hp<=0)return endRun(true);if(!R.def.free&&R.hearts<=0)return endRun(false);if(!R.boss&&R.i>=R.list.length)return endRun(true);
+ if(R.boss&&R.i>=R.list.length){R.list=shuf(R.list.slice());R.i=0}
+ const it=R.list[R.i];Q={cur:it,done:false};clearHL();hideLabel();$('opts').style.display='none';$('casebox').style.display='none';$('qbox').style.display='block';
+ if(R.boss)setProg(1-R.boss.hp/R.boss.max,1);else setProg(R.i,R.list.length);R.qt=R.qtMax;R.frozen=0;hudUI();
+ if(R.def.t==='clinic')return clinicQ(it);
+ let type=R.def.t;if(type==='boss'){type=it.mu&&Math.random()<.35?'card':Math.random()<.5?'find':'name'}Q.type=type;
+ const t1=S.lang==='la'?it.la:it.en,t2=S.lang==='la'?it.en:it.la,lab=R.boss?'⚔️ '+R.boss.name:(R.def.free?'':R.def.id+' · ')+(R.def.ti||'');
+ if(type==='find'){$('qmode').textContent=`BUL · ${CATN[it.c]} ${R.boss?'':'· '+(R.i+1)+'/'+R.list.length}`;$('qt').textContent=t1;$('qe').textContent=t2;layerFor(it.c);resetView()}
+ else if(type==='name'){$('qmode').textContent='İSİMLENDİR';$('qt').textContent='Parlayan yapı hangisi?';$('qe').textContent=CATN[it.c];layerFor(it.c);const objs=itemObjs(it);setHL(objs,0x7c5cff,.85);focusOn(objs,2.6);
+  const opts=shuf([it,...shuf(allItems().filter(x=>x.c===it.c&&x.k!==it.k)).slice(0,3)]);showOpts(opts.map(o=>({h:(S.lang==='la'?o.la:o.en)+`<small>${S.lang==='la'?o.en:o.la}</small>`,ok:o===it})))}
+ else if(type==='card'){const mu=it.mu,F=[['N','Innervasyonu (N)?'],['A','Fonksiyonu (A)?'],['O','Origosu (O)?'],['I','İnsersiyosu (I)?']];const [f,qq]=F[Math.random()*4|0];
+  $('qmode').textContent='KAS KARTI';$('qt').textContent=(S.lang==='la'?mu.la:mu.en);$('qe').textContent=qq;vis={bone:1,muscle:1,nerve:0,artery:0,vein:0};ghost=null;applyVis();const objs=itemObjs(it);setHL(objs,0x7c5cff,.6);focusOn(objs,2.4);if(f==='O'||f==='I')showOI(it);
+  const wrong=shuf(MUSCLES.filter(m=>m.k!==mu.k&&m[f]!==mu[f])).reduce((a,m)=>{if(a.length<3&&!a.includes(m[f]))a.push(m[f]);return a},[]);showOpts(shuf([{h:mu[f],ok:true},...wrong.map(w=>({h:w,ok:false}))]))}
+ $('qbox').querySelector('#qmode').insertAdjacentHTML('afterbegin',lab&&!R.def.free?`<span style="color:var(--pri)">${lab}</span> · `:'')}
+function showOpts(list,cb){const box=$('opts');box.innerHTML='';box.style.display='flex';list.forEach(o=>{const b=document.createElement('button');b.innerHTML=o.h;if(o.ok)b.dataset.ok=1;b.onclick=()=>{if(Q.done||b.disabled)return;Q.done=true;b.classList.add(o.ok?'ok':'bad');if(!o.ok)box.querySelector('[data-ok]').classList.add('ok');answer(o.ok);cb&&cb(o.ok)};box.appendChild(b)})}
+function answer(ok,silent){const R=RUN,it=Q.cur;Q.done=true;
+ if(ok){R.combo++;COMBO=R.combo;R.ok++;sOk();buzz(15);const tb=R.qtMax?Math.round(R.qt/R.qtMax*5):0;const c=2+Math.min(4,R.combo>>1)+tb;R.coins+=c;S.coins+=c;
+  if(R.boss){const dmg=Math.round(12*(1+Math.min(1,R.combo*.15)));R.boss.hp-=dmg;bossUI(R.boss.hp<=0?'Ahh… geçtin!':['Hmm…','Şanslıydın!','İyi ama yetmez!','Bunu herkes bilir!'][Math.random()*4|0]);shake($('boss'));floatTxt('-'+dmg,'#ff3b5c')}
+  toast(R.combo>=3?`🔥 ${R.combo} kombo!`:['Harika! ✨','Doğru! 💜','Süpersin! 🎉','Aynen! 👏'][Math.random()*4|0],'#1f8a52');S.cnt.ok++}
+ else{R.combo=0;COMBO=0;R.wr++;sBad();buzz([30,40,30]);if(!R.def.free){R.hearts--;shake(document.body)}if(R.boss)bossUI(['Hah! Yanlış 😏','Kitaba dön!','Olmadı Dr.!'][Math.random()*3|0]);toast(silent?'⏱ Süre doldu!':'Olmadı 😅','#e0405a')}
+ if(it&&it.k)rec(it,ok);hudUI();if(it&&it.parts){const objs=itemObjs(it);setHL(objs,ok?0x2fb873:0xff9f1a,.8);showLabel(objs[0],S.lang==='la'?it.la:it.en)}
+ R.i++;if(R.def.t!=='clinic')setTimeout(nextQ,ok?1200:2200);ach()}
+function findAnswer(o){if(!Q||Q.done||Q.type!=='find')return;const it=Q.cur;const ok=itemObjs(it).includes(o)||nearItem(itemObjs(it),LASTTAP.x,LASTTAP.y,18);if(!ok){flash([o],0xff3b5c,800);const w=itemOf(o);if(w)showLabel(o,'✗ '+(S.lang==='la'?w.la:w.en));setTimeout(()=>focusOn(itemObjs(it),2.6),500)}answer(ok)}
+function gameTick(dt){if(!RUN||!Q||Q.done||!RUN.qtMax||MODE==='explore')return;if(RUN.frozen>0){RUN.frozen-=dt;$('tbar').classList.add('fz')}else{$('tbar').classList.remove('fz');RUN.qt-=dt}
+ $('tbar').style.display='block';$('tbar').firstChild.style.width=Math.max(0,RUN.qt/RUN.qtMax*100)+'%';$('tbar').firstChild.style.background=RUN.qt<5?'#ff5a6a':'';
+ if(RUN.qt<=0){if(Q.type==='find')setTimeout(()=>focusOn(itemObjs(Q.cur),2.6),100);else{const ok=$('opts').querySelector('[data-ok]');ok&&ok.classList.add('ok')}answer(false,true)}}
+function shake(el){el.classList.remove('shk');void el.offsetWidth;el.classList.add('shk')}
+function floatTxt(t,c){const d=document.createElement('div');d.className='ftx';d.textContent=t;d.style.color=c;document.body.appendChild(d);setTimeout(()=>d.remove(),900)}
+function endRun(win){const R=RUN;if(!R)return;$('opts').style.display='none';clearHL();hideLabel();$('tbar').style.display='none';
+ let stars=0;if(R.def.free){stars=R.ok>=R.list.length?3:R.ok>=R.list.length*.7?2:1}else if(win){stars=R.def.t==='dissect'?R.st:R.def.t==='trace'?R.st:Math.max(1,R.hearts)}
+ let bonus=0;if(win&&R.def.daily){S.daily.date=dayStr();bonus=R.coins+40;S.coins+=bonus;R.coins+=bonus}else if(win&&!R.def.free){bonus=stars*15+(R.def.t==='boss'?60:0);S.coins+=bonus;R.coins+=bonus;const old=S.lv[R.def.id]||0;if(stars>old)S.lv[R.def.id]=stars;if(R.def.t==='boss')S.cnt.boss++;addXP(stars*10)}
+ save();updTop();ach();if(win&&stars===3)confetti(36);else if(win)confetti(16);win?(tone(523,.12),setTimeout(()=>tone(659,.12),120),setTimeout(()=>tone(784,.25),240)):tone(160,.4,'triangle');
+ const nx=R.def.id?ALL_LV[ALL_LV.findIndex(l=>l.id===R.def.id)+1]:null;
+ const st=n=>'<span class="st">'+[1,2,3].map(i=>`<i class="${i<=n?'on':''}" style="animation-delay:${i*.18}s">★</i>`).join('')+'</span>';
+ openSheet(`<div style="text-align:center"><h3>${win?(R.def.t==='boss'?'🏆 '+R.def.boss.name+' yenildi!':'🎉 Bölüm tamam!'):'💔 Canların bitti'}</h3>${win||R.def.free?st(stars):''}
+  <div class="en">${R.ok} doğru · ${R.wr} yanlış · 🪙 +${R.coins}</div><div class="fact">${win?(stars===3?'Kusursuz Dr. '+(S.name||'')+'! 🎓':'Çok iyi! 3 yıldız için tekrar dene 😉'):'Yanlış yaptıkların tekrar karşına çıkacak. Böyle öğreniliyor 💜'}</div></div>
+  <div class="row">${win&&nx&&!R.def.free?`<button class="btn p" id="rnx">Sonraki ▶</button>`:''}<button class="btn ${win&&nx?'':'p'}" id="rag">${win?'Tekrar':'Tekrar dene'} 🔁</button><button class="btn" id="rmap">🗺️</button></div>`);
+ if($('rnx'))$('rnx').onclick=()=>{closeSheet();playLevel(nx)};$('rag').onclick=()=>{closeSheet();R.def.free?setMode(MODE):playLevel(R.def)};$('rmap').onclick=()=>{closeSheet();HUB()};RUN.over=1}
+function playLevel(l){if(!unlocked(l))return toast('🔒 Önce öncekini bitir');$('home').style.display='none';const m=l.t==='boss'?'find':l.t;MODE=m;document.querySelectorAll('#nav button').forEach(b=>b.classList.toggle('on',b.dataset.m===m));uiReset();$('quiz').style.display='block';$('layers').style.display='none';$('tools').style.display='none';
+ if(l.t==='boss'){const ci=l.ch;openSheet(`<div style="text-align:center"><div style="font-size:54px">${l.boss.name.split(' ').pop()}</div><h3>${l.boss.name}</h3><div class="en">Sözlü sınavı başlıyor! ${'❤️'.repeat(3)} canın var, her soru 14 sn.</div><div class="fact">"${BOSS_SAY[ci%BOSS_SAY.length]}"</div></div><div class="row"><button class="btn p" id="go">⚔️ Başla</button></div>`);$('go').onclick=()=>{closeSheet();startRun(l)}}
+ else startRun(l)}
+// ---------- klinik ----------
+function clinicQ(cs){const R=RUN;const it=ITN(cs.a);Q.cur=it;Q.type='clinic';$('qbox').style.display='none';$('casebox').style.display='block';$('casebox').innerHTML=`<div id="hud2"></div><small style="color:var(--sub);font-weight:900">🩺 VAKA ${R.i+1}/${R.list.length}</small><br>${cs.t}`;$('hud2').innerHTML=$('hud').innerHTML;
  vis={bone:1,muscle:1,nerve:1,artery:1,vein:1};ghost=null;applyVis();resetView();
  const pool=allItems().filter(x=>x.c===it.c&&x.k!==it.k&&(x.c!=='nerve'||/nerve$|plexus$|forearm$/.test(x.en)));const opts=shuf([it,...shuf(pool).slice(0,3)]);
- showOpts(opts.map(o=>({h:(S.lang==='la'?o.la:o.en)+`<small>${S.lang==='la'?o.en:o.la}</small>`,ok:o===it})),ok=>{
+ showOpts(opts.map(o=>({h:(S.lang==='la'?o.la:o.en)+`<small>${S.lang==='la'?o.en:o.la}</small>`,ok:o===it})),ok=>{S.cnt.clinic++;
   const objs=itemObjs(it);if(it.c==='nerve'){ghost=new Set(['muscle']);applyVis();const ms=(NERVE_MUSCLES[it.en]||[]).flatMap(k=>MBY[k]?itemObjs({parts:MBY[k].p}):[]);ms.forEach(o=>{o.material.opacity=.85});setHL(ms,0xff2d55,.55)}
-  setHL(objs,ok?0x2fb873:0xff9f1a,.9);focusOn(objs,2.2);setTimeout(()=>{openSheet(`<h3>${ok?'✅':'💡'} ${S.lang==='la'?it.la:it.en}</h3><div class="en">${S.lang==='la'?it.en:it.la}</div><div class="fact">${cs.x}</div>${it.c==='nerve'&&NERVE_MUSCLES[it.en]?'<div class="fact" style="color:#ff2d55">Kırmızı parlayan kaslar bu sinirden etkilenir.</div>':''}<div class="row"><button class="btn p" id="nc">Sonraki vaka ▶</button></div>`);$('nc').onclick=()=>{closeSheet();Q.i++;$('casebox').style.display='block';nextCase()}},700)});
- const _a=answer;}
-// iz sür
-function startTrace(){const done=S.best.tr||{};const tr=TRACES[Math.random()*TRACES.length|0];Q={kind:'trace',tr,i:0,ok:0,mist:0,list:tr.s};const art=tr.s.some(n=>/artery|arch/.test(n)),vein=tr.s.some(n=>/vein/.test(n));
- vis={bone:1,muscle:1,nerve:art||vein?0:1,artery:art?1:0,vein:vein?1:0};ghost=new Set(['muscle']);applyVis();resetView();$('qmode').textContent='İZ SÜR · '+tr.d;$('qt').textContent=tr.n;nextTrace()}
-function nextTrace(){const tr=Q.tr;$('tracebar').innerHTML=tr.s.map((n,i)=>`<span class="${i<Q.i?'d':''}">${i<Q.i?(S.lang==='la'?(BYNAME[n].la||n):n):i===Q.i?'❓':'·'}</span>`).join('');setProg(Q.i,tr.s.length);
- if(Q.i>=tr.s.length){const p=Math.max(10,40-Q.mist*8);addXP(p);S.today+=2;save();updTop();confetti(24);sOk();openSheet(`<h3>🧵 Yol tamam!</h3><div class="en">${tr.n} · ${Q.mist} hata · +${p} XP</div><div class="row"><button class="btn p" id="again">Başka yol ▶</button></div>`);$('again').onclick=()=>{closeSheet();startTrace()};return}
- const n=tr.s[Q.i];$('qe').textContent='Sıradaki: '+(Q.i===0?'başlangıca dokun':'devamına dokun')}
-function traceAnswer(o){const tr=Q.tr;if(Q.i>=tr.s.length)return;const want=BYNAME[tr.s[Q.i]];const m=o.userData.m;
- if(m.n===want.n){sOk();buzz(12);setHL(want.o,0x2fb873,.8);showLabel(o,S.lang==='la'?(want.la||want.n):want.n);Q.i++;nextTrace();if(Q.i<tr.s.length)focusOn(BYNAME[tr.s[Q.i]].o.concat(want.o),2.2)}
- else{Q.mist++;sBad();flash([o],0xff3b5c,700);showLabel(o,'✗ '+(S.lang==='la'?(m.la||m.n):m.n));if(Q.mist%2===0){flash(want.o,0xffd400,1400);toast('İpucu: sarı yanan 💡')}}}
+  setHL(objs,ok?0x2fb873:0xff9f1a,.9);focusOn(objs,2.2);setTimeout(()=>{if(!R.def.free&&R.hearts<=0)return endRun(false);openSheet(`<h3>${ok?'✅':'💡'} ${S.lang==='la'?it.la:it.en}</h3><div class="en">${S.lang==='la'?it.en:it.la}</div><div class="fact">${cs.x}</div>${it.c==='nerve'&&NERVE_MUSCLES[it.en]?'<div class="fact" style="color:#ff2d55">Kırmızı parlayan kaslar bu sinirden etkilenir.</div>':''}<div class="row"><button class="btn p" id="nc">Devam ▶</button></div>`);$('nc').onclick=()=>{closeSheet();nextQ()}},700)})}
+// ---------- iz sür ----------
+function startTraceRun(def){const idx=def.paths||[0,1,2,3,4,5];RUN.paths=shuf(idx.slice()).slice(0,def.free?1:3);RUN.pi=0;RUN.mist=0;RUN.list=RUN.paths;nextPath()}
+function nextPath(){const R=RUN;if(R.pi>=R.paths.length){R.st=R.mist<=1?3:R.mist<=4?2:1;S.cnt.trace++;return endRun(true)}const tr=TRACES[R.paths[R.pi]];Q={tr,i:0,done:false,type:'trace'};
+ const art=tr.s.some(n=>/artery|arch/.test(n)),vein=tr.s.some(n=>/vein/.test(n));vis={bone:1,muscle:1,nerve:art||vein?0:1,artery:art?1:0,vein:vein?1:0};ghost=new Set(['muscle']);applyVis();resetView();
+ $('qmode').textContent=`İZ SÜR · ${R.pi+1}/${R.paths.length} · ${tr.d}`;$('qt').textContent=tr.n;hudUI();traceUI()}
+function traceUI(){const tr=Q.tr;$('tracebar').innerHTML=tr.s.map((n,i)=>`<span class="${i<Q.i?'d':''}">${i<Q.i?(S.lang==='la'?(BYNAME[n].la||n):n):i===Q.i?'❓':'·'}</span>`).join('');setProg(Q.i,tr.s.length);$('qe').textContent=Q.i===0?'Başlangıç noktasına dokun':'Yolun devamına dokun'}
+function traceAnswer(o){if(!Q||Q.type!=='trace')return;const tr=Q.tr;if(Q.i>=tr.s.length)return;const want=BYNAME[tr.s[Q.i]];const m=o.userData.m;
+ if(m.n===want.n){sOk();buzz(12);setHL(want.o,0x2fb873,.8);showLabel(o,S.lang==='la'?(want.la||want.n):want.n);Q.i++;S.coins+=1;traceUI();hudUI();if(Q.i<tr.s.length)focusOn(BYNAME[tr.s[Q.i]].o.concat(want.o),2.2);else{toast('🧵 Yol tamam!','#1f8a52');RUN.pi++;setTimeout(nextPath,1300)}}
+ else{RUN.mist++;sBad();flash([o],0xff3b5c,700);showLabel(o,'✗ '+(S.lang==='la'?(m.la||m.n):m.n));if(RUN.mist%2===0){flash(want.o,0xffd400,1400);toast('İpucu: sarı yanan 💡')}}}
+// ---------- diseksiyon ----------
+function startDissect(def){const R=RUN;const tg=BYNAME[def.target];R.target=tg;R.removed=0;R.bleed=0;R.done=false;Q={type:'dissect',done:false,cur:null};
+ vis={bone:1,muscle:1,nerve:1,artery:1,vein:1};ghost=null;isoSet=null;applyVis();OBJ.forEach(o=>{o.userData.cut=0});
+ $('qmode').innerHTML=`<span style="color:var(--pri)">${def.id||''}</span> · 🔪 DİSEKSİYON`;$('qt').textContent='Hedef: '+(S.lang==='la'?(tg.la||tg.n):tg.n);$('qe').textContent='Üstteki kasları kaldırarak hedefi ortaya çıkar. Sinir ve damarları kesme!';
+ focusOn(tg.o,3.2);setTimeout(()=>flash(tg.o,0xffd400,1200),700);hudUI();toast('🔪 Kasa dokun = kaldır')}
+function dissectPick(o){const R=RUN;if(!R||R.done)return;const m=o.userData.m;
+ if(R.target.o.includes(o)||nearItem(R.target.o,LASTTAP.x,LASTTAP.y,22))return dissectWin();
+ if(m.c==='muscle'){o.userData.cut=1;o.visible=false;o.userData.pick=false;R.removed++;tone(300+R.removed*30,.08,'square',.04);buzz(8);const it=itemOf(o);showLabel(o,'✂️ '+(it?(S.lang==='la'?it.la:it.en):m.n));setTimeout(hideLabel,900);
+  if(exposure(R.target)>=.3){setTimeout(()=>{toast('Hedef göründü! Ona dokun 🎯','#1f8a52');flash(R.target.o,0xffd400,1200)},300)}}
+ else if(m.c==='nerve'||m.c==='artery'||m.c==='vein'){R.bleed++;R.hearts--;shake(document.body);sBad();buzz([60,40,60]);flash([o],0xff0000,900);toast(m.c==='nerve'?'⚡ Sinir hasarı! -1 ❤️':'🩸 Kanama! -1 ❤️','#e0405a');o.userData.cut=1;o.visible=false;o.userData.pick=false;hudUI();if(R.hearts<=0){R.done=true;setTimeout(()=>{restoreCut();endRun(false)},900)}}
+ else toast('🦴 Kemik kesilmez 😅')}
+function exposure(tg){const pts=[];tg.o.forEach(o=>{const p=o.geometry.attributes.position;for(let i=0;i<p.count;i+=Math.max(1,p.count/12|0))pts.push(new THREE.Vector3().fromBufferAttribute(p,i).applyMatrix4(o.matrixWorld))});
+ const cand=OBJ.filter(o=>o.visible&&o.userData.m.c!=='att'&&o.material.opacity>.5);let vis2=0;const rc=new THREE.Raycaster();
+ pts.forEach(p=>{const dir=p.clone().sub(camera.position);const d=dir.length();rc.set(camera.position,dir.normalize());rc.far=d+.002;const h=rc.intersectObjects(cand,false)[0];if(h&&tg.o.includes(h.object))vis2++});return pts.length?vis2/pts.length:0}
+function dissectWin(){const R=RUN;R.done=true;Q.done=true;R.st=R.bleed?1:R.removed<=4?3:R.removed<=8?2:1;if(!R.bleed)S.cnt.clean++;S.cnt.dis++;R.ok=1;const c=10;S.coins+=c;R.coins+=c;setHL(R.target.o,0x2fb873,1);sOk();confetti(20);
+ const it=itemOf(R.target.o[0]);showLabel(R.target.o[0],'🎯 '+(S.lang==='la'?(R.target.la||R.target.n):R.target.n));setTimeout(()=>{restoreCut();endRun(true)},1500)}
+function restoreCut(){OBJ.forEach(o=>{if(o.userData.cut){o.userData.cut=0}});applyVis()}
+// ---------- seçim yönlendirme ----------
+function onPick(o,p){if(MODE==='explore'){const it=itemOf(o);if(it){$('search').style.display='none';selectItem(it,false)}return}
+ if(RUN&&RUN.def.t==='dissect')return dissectPick(o);if(Q&&Q.type==='trace')return traceAnswer(o);if(Q&&Q.type==='find')return findAnswer(o)}
+// ---------- başarılar ----------
+const ACH=[['first','🌱','İlk adım','İlk doğru cevabın',()=>S.cnt.ok>=1],['c50','💯','Elli','50 doğru cevap',()=>S.cnt.ok>=50],['c250','🧠','Ezberci','250 doğru cevap',()=>S.cnt.ok>=250],
+ ['boss1','⚔️','İlk sözlü','Bir hocayı yen',()=>S.cnt.boss>=1],['boss8','🎓','Dekanı yendin','Tüm hocaları yen',()=>S.cnt.boss>=8],['clean','🔪','Cerrah eli','Kanamasız diseksiyon',()=>S.cnt.clean>=1],
+ ['trace3','🧵','Yol bulucu','3 iz sürme turu',()=>S.cnt.trace>=3],['clin10','🩺','Klinisyen','10 vaka çöz',()=>S.cnt.clinic>=10],['streak3','🔥','Üç gün','3 günlük seri',()=>S.streak>=3],['streak7','🌟','Bir hafta','7 günlük seri',()=>S.streak>=7],
+ ['album50','🃏','Koleksiyoncu','50 yapı topla',()=>collected()>=50],['allbones','🦴','İskelet','Tüm kemikleri topla',()=>P.bones().every(i=>S.st[i.k]&&S.st[i.k].c>=2)],['rich','🪙','Zengin','1000 altın biriktir',()=>S.coins>=1000],['star3','⭐','Mükemmeliyetçi','10 bölümde 3 yıldız',()=>Object.values(S.lv).filter(v=>v===3).length>=10]];
+function ach(){ACH.forEach(a=>{if(!S.ach[a[0]]&&a[4]()){S.ach[a[0]]=Date.now();S.coins+=25;save();setTimeout(()=>{toast(`🏅 Başarı: ${a[1]} ${a[2]}<br><small>+25 🪙</small>`);confetti(14)},900)}})}
+const collected=()=>allItems().filter(i=>S.st[i.k]&&S.st[i.k].c>=2).length;
+// ---------- mağaza ----------
+const SHOP=[{k:'th_lav',t:'theme',n:'Lavanta Lab',ic:'💜',p:0,bg:'#f6f1ff',pri:'#7c5cff',sh:'#5a3fd6'},{k:'th_or',t:'theme',n:'Ameliyathane',ic:'🟢',p:150,bg:'#e9f7f1',pri:'#18a378',sh:'#0f7a58'},{k:'th_pk',t:'theme',n:'Pembe Önlük',ic:'🩷',p:150,bg:'#fff0f6',pri:'#e0508e',sh:'#b23a6e'},{k:'th_night',t:'theme',n:'Gece Nöbeti',ic:'🌙',p:300,bg:'#1f1b33',pri:'#8f7bff',sh:'#5a48c9',dark:1},
+ {k:'pal_atlas',t:'pal',n:'Klasik Atlas',ic:'📕',p:0,c:{bone:0xefe4cf,muscle:0xd9554f,nerve:0xf2c230,artery:0xe5323e,vein:0x4a78e0}},{k:'pal_pastel',t:'pal',n:'Pastel',ic:'🍬',p:200,c:{bone:0xfff4e0,muscle:0xf4a0b5,nerve:0xffe27a,artery:0xff8a8a,vein:0x8ab4ff}},{k:'pal_neon',t:'pal',n:'Neon',ic:'🌈',p:350,c:{bone:0xe9f0ff,muscle:0xff3d8b,nerve:0xffee00,artery:0xff2a2a,vein:0x2a8bff},em:.18},{k:'pal_gold',t:'pal',n:'Altın İskelet',ic:'👑',p:500,c:{bone:0xf3c74f,muscle:0xc8485a,nerve:0xfff1a8,artery:0xe5323e,vein:0x4a78e0},bm:.5}];
+function applyCosmetics(){const th=SHOP.find(s=>s.k===S.theme)||SHOP[0],pl=SHOP.find(s=>s.k===S.pal)||SHOP[4];const r=document.documentElement.style;r.setProperty('--bg',th.bg);r.setProperty('--pri',th.pri);r.setProperty('--sh',`0 4px 0 ${th.dark?'#120f22':'#e2d9ff'}`);
+ document.body.classList.toggle('dark',!!th.dark);scene.background=new THREE.Color(th.bg);
+ OBJ.forEach(o=>{const m=o.userData.m;if(m.c==='att')return;const c=new THREE.Color(pl.c[m.c]);if(m.c==='muscle'){c.offsetHSL((m.n.length*37%20-10)/360,0,(m.n.length%5-2)*.015)}o.material.color.copy(c);o.material.metalness=m.c==='bone'&&pl.bm?pl.bm:0;o.material.roughness=m.c==='bone'&&pl.bm?.3:(m.c==='bone'?.75:.55);o.userData.em=pl.em||0;if(!hl.has(o)){o.material.emissive.copy(c);o.material.emissiveIntensity=pl.em||0}})}
 // ---------- ana ekran ----------
-function showHome(){const L=lvlOf(S.xp);const learned=Object.values(S.st).filter(s=>s.b>=3).length,total=allItems().length;const due=Object.values(S.st).filter(s=>s.nx<=Date.now()&&s.b<5).length;
- const h=new Date().getHours(),gr=h<6?'İyi geceler':h<12?'Günaydın':h<18?'İyi çalışmalar':'İyi akşamlar';
- $('home').innerHTML=`<div class="hero"><div class="ico">🫀</div><h1>AnatoLab</h1><p>${gr}, Dr. ${S.name||''}! 💜</p></div>
- <div class="stats"><div class="stat"><b>🔥 ${S.streak}</b><small>GÜN SERİ</small></div><div class="stat"><b>${learned}/${total}</b><small>ÖĞRENİLEN</small></div><div class="stat"><b>${S.xp}</b><small>${LV[L][1]}</small></div></div>
- <div class="goal">🎯 Günün hedefi: ${Math.min(S.today,GOAL)}/${GOAL} doğru${due?` · <span style="color:#e0508e">${due} tekrar bekliyor</span>`:''}<div class="bar"><div style="width:${Math.min(100,S.today/GOAL*100)}%"></div></div></div>
- <div class="modes">${[['explore','🔬','Keşfet','Katmanları soy, dokun ve oku'],['find','🎯','Bul','Adı verilen yapıya dokun'],['name','🏷️','İsimlendir','Parlayan yapıyı tanı'],['card','🃏','Kas Kartı','Origo · İnsersiyo · İnn. · Fonk.'],['clinic','🩺','Klinik Vaka','Hangi sinir/arter hasarlı?'],['trace','🧵','İz Sür','Sinir ve damar yolunu takip et']].map(m=>`<button class="mode" data-m="${m[0]}"><b>${m[1]}</b><span>${m[2]}</span><small>${m[3]}</small></button>`).join('')}</div>
- <div class="region">BÖLGELER</div><div class="reg"><div class="cur">💪 Üst ekstremite</div><div class="lock">🦵 Alt ekstremite 🔒</div><div class="lock">🧠 Baş–boyun 🔒</div><div class="lock">🫁 Toraks 🔒</div></div>
- <div class="region">TERİM DİLİ</div><div class="lang"><button data-l="la" class="${S.lang==='la'?'on':''}">Latince önce</button><button data-l="en" class="${S.lang==='en'?'on':''}">English first</button></div>
- <div class="cred">3D modeller: Z-Anatomy (CC BY-SA 4.0), BodyParts3D © DBCLS (CC BY 4.0) temelli. Bu sürüm de CC BY-SA 4.0.<br>İçerik eğitim amaçlıdır; sınav öncesi ders kitabınla karşılaştır 📚</div>`;
- $('home').style.display='block';$('home').querySelectorAll('.mode').forEach(b=>b.onclick=()=>{$('home').style.display='none';setMode(b.dataset.m)});
- $('home').querySelectorAll('.lang button').forEach(b=>b.onclick=()=>{S.lang=b.dataset.l;save();showHome()})}
-function start(){updTop();if(!S.name){$('welcome').style.display='flex';$('wgo').onclick=()=>{const v=$('win').value.trim();if(!v){$('win').focus();return}S.name=v.slice(0,16);save();$('welcome').style.display='none';updTop();showHome();confetti(20)}}else showHome();setMode('explore')}
+let HTAB='map';
+function showHome(){RUN=null;uiReset();$('quiz').style.display='none';const L=lvlOf(S.xp);const h=new Date().getHours(),gr=h<6?'İyi geceler':h<12?'Günaydın':h<18?'İyi çalışmalar':'İyi akşamlar';
+ const tabs=[['map','🗺️','Kampanya'],['free','🎮','Serbest'],['album','🃏','Albüm'],['shop','🛒','Mağaza'],['ach','🏅','Başarı']];
+ let body='';
+ if(HTAB==='map'){const dd=S.daily.date===dayStr();body+=`<button class="daily ${dd?'done':''}" id="dly"><b>📅 Günün Meydan Okuması</b><small>${dd?'Bugünkü tamam ✅ Yarın yenisi!':'10 karışık soru · 2x altın'}</small></button>`;
+  CH.forEach((c,ci)=>{const st=c.lv.reduce((a,l)=>a+(S.lv[l.id]||0),0),mx=c.lv.length*3;body+=`<div class="chap"><div class="chh"><span>${c.ic} ${ci+1}. ${c.n}</span><small>⭐ ${st}/${mx}</small></div><div class="path">`+
+   c.lv.map(l=>{const u=unlocked(l),s=S.lv[l.id]||0;const ic=l.t==='boss'?'👑':{find:'🎯',name:'🏷️',card:'🃏',clinic:'🩺',trace:'🧵',dissect:'🔪'}[l.t];return `<button class="node ${l.t==='boss'?'bossn':''} ${u?'':'lock'} ${s?'won':''}" data-id="${l.id}"><b>${u?ic:'🔒'}</b><span class="ns">${[1,2,3].map(i=>i<=s?'★':'☆').join('')}</span><small>${l.t==='boss'?l.boss.name.split(' ').slice(0,-1).join(' '):l.ti}</small></button>`}).join('')+`</div></div>`})}
+ else if(HTAB==='free'){body+=`<div class="modes">${[['explore','🔬','Keşfet','Katmanları soy, dokun ve oku'],['find','🎯','Bul','Adı verilen yapıya dokun'],['name','🏷️','İsimlendir','Parlayan yapıyı tanı'],['card','🃏','Kas Kartı','O · I · N · A'],['clinic','🩺','Klinik Vaka','Hangi yapı hasarlı?'],['trace','🧵','İz Sür','Sinir ve damar yolları']].map(m=>`<button class="mode" data-m="${m[0]}"><b>${m[1]}</b><span>${m[2]}</span><small>${m[3]}</small></button>`).join('')}</div>
+  <div class="region">TERİM DİLİ</div><div class="lang"><button data-l="la" class="${S.lang==='la'?'on':''}">Latince önce</button><button data-l="en" class="${S.lang==='en'?'on':''}">English first</button></div>`}
+ else if(HTAB==='album'){const its=allItems();const n=collected();body+=`<div class="goal">🃏 Koleksiyon: ${n}/${its.length}<div class="bar"><div style="width:${n/its.length*100}%"></div></div><small style="color:var(--sub)">Bir yapıyı 2 kez doğru bilince kartı senin olur.</small></div>`;
+  ['bone','muscle','nerve','artery','vein'].forEach(c=>{const L2=its.filter(i=>i.c===c);body+=`<div class="region">${CATN[c].toUpperCase()} · ${L2.filter(i=>S.st[i.k]&&S.st[i.k].c>=2).length}/${L2.length}</div><div class="album">`+L2.map(i=>{const g=S.st[i.k]&&S.st[i.k].c>=2,r=(i.parts.length>1||/humerus|scapula|clavicle|radius|ulna|deltoid|biceps|triceps/i.test(i.en))?'':(/digital|branch|phalanx|metacarpal/.test(i.en)?'r3':'r2');return `<div class="card2 ${g?'got':''} ${r}" data-k="${i.k}" style="--cc:${CATC[c]}">${g?`<b>${{bone:'🦴',muscle:'💪',nerve:'⚡',artery:'❤️',vein:'💧'}[c]}</b><span>${S.lang==='la'?i.la:i.en}</span>`:'<b>❔</b><span>???</span>'}</div>`}).join('')+'</div>'})}
+ else if(HTAB==='shop'){body+=`<div class="goal">🪙 ${S.coins} altın<small style="display:block;color:var(--sub)">Bölümlerden, kombolardan ve başarılardan kazanılır.</small></div><div class="region">LAB TEMASI</div><div class="shop">`+SHOP.filter(s=>s.t==='theme').map(shopCard).join('')+`</div><div class="region">MODEL RENKLERİ</div><div class="shop">`+SHOP.filter(s=>s.t==='pal').map(shopCard).join('')+'</div>'}
+ else if(HTAB==='ach'){body+=`<div class="achs">`+ACH.map(a=>`<div class="ach ${S.ach[a[0]]?'got':''}"><b>${S.ach[a[0]]?a[1]:'🔒'}</b><div><span>${a[2]}</span><small>${a[3]}</small></div></div>`).join('')+'</div>'}
+ $('home').innerHTML=`<div class="hhead"><div><div class="hn">${gr}, Dr. ${S.name||''}!</div><small>${LV[L][1]} · ${S.xp} XP</small></div><div class="hs"><span>🔥 ${S.streak}</span><span>🪙 ${S.coins}</span></div></div>
+  <div class="goal">🎯 Günün hedefi: ${Math.min(S.today,GOAL)}/${GOAL} doğru<div class="bar"><div style="width:${Math.min(100,S.today/GOAL*100)}%"></div></div></div>
+  <div class="htabs">${tabs.map(t=>`<button data-t="${t[0]}" class="${HTAB===t[0]?'on':''}"><b>${t[1]}</b>${t[2]}</button>`).join('')}</div>${body}
+  <div class="cred">3D modeller: Z-Anatomy (CC BY-SA 4.0), BodyParts3D © DBCLS (CC BY 4.0) temelli. Bu sürüm de CC BY-SA 4.0.<br>İçerik eğitim amaçlıdır; sınav öncesi ders kitabınla karşılaştır 📚</div>`;
+ $('home').style.display='block';const H=$('home');
+ H.querySelectorAll('.htabs button').forEach(b=>b.onclick=()=>{HTAB=b.dataset.t;showHome();H.scrollTop=0});
+ H.querySelectorAll('.node').forEach(b=>b.onclick=()=>{const l=ALL_LV.find(x=>x.id===b.dataset.id);playLevel(l)});
+ H.querySelectorAll('.mode').forEach(b=>b.onclick=()=>{$('home').style.display='none';setMode(b.dataset.m)});
+ H.querySelectorAll('.lang button').forEach(b=>b.onclick=()=>{S.lang=b.dataset.l;save();showHome()});
+ H.querySelectorAll('.shopc').forEach(b=>b.onclick=()=>buy(b.dataset.k));
+ H.querySelectorAll('.card2.got').forEach(b=>b.onclick=()=>{const it=allItems().find(i=>i.k===b.dataset.k);$('home').style.display='none';setMode('explore');vis[it.c]=1;applyVis();selectItem(it,true)});
+ if($('dly'))$('dly').onclick=()=>{if(S.daily.date===dayStr())return toast('Bugünkü tamam ✅');$('home').style.display='none';startDaily()}}
+function shopCard(s){const own=S.owned.includes(s.k),on=S.theme===s.k||S.pal===s.k;return `<button class="shopc ${on?'on':''}" data-k="${s.k}"><b>${s.ic}</b><span>${s.n}</span><small>${on?'Kullanılıyor':own?'Kullan':'🪙 '+s.p}</small></button>`}
+function buy(k){const s=SHOP.find(x=>x.k===k);if(!S.owned.includes(k)){if(S.coins<s.p)return toast('🪙 Yetersiz altın');S.coins-=s.p;S.owned.push(k);confetti(14);toast('🛍️ '+s.n+' senin!')}if(s.t==='theme')S.theme=k;else S.pal=k;save();applyCosmetics();showHome()}
+function startDaily(){let seed=0;for(const ch of dayStr())seed=(seed*31+ch.charCodeAt(0))>>>0;const rnd=()=>{seed=(seed*1664525+1013904223)>>>0;return seed/4294967296};const its=allItems().filter(i=>i.c!=='vein');const list=[];while(list.length<10){const it=its[rnd()*its.length|0];if(!list.includes(it))list.push(it)}
+ MODE='find';uiReset();$('quiz').style.display='block';$('layers').style.display='none';$('tools').style.display='none';
+ const def={t:'boss',id:null,ti:'Günün meydan okuması',daily:1,boss:{name:'📅 Günlük',hp:10*12},pool:()=>list};RUN=null;startRun(def);RUN.list=list;RUN.i=0}
+function start(){updTop();applyCosmetics();if(!S.name){$('welcome').style.display='flex';$('wgo').onclick=()=>{const v=$('win').value.trim();if(!v){$('win').focus();return}S.name=v.slice(0,16);save();$('welcome').style.display='none';updTop();showHome();confetti(20)}}else showHome();setMode('explore');if(S.name)$('home').style.display='block'}
+
 // ---------- döngü ----------
 const _v=new THREE.Vector3();
-function loop(){requestAnimationFrame(loop);if(focusAnim){const k=Math.min(1,(performance.now()-focusAnim.t0)/650),e=1-Math.pow(1-k,3);controls.target.lerpVectors(focusAnim.ft,focusAnim.tt,e);camera.position.lerpVectors(focusAnim.fp,focusAnim.tp,e);if(k>=1)focusAnim=null}
+let _lt=performance.now();function loop(){requestAnimationFrame(loop);const _n=performance.now(),_dt=Math.min(.1,(_n-_lt)/1000);_lt=_n;gameTick(_dt);if(focusAnim){const k=Math.min(1,(performance.now()-focusAnim.t0)/650),e=1-Math.pow(1-k,3);controls.target.lerpVectors(focusAnim.ft,focusAnim.tt,e);camera.position.lerpVectors(focusAnim.fp,focusAnim.tp,e);if(k>=1)focusAnim=null}
  controls.update();const t=performance.now()/1000;hl.forEach((v,o)=>{o.material.emissiveIntensity=v.g*(.75+.25*Math.sin(t*5))});
  if(labelObj){const bb=new THREE.Box3().setFromObject(labelObj);bb.getCenter(_v);_v.project(camera);if(_v.z>1){$('label').style.display='none'}else{$('label').style.display='block';$('label').style.left=((_v.x+1)/2*innerWidth)+'px';$('label').style.top=((1-_v.y)/2*innerHeight)+'px'}}
  renderer.render(scene,camera)}
 loop();boot();
-window.__a={S,OBJ,BYNAME,allItems,setMode,pick:o=>onPick(o),Q:()=>Q,itemObjs};
+window.__a={S,OBJ,BYNAME,allItems,setMode,pick:o=>onPick(o),Q:()=>Q,R:()=>RUN,itemObjs,playLevel,ALL_LV,showHome,exposure};
 </script>
 </body>
 </html>
