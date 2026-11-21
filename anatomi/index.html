@@ -97,6 +97,40 @@ button{font:inherit;border:none;cursor:pointer;color:inherit}
 .achs{display:flex;flex-direction:column;gap:7px}.ach{display:flex;gap:10px;align-items:center;background:#fff;border-radius:14px;padding:9px 12px;box-shadow:var(--sh);opacity:.55}.ach.got{opacity:1}.ach b{font-size:26px}.ach span{font-weight:900;display:block}.ach small{color:var(--sub);font-weight:700}
 body.dark{--ink:#f1edff;--sub:#b3a9d9;--card:#2b2545}body.dark .pill,body.dark #sheet,body.dark #opts button,body.dark #quiz .q,body.dark #casebox,body.dark #nav,body.dark #layers button,body.dark #tools button,body.dark #pups button,body.dark .chap,body.dark .stat,body.dark .goal,body.dark .mode,body.dark .htabs,body.dark .hs span,body.dark .shopc,body.dark .ach,body.dark .card2,body.dark .lang,body.dark #sres{background:#2b2545;color:#f1edff}
 body.dark #home{background:linear-gradient(180deg,#1f1b33,#2a2147)}body.dark .node{background:#352d57}body.dark .node b{background:#2b2545}
+
+/* tablet */
+@media (min-width:700px){
+ #home>*,#welcome>*{max-width:760px;margin-left:auto;margin-right:auto}
+ #home{padding-left:28px;padding-right:28px}
+ #home>.daily{display:block;width:100%;max-width:760px;margin-left:auto!important;margin-right:auto!important}
+ .node{flex:0 0 112px;padding:12px 6px}.node b{font-size:26px}.node small{font-size:12px}
+ .path{flex-wrap:wrap;overflow:visible}
+ .modes{grid-template-columns:repeat(3,1fr)}.album{grid-template-columns:repeat(5,1fr)}.shop{grid-template-columns:repeat(4,1fr)}
+ .achs{display:grid;grid-template-columns:1fr 1fr}
+ .rg{padding:12px 4px;font-size:13px}.rg b{font-size:30px}
+ .top{max-width:900px;margin:0 auto;left:0;right:0}
+ #nav{max-width:760px;left:50%;transform:translateX(-50%);border-radius:22px;bottom:calc(10px + env(safe-area-inset-bottom));padding:8px}
+ #quiz{left:50%;right:auto;width:min(640px,calc(100vw - 140px));transform:translateX(-50%);top:calc(74px + env(safe-area-inset-top))}
+ #quiz .q,#casebox,#boss{margin-left:0;margin-right:0}
+ #quiz .q{padding:14px 20px}#quiz .q h4{font-size:24px}#quiz .q small{font-size:13px}#quiz .q .en2{font-size:15px}
+ #casebox{font-size:16px;max-height:30vh}
+ #opts{left:50%;right:auto;width:min(760px,calc(100vw - 48px));transform:translateX(-50%);display:none;grid-template-columns:1fr 1fr;bottom:calc(90px + env(safe-area-inset-bottom))}
+ #opts[style*="flex"]{display:grid!important}
+ #opts button{font-size:16px;padding:14px 18px}#opts button small{font-size:13px}
+ #sheet{left:50%;right:auto;width:min(620px,calc(100vw - 48px));margin-left:calc(min(620px,calc(100vw - 48px))/-2);bottom:calc(90px + env(safe-area-inset-bottom));max-height:46vh}
+ #layers,#tools{top:calc(80px + env(safe-area-inset-top))}#layers{left:16px}#tools{right:16px}
+ #layers button,#tools button{width:54px;height:54px;font-size:24px}
+ #pups{right:16px;top:calc(330px + env(safe-area-inset-top))}#pups button{width:56px;height:60px;font-size:22px}
+ #tracebar span{font-size:12.5px;padding:3px 9px}
+}
+@media (min-width:1000px) and (orientation:landscape){
+ #quiz{left:24px;transform:none;width:420px}
+ #opts{left:auto;right:24px;transform:none;width:400px;grid-template-columns:1fr;bottom:calc(100px + env(safe-area-inset-bottom))}
+ #sheet{left:auto;right:24px;margin-left:0;width:420px;max-height:70vh}
+ #casebox{max-height:50vh}
+ #pups{right:440px;top:auto;bottom:calc(100px + env(safe-area-inset-bottom))}
+ #layers{top:auto;bottom:110px}
+}
 </style>
 </head>
 <body>
