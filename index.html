@@ -782,7 +782,7 @@ function rr(g,x,y,w,h,r){g.beginPath();g.moveTo(x+r,y);g.arcTo(x+w,y,x+w,y+h,r);
 function padPos(p){
  if(p.t==='machine'){const[x,z]=MACH_POS[p.s];return{x,z:z+1.4}}
  if(p.t==='register')return{x:-3,z:-1.2};if(p.t==='table'){const[x,z]=tablePos(p.s);return{x,z}}if(p.t==='fun')return OUTDOOR_FUN(LVI())?{x:VB.x,z:VB.z}:{x:-6.2,z:FUN.z};if(p.t==='out')return[{x:5.8,z:15.6},{x:7.0,z:15.9},{x:5.8,z:16.9}][OUTC().t];if(p.t==='decor')return p.k==='plants'?{x:-4.4,z:3.2}:{x:1.2,z:-3.0};if(p.t==='board')return{x:BOARD.x,z:BOARD.z};
- if(p.t==='wc')return{x:7.8,z:9.3};if(p.t==='hire'&&p.role==='wcleaner')return{x:4.4,z:6.3};if(p.t==='hire'&&p.role==='runner')return{x:-3.6,z:10.2};if(p.t==='hire')return p.role==='cashier'?{x:-1.6,z:-4}:p.role==='cleaner'?{x:1.8,z:7}:p.id==='bar1'?{x:-5.4,z:-4}:{x:-8,z:-3.6};
+ if(p.t==='wc')return{x:7.8,z:9.3};if(p.t==='hire'&&p.role==='wcleaner')return{x:4.4,z:6.3};if(p.t==='hire'&&p.role==='runner')return{x:-3.6,z:10.2};if(p.t==='hire')return p.role==='cashier'?{x:-1.6,z:-4}:p.role==='cleaner'?{x:1.8,z:7}:p.id==='bar1'?{x:-3.95,z:-3.45}:{x:-6.25,z:-3.45};
  if(p.t==='next')return{x:3.4,z:8.6};
 }
 function refreshPads(){
@@ -849,11 +849,11 @@ function updatePlayer(dt){
  actT-=dt;if(actT>0)return;
  // interactions (one action per tick → the satisfying one-by-one rhythm)
  // makineden alma: ilki anında, sonra kısa bir duraklama → hızlıca girip çıkan 1 tane alır, bekleyen fazlasını toplar
- {let nearM=null;for(const mc of machines){if(near(player,mc.zone)){nearM=mc;if(mc.tray.length&&player.stack.length<capacity()){if(player.pickM!==mc){player.pickM=mc;player.pickN=0}
+ {const onPad=G.money>=1&&pads.some(pd=>pd.paid<pd.cost&&near(player,pd.zone));let nearM=null;for(const mc of machines){if(!onPad&&near(player,mc.zone)){nearM=mc;if(mc.tray.length&&player.stack.length<capacity()){if(player.pickM!==mc){player.pickM=mc;player.pickN=0}
    const it=mc.tray.pop();takeTo(player,it);actT=player.pickN===0?1:.2;player.pickN++;return}}}if(!nearM)player.pickM=null}
  if(reg){
   if(near(player,{x:REGZ.x,z:REGZ.z,r:1.1})){const c=queueFront();if(c&&c.state==='wait'&&!c.served){const i=findItem(player.stack,c.order);if(i>=0){serve(c,player.stack.splice(i,1)[0]);actT=.25;return}const j=findItem(reg.stock,c.order);if(j>=0){const it=reg.stock.splice(j,1)[0];relayoutStock();serve(c,it);actT=.25;return}}}
-  if(near(player,{x:DROP.x,z:DROP.z,r:1.0})&&player.stack.length&&canStock()){const j=pickFree(k=>canDrop(k));if(j>=0){const it=player.stack.splice(j,1)[0];dropToStock(it);actT=.08;return}}
+  if(near(player,{x:DROP.x,z:DROP.z,r:1.0})&&player.stack.length&&canStock()&&!(G.money>=1&&pads.some(pd=>pd.paid<pd.cost&&near(player,pd.zone)))){const j=pickFree(k=>canDrop(k));if(j>=0){const it=player.stack.splice(j,1)[0];dropToStock(it);actT=.08;return}}
   if(near(player,{x:PILE.x,z:PILE.z+.2,r:1.5})&&reg.pile.length){collectPile();actT=.03;return}
   if(player.stack.length&&near(player,{x:TRASH.x,z:TRASH.z,r:1.25})){player.binT=(player.binT||0)+(pv.length()<1.4?dt:0);if(player.binT>.25){const j=player.stack.length-1;if(j>=0){const it=player.stack.splice(j,1)[0];trashItem(it,player);actT=.08;return}}}else player.binT=0;
  }
