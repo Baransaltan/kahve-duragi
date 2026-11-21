@@ -1015,7 +1015,8 @@ function collide(p,r=.35){
  const outz=p.z>12.1;
  if(EXPON&&!outz&&p.x>9.6){if(p.x<10.6){if(p.z<ANX.o0+.4||p.z>ANX.o1-.4)p.x=p.x<10.1?9.6:10.6}else p.z=clamp(p.z,ANX.z0+.4,ANX.z1-.4);p.x=Math.min(p.x,ANX.x1-.4)}
  else p.x=clamp(p.x,outz?-14:-9.6,outz?14:9.6);p.z=clamp(p.z,-8.1,LVI()===1?24.5:17.6);
- for(const s of solids){if(p.x>s.x0-r&&p.x<s.x1+r&&p.z>s.z0-r&&p.z<s.z1+r){const dl=p.x-(s.x0-r),dr=(s.x1+r)-p.x,dt=p.z-(s.z0-r),db=(s.z1+r)-p.z,m=Math.min(dl,dr,dt,db);if(m===dl)p.x=s.x0-r;else if(m===dr)p.x=s.x1+r;else if(m===dt)p.z=s.z0-r;else p.z=s.z1+r}}
+ const inOp=EXPON&&p.z>ANX.o0+.3&&p.z<ANX.o1-.3;
+ for(const s of solids){if(inOp&&s.x0===9.8&&s.x1===10.6)continue;if(p.x>s.x0-r&&p.x<s.x1+r&&p.z>s.z0-r&&p.z<s.z1+r){const dl=p.x-(s.x0-r),dr=(s.x1+r)-p.x,dt=p.z-(s.z0-r),db=(s.z1+r)-p.z,m=Math.min(dl,dr,dt,db);if(m===dl)p.x=s.x0-r;else if(m===dr)p.x=s.x1+r;else if(m===dt)p.z=s.z0-r;else p.z=s.z1+r}}
 }
 const pv=new V3();let actT=0;
 function updatePlayer(dt){
