@@ -642,7 +642,7 @@ let player,machines=[],tables=[],staff=[],customers=[],pads=[],reg=null,board=nu
 function buildWorld(){
  flyers.forEach(f=>scene.remove(f.obj));flyers.length=0;LATER.length=0;
  if(world)scene.remove(world);world=new THREE.Group();scene.add(world);ensureG();GLOWS.length=0;OCARD_Q='~';clearTruck();CHATS.forEach(o=>scene.remove(o.s));CHATS.length=0;brokeCool=90;PADS=padList(G.lvl);TOK=null;FUNZ=null;tokT=60;WCS=null;if(OUT)OUT.slots.forEach(s=>{if(s.ch)scene.remove(s.ch.root);if(s.veh)scene.remove(s.veh);if(s.bub)scene.remove(s.bub)});OUT=null;TRAFFIC.forEach(o=>scene.remove(o.c));TRAFFIC=[];WAVES=null;OUT_PLANE=null;WHEEL=null;if(DECOX.cat){scene.remove(DECOX.cat.holder);DECOX.cat=null}
- staff.forEach(s=>{scene.remove(s.c.root);s.c.stack.forEach(i=>scene.remove(i))});machines=[];tables=[];staff=[];customers.forEach(c=>scene.remove(c.root));customers=[];pads=[];reg=null;board=null;solids=[];
+ staff.forEach(s=>{scene.remove(s.c.root);s.c.stack.forEach(i=>scene.remove(i))});machines=[];tables=[];staff=[];customers.forEach(c=>{scene.remove(c.c.root);if(c.bub)scene.remove(c.bub);if(c.crown&&c.crown.parent)c.crown.parent.remove(c.crown)});customers=[];pads=[];reg=null;board=null;solids=[];
  const th=curTheme();
  // outside ground + street
  const og=mesh(new THREE.PlaneGeometry(80,80),std(th.out),0,-.02,0,false);og.rotation.x=-Math.PI/2;world.add(og);
@@ -821,12 +821,14 @@ function updatePlayer(dt){
  const real=p.clone().sub(before).multiplyScalar(1/Math.max(dt,1e-4));animChar(player,dt,real);
  actT-=dt;if(actT>0)return;
  // interactions (one action per tick → the satisfying one-by-one rhythm)
- for(const mc of machines){if(near(player,mc.zone)&&mc.tray.length&&player.stack.length<capacity()&&(!player.stack.length||true)){const it=mc.tray.pop();takeTo(player,it);actT=.09;return}}
+ // makineden alma: ilki anında, sonra kısa bir duraklama → hızlıca girip çıkan 1 tane alır, bekleyen fazlasını toplar
+ {let nearM=null;for(const mc of machines){if(near(player,mc.zone)){nearM=mc;if(mc.tray.length&&player.stack.length<capacity()){if(player.pickM!==mc){player.pickM=mc;player.pickN=0}
+   const it=mc.tray.pop();takeTo(player,it);actT=player.pickN===0?.5:.2;player.pickN++;return}}}if(!nearM)player.pickM=null}
  if(reg){
   if(near(player,{x:REGZ.x,z:REGZ.z,r:1.1})){const c=queueFront();if(c&&c.state==='wait'&&!c.served){const i=findItem(player.stack,c.order);if(i>=0){serve(c,player.stack.splice(i,1)[0]);actT=.25;return}const j=findItem(reg.stock,c.order);if(j>=0){const it=reg.stock.splice(j,1)[0];relayoutStock();serve(c,it);actT=.25;return}}}
   if(near(player,{x:DROP.x,z:DROP.z,r:1.0})&&player.stack.length&&canStock()){const j=pickFree(k=>canDrop(k));if(j>=0){const it=player.stack.splice(j,1)[0];dropToStock(it);actT=.08;return}}
   if(near(player,{x:PILE.x,z:PILE.z+.2,r:1.5})&&reg.pile.length){collectPile();actT=.03;return}
-  if(player.stack.length&&near(player,{x:TRASH.x,z:TRASH.z,r:1.25})){player.binT=(player.binT||0)+(pv.length()<1.4?dt:0);if(player.binT>.25){const nd=needItem();const j=pickFree(k=>k!==nd);if(j>=0){const it=player.stack.splice(j,1)[0];trashItem(it,player);actT=.08;return}}}else player.binT=0;
+  if(player.stack.length&&near(player,{x:TRASH.x,z:TRASH.z,r:1.25})){player.binT=(player.binT||0)+(pv.length()<1.4?dt:0);if(player.binT>.25){const j=player.stack.length-1;if(j>=0){const it=player.stack.splice(j,1)[0];trashItem(it,player);actT=.08;return}}}else player.binT=0;
  }
  if(outDeliver())return;
  if(WCS&&WCS.dirt>0&&near(player,WCS.zone)){WCS.clean+=.07;player.squash=Math.max(player.squash||0,.3);if(WCS.clean>=1)cleanWC();actT=.06;return}
