@@ -71,10 +71,30 @@ html,body{margin:0;height:100%;overflow:hidden;background:#f6e3c6;font-family:'B
 .card .big{font-size:40px;font-weight:800;color:#2f9a46}
 .card .bb{font-size:20px;padding:12px 18px;margin-top:10px;width:100%}
 .card .em{font-size:64px;line-height:1}
-#title{position:fixed;inset:0;z-index:30;display:flex;flex-direction:column;align-items:center;justify-content:space-between;padding:12vh 24px calc(10vh + env(safe-area-inset-bottom,0px));background:linear-gradient(180deg,rgba(255,240,215,.0),rgba(255,236,205,.0) 50%,rgba(250,220,180,.85))}
-#title h1{margin:0;font-size:54px;line-height:.95;text-align:center;color:#fff;text-shadow:0 5px 0 #c96a2f,0 10px 22px rgba(120,60,20,.35);letter-spacing:1px}
-#title h1 span{display:block;font-size:24px;color:#ffe2b8;text-shadow:0 3px 0 #c96a2f}
-#title .bb{font-size:26px;padding:14px 40px;animation:bounce 1.4s infinite}
+#title{position:fixed;inset:0;z-index:30;display:flex;flex-direction:column;align-items:center;justify-content:space-between;padding:calc(9vh + env(safe-area-inset-top,0px)) 24px calc(5vh + env(safe-area-inset-bottom,0px));background:radial-gradient(120% 70% at 50% 28%,rgba(255,244,226,.55),rgba(255,236,205,0) 60%),linear-gradient(180deg,rgba(255,226,186,.55),rgba(255,236,205,0) 38%,rgba(255,236,205,0) 55%,rgba(246,205,160,.92));overflow:hidden}
+#title .tfx{position:absolute;inset:0;pointer-events:none}
+#title.ld{background:radial-gradient(120% 70% at 50% 30%,#fff3df,#f7d9ae 70%,#efc48e)}#title{transition:background .8s}
+#title .tfx span{position:absolute;bottom:-60px;font-size:28px;opacity:0;animation:tfl linear infinite;filter:drop-shadow(0 3px 4px rgba(120,60,20,.25))}
+@keyframes tfl{0%{transform:translateY(0) rotate(0);opacity:0}10%{opacity:.6}85%{opacity:.6}100%{transform:translateY(-110vh) rotate(40deg);opacity:0}}
+.tlogo{position:relative;text-align:center;animation:tin .9s cubic-bezier(.2,1.6,.4,1) both}
+@keyframes tin{from{transform:translateY(-30px) scale(.8);opacity:0}}
+.tcup{position:relative;display:inline-block;font-size:64px;line-height:1;filter:drop-shadow(0 6px 8px rgba(120,60,20,.3));animation:tcw 3s ease-in-out infinite}
+@keyframes tcw{50%{transform:rotate(-6deg) translateY(-4px)}}
+.tcup i{position:absolute;left:50%;top:-6px;width:8px;height:22px;border-radius:8px;background:rgba(255,255,255,.85);filter:blur(2px);opacity:0;animation:tst 2.4s ease-in infinite}
+.tcup i:nth-child(1){margin-left:-16px}.tcup i:nth-child(2){margin-left:-4px;animation-delay:.8s}.tcup i:nth-child(3){margin-left:8px;animation-delay:1.6s}
+@keyframes tst{0%{transform:translateY(8px) scaleY(.6);opacity:0}30%{opacity:.9}100%{transform:translateY(-34px) scaleY(1.3) translateX(4px);opacity:0}}
+#title h1{margin:2px 0 0;font-size:62px;line-height:.92;text-align:center;color:#fff;text-shadow:0 4px 0 #e0823a,0 8px 0 #b85a24,0 14px 24px rgba(120,60,20,.35);letter-spacing:1px}
+.ttag{display:inline-block;margin-top:14px;padding:6px 16px;border-radius:20px;background:rgba(255,255,255,.88);color:#b0612a;font-weight:800;font-size:15px;box-shadow:0 3px 0 #ecc99c}
+.tbot{position:relative;display:flex;flex-direction:column;align-items:center;gap:12px;width:100%}
+#tload{text-align:center}#loadbar{width:240px;height:16px;border-radius:9px;background:rgba(255,255,255,.75);overflow:hidden;box-shadow:inset 0 2px 3px rgba(120,60,20,.15)}
+#loadbar div{height:100%;width:0;border-radius:9px;background:linear-gradient(90deg,#ffc45a,#ff7a3d);transition:width .2s}
+.tlt{margin-top:7px;font-size:14px;font-weight:800;color:#9a5b2e}
+#tcont{display:none;padding:7px 16px;border-radius:16px;background:rgba(255,255,255,.9);box-shadow:0 3px 0 #ecc99c;font-weight:800;font-size:14px;color:#6e5440;text-align:center;line-height:1.35}
+#tcont b{color:#2f9a46}
+#title .bb{font-size:28px;padding:15px 56px;border-radius:22px;animation:tpb 1.6s ease-in-out infinite}
+@keyframes tpb{50%{transform:scale(1.06)}}
+.tcred{font-size:10.5px;color:#9a7a60;font-weight:700;opacity:.8;text-align:center;max-width:320px;line-height:1.35}
+body.intitle #dlg,body.intitle .hud,body.intitle #musBtn,body.intitle #side,body.intitle #nextUp,body.intitle #ocard{display:none!important}
 @keyframes bounce{50%{transform:translateY(-6px) scale(1.03)}}
 #boost{top:calc(98px + env(safe-area-inset-top,0px));left:12px;display:none;align-items:center;gap:6px;background:linear-gradient(#ffe066,#ffb02e);color:#7a3d00;border-radius:999px;padding:3px 12px;font-weight:800;font-size:16px;box-shadow:0 3px 0 #d98a2a,0 0 18px rgba(255,190,40,.7);animation:bp 1s infinite}
 @keyframes bp{50%{transform:scale(1.07)}}
@@ -119,7 +139,7 @@ html,body{margin:0;height:100%;overflow:hidden;background:#f6e3c6;font-family:'B
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="apple-mobile-web-app-title" content="Kahve Durağı">
 <meta name="theme-color" content="#ffb04a"><link rel="apple-touch-icon" href="icons/icon-180.png"><link rel="icon" href="icons/icon-192.png">
 </head>
-<body>
+<body class="intitle">
 <div id="c"></div>
 <div id="top" class="hud">
   <div id="money"><div class="ic">$</div><span id="mv">0</span></div>
@@ -139,7 +159,14 @@ html,body{margin:0;height:100%;overflow:hidden;background:#f6e3c6;font-family:'B
 <div id="over"></div>
 <div id="dlg" onclick="dlgTap()"><div id="dlgE"></div><div id="dlgB"><div id="dlgN"></div><div id="dlgT"></div><div id="dlgC">Devam ▶</div></div></div>
 <div id="flash"></div>
-<div id="title"><h1><span>☕</span>Kahve<br>Durağı</h1><div style="text-align:center"><div id="loadbar" style="width:220px;height:14px;border-radius:7px;background:rgba(255,255,255,.7);overflow:hidden;margin:0 auto 8px"><div style="height:100%;width:0;background:linear-gradient(90deg,#ffb04a,#ff7a3d)"></div></div><button class="bb" id="playBtn" style="display:none">OYNA</button><div style="margin-top:14px;font-size:11px;color:#8a6d55;font-weight:600;line-height:1.3">Karakterler: Polygonal Mind · 100Avatars (CC-BY 4.0)<br>Mobilya & yiyecek: Kenney (CC0)</div></div></div>
+<div id="title" class="ld"><div class="tfx" id="tfx"></div>
+ <div class="tlogo"><div class="tcup">☕<i></i><i></i><i></i></div><h1>Kahve<br>Durağı</h1><div class="ttag">Kafeni kur · büyüt · şubeler aç!</div></div>
+ <div class="tbot">
+  <div id="tload"><div id="loadbar"><div></div></div><div class="tlt">Kafe hazırlanıyor…</div></div>
+  <div id="tcont"></div>
+  <button class="bb" id="playBtn" style="display:none">OYNA</button>
+  <div class="tcred">Karakterler: Polygonal Mind · 100Avatars (CC-BY 4.0) · Mobilya & yiyecek: Kenney (CC0)</div>
+ </div></div>
 
 <script src="lib/three.min.js"></script>
 <script src="lib/GLTFLoader.js"></script>
@@ -823,7 +850,7 @@ function updatePlayer(dt){
  // interactions (one action per tick → the satisfying one-by-one rhythm)
  // makineden alma: ilki anında, sonra kısa bir duraklama → hızlıca girip çıkan 1 tane alır, bekleyen fazlasını toplar
  {let nearM=null;for(const mc of machines){if(near(player,mc.zone)){nearM=mc;if(mc.tray.length&&player.stack.length<capacity()){if(player.pickM!==mc){player.pickM=mc;player.pickN=0}
-   const it=mc.tray.pop();takeTo(player,it);actT=player.pickN===0?.5:.2;player.pickN++;return}}}if(!nearM)player.pickM=null}
+   const it=mc.tray.pop();takeTo(player,it);actT=player.pickN===0?1:.2;player.pickN++;return}}}if(!nearM)player.pickM=null}
  if(reg){
   if(near(player,{x:REGZ.x,z:REGZ.z,r:1.1})){const c=queueFront();if(c&&c.state==='wait'&&!c.served){const i=findItem(player.stack,c.order);if(i>=0){serve(c,player.stack.splice(i,1)[0]);actT=.25;return}const j=findItem(reg.stock,c.order);if(j>=0){const it=reg.stock.splice(j,1)[0];relayoutStock();serve(c,it);actT=.25;return}}}
   if(near(player,{x:DROP.x,z:DROP.z,r:1.0})&&player.stack.length&&canStock()){const j=pickFree(k=>canDrop(k));if(j>=0){const it=player.stack.splice(j,1)[0];dropToStock(it);actT=.08;return}}
@@ -1962,8 +1989,8 @@ function step(dt,now){GT+=dt;for(let i=LATER.length-1;i>=0;i--)if(LATER[i].t<=GT
    const dx=g.x-pp.x,dz=g.z-pp.z;ring.visible=dd>2.2;ring.position.set(pp.x,.07,pp.z);ring.rotation.y=Math.atan2(dx,dz);ring.userData.m.position.z=1.0+Math.sin(now*.004)*.06;ring.userData.m.material.opacity=.55*GUIDE.a}}
  // camera: smooth follow, distance fitted to aspect so portrait phones see the cafe width
  const asp=innerWidth/innerHeight,tf=Math.tan(THREE.MathUtils.degToRad(camera.fov/2)),dist=clamp(12/(2*tf*asp),(asp>1&&DEV.tab)?15:13,21);
- const target=started?player.root.position:new V3(Math.sin(now*.0002)*3,0,0);
- const want=new V3(target.x*.97,dist*.8,target.z*.9+dist*.6);camPos.lerp(want,1-Math.exp(-dt*(started?5:1.5)));
+ const target=started?player.root.position:new V3(Math.sin(now*.00015)*2.5,0,1.5);
+ const oa=started?0:Math.sin(now*.00012)*.45;const want=started?new V3(target.x*.97,dist*.8,target.z*.9+dist*.6):new V3(target.x+Math.sin(oa)*dist*.75,dist*.72,target.z+Math.cos(oa)*dist*.75);camPos.lerp(want,1-Math.exp(-dt*(started?5:1.5)));
  camLook.lerp(new V3(target.x*.97,0,target.z*.9),1-Math.exp(-dt*(started?6:1.5)));
  if(shakeT>0){shakeT-=dt;camPos.x+=rnd(-.12,.12);camPos.y+=rnd(-.12,.12)}
  camera.position.copy(camPos);camera.lookAt(camLook);
@@ -1973,12 +2000,14 @@ window.__dbg={tok:()=>TOK,stat:()=>STAT,tick(dt){step(dt,GT*1000)},get G(){retur
 
 // ================= BOOT =================
 async function boot(){
- initThree();initGeo();setupSky();loadMeta();initInput();const cloudP=cloudInit();await loadAssets();const cloud=await cloudP;for(const k in PROD)makeItem(k);$('loadbar').style.display='none';$('playBtn').style.display='inline-block';
+ {const fx=$('tfx'),E=['☕','🥐','🍩','🧁','🍰','🥤','🍪','🧋','🍦','🥞'];for(let i=0;i<11;i++){const sp=document.createElement('span');sp.textContent=E[i%E.length];sp.style.left=(4+Math.random()*92)+'%';sp.style.fontSize=(20+Math.random()*18)+'px';sp.style.animationDuration=(9+Math.random()*8)+'s';sp.style.animationDelay=(-Math.random()*14)+'s';fx.appendChild(sp)}}
+ initThree();initGeo();setupSky();loadMeta();initInput();const cloudP=cloudInit();await loadAssets();const cloud=await cloudP;for(const k in PROD)makeItem(k);$('tload').style.display='none';$('title').classList.remove('ld');$('playBtn').style.display='inline-block';
  const prev=pickNewest(cloud);G=prev||fresh(0);ensureG();if(CLOUD.ok)cloudQueue(true);
- buildWorld();updateHUD();camPos.set(0,30,30);
+ buildWorld();updateHUD();camPos.set(0,30,30);player.root.visible=false;
+ if(G.lvl>0||G.unl.length>2||(META.branches&&META.branches.length)){const c=$('tcont');c.style.display='block';c.innerHTML=`📍 ${cafeName()} · Şube ${G.lvl%7+1}${G.lvl>=7?' ⭐':''}<br>💰 <b>$${fmt(G.money)}</b>`;$('playBtn').textContent='DEVAM ET'}
  // title demo: a few wandering customers
  loop();
- $('playBtn').onclick=()=>{audio();startMusic();$('title').style.transition='opacity .5s';$('title').style.opacity=0;setTimeout(()=>$('title').remove(),500);started=true;
+ $('playBtn').onclick=()=>{document.body.classList.remove('intitle');player.root.visible=true;audio();startMusic();$('title').style.transition='opacity .5s';$('title').style.opacity=0;setTimeout(()=>$('title').remove(),500);started=true;
   if(!G.unl.length)showHint('Parlayan kareye yürü ve ilk makineni aç!');else showHint('Hareket etmek için ekranı sürükle');
   if(prev)offlineCheck(prev);if($('over').classList.contains('open'))window._pendDaily=1;else dailyCheck();setTimeout(()=>{if(has('next')){G.story=G.story||{};G.story.s=1;levelDone()}else storyStart()},700);updateHUD();brBackfill()};
  addEventListener('visibilitychange',()=>{if(document.hidden){save();cloudQueue(true);cloudFlush(true)}});addEventListener('pagehide',()=>{save();cloudFlush(true)});addEventListener('beforeunload',save);addEventListener('blur',save);document.addEventListener('freeze',save);
