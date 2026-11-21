@@ -423,7 +423,7 @@ function setRegionData(rid){RID=rid;KP=rid==='ul'?'':rid+':';const D=RDATA[rid];
 let LOADING=false;
 function loadRegion(rid,cb){if(LOADING)return;LOADING=true;$('load').style.display='flex';$('lt').textContent=(REGS.find(r=>r.id===rid)||{}).n+' hazırlanıyor…';
  const ld=new THREE.GLTFLoader();const dr=new THREE.DRACOLoader();dr.setDecoderPath(DRACO_PATH);dr.setDecoderConfig({type:'js'});ld.setDRACOLoader(dr);
- fetch('r_'+rid+'.glb').then(r=>{if(!r.ok)throw new Error(r.status);return r.arrayBuffer()}).then(buf=>ld.parse(buf,'',g=>{
+ fetch('r_'+rid+'.glb').then(r=>{if(!r.ok)throw new Error(r.status);return r.arrayBuffer()}).catch(()=>new Promise((ok,no)=>{const sc=document.createElement('script');sc.src='r_'+rid+'.js';sc.onload=()=>{const b=atob(window.__GLB[rid]);const u=new Uint8Array(b.length);for(let i=0;i<b.length;i++)u[i]=b.charCodeAt(i);delete window.__GLB[rid];ok(u.buffer)};sc.onerror=()=>no(new Error('model'));document.head.appendChild(sc)})).then(buf=>ld.parse(buf,'',g=>{
   if(ROOT){scene.remove(ROOT);ROOT.traverse(o=>{if(o.isMesh){o.geometry.dispose();o.material.dispose()}})}
   hl.clear();OBJ=[];setRegionData(rid);S.region=rid;save();
   ROOT=g.scene;scene.add(ROOT);ROOT.updateMatrixWorld(true);
