@@ -441,7 +441,7 @@ const cv=$('cv');const renderer=new THREE.WebGLRenderer({canvas:cv,antialias:tru
 const scene=new THREE.Scene();scene.background=new THREE.Color(0xf6f1ff);
 const camera=new THREE.PerspectiveCamera(35,1,.01,50);
 const controls=new THREE.OrbitControls(camera,cv);controls.enableDamping=true;controls.dampingFactor=.12;controls.rotateSpeed=.8;controls.zoomSpeed=.9;controls.panSpeed=.8;
-scene.add(new THREE.HemisphereLight(0xffffff,0xd8ccff,.85));const dl=new THREE.DirectionalLight(0xffffff,.75);dl.position.set(1,2,3);scene.add(dl);const dl2=new THREE.DirectionalLight(0xffeedd,.35);dl2.position.set(-2,-1,-2);scene.add(dl2);
+scene.add(new THREE.HemisphereLight(0xffffff,0xb9a9e6,.62));const dl=new THREE.DirectionalLight(0xffffff,.95);dl.position.set(1,2,3);scene.add(dl);const dl2=new THREE.DirectionalLight(0xffeedd,.35);dl2.position.set(-2,-1,-2);scene.add(dl2);
 function resize(){renderer.setSize(innerWidth,innerHeight,false);camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();if(typeof viewShift==='function')viewShift(document.getElementById('sheet').classList.contains('open'))}addEventListener('resize',resize);resize();
 const COL={bone:0xefe4cf,muscle:0xd9554f,nerve:0xf2c230,artery:0xe5323e,vein:0x4a78e0,organ:0xe99aae,att:0xff3b5c};
 const CATN={bone:'Kemik',muscle:'Kas',nerve:'Sinir',artery:'Arter',vein:'Ven',organ:'Organ'};
@@ -478,8 +478,8 @@ function focusOn(objs,zoom=2.2){const bb=new THREE.Box3();objs.forEach(o=>bb.exp
 // ---------- görünürlük / vurgular ----------
 let ghost=null,xray=false,isoSet=null,hl=new Map();
 function applyVis(){OBJ.forEach(o=>{const m=o.userData.m;if(m.c==='att')return;let v=m.c==='organ'?vis.organ!==0:!!vis[m.c];if(isoSet)v=isoSet.has(o);o.visible=v;
- let op=1;if(xray&&m.c==='muscle')op=.18;if(xray&&m.c==='bone')op=.35;if(ghost&&ghost.has(m.c)&&!(isoSet&&isoSet.has(o)))op=Math.min(op,m.c==='bone'?.28:.12);if(m.ctx)op=Math.min(op,.35);if(m.shell&&!SHELLON)op=Math.min(op,.2);if(xray&&m.c==='organ')op=Math.min(op,.2);
- if(SPOT){if(SPOT.has(o)){op=1;v=true;o.visible=true}else op=Math.min(op,m.c==='bone'?.22:.08)}o.material.opacity=op;o.material.depthWrite=op>.9;o.userData.pick=v&&op>.5});
+ let op=1;if(xray&&m.c==='muscle')op=.18;if(xray&&m.c==='bone')op=.35;if(ghost&&ghost.has(m.c)&&!(isoSet&&isoSet.has(o)))op=Math.min(op,m.c==='bone'?.5:.3);if(m.ctx)op=Math.min(op,.35);if(m.shell&&!SHELLON)op=Math.min(op,.3);if(xray&&m.c==='organ')op=Math.min(op,.2);
+ if(SPOT){if(SPOT.has(o)){op=1;v=true;o.visible=true}else op=Math.min(op,m.c==='bone'?.55:.32)}o.material.opacity=op;o.material.depthWrite=op>.9;o.userData.pick=v&&op>.5});
  document.querySelectorAll('#layers button').forEach(b=>b.classList.toggle('on',!!vis[b.dataset.c]))}
 function setHL(objs,color,glow=.55){objs.forEach(o=>{hl.set(o,{c:color,g:glow});o.material.emissive.set(color);o.material.emissiveIntensity=glow})}
 let SPOT=null;function spotlight(objs){if(SPOT)SPOT.forEach(o=>{if(o.userData.spc){o.material.color.copy(o.userData.spc);delete o.userData.spc}});SPOT=objs&&objs.length?new Set(objs):null;OBJ.forEach(o=>{const on=SPOT&&SPOT.has(o);o.material.depthTest=!on;o.renderOrder=on?4:0;if(on){o.userData.spc=o.material.color.clone();o.material.color.set(0xffb020);o.material.emissive.set(0xff8a00)}});applyVis()}
@@ -733,10 +733,10 @@ function ach(){ACH.forEach(a=>{if(!S.ach[a[0]]&&a[4]()){S.ach[a[0]]=Date.now();S
 const collected=()=>allItems().filter(i=>S.st[i.k]&&S.st[i.k].c>=2).length;
 // ---------- mağaza ----------
 const SHOP=[{k:'th_lav',t:'theme',n:'Lavanta Lab',ic:'💜',p:0,bg:'#f6f1ff',pri:'#7c5cff',sh:'#5a3fd6'},{k:'th_or',t:'theme',n:'Ameliyathane',ic:'🟢',p:150,bg:'#e9f7f1',pri:'#18a378',sh:'#0f7a58'},{k:'th_pk',t:'theme',n:'Pembe Önlük',ic:'🩷',p:150,bg:'#fff0f6',pri:'#e0508e',sh:'#b23a6e'},{k:'th_night',t:'theme',n:'Gece Nöbeti',ic:'🌙',p:300,bg:'#1f1b33',pri:'#8f7bff',sh:'#5a48c9',dark:1},
- {k:'pal_atlas',t:'pal',n:'Klasik Atlas',ic:'📕',p:0,c:{bone:0xefe4cf,muscle:0xd9554f,nerve:0xf2c230,artery:0xe5323e,vein:0x4a78e0}},{k:'pal_pastel',t:'pal',n:'Pastel',ic:'🍬',p:200,c:{bone:0xfff4e0,muscle:0xf4a0b5,nerve:0xffe27a,artery:0xff8a8a,vein:0x8ab4ff}},{k:'pal_neon',t:'pal',n:'Neon',ic:'🌈',p:350,c:{bone:0xe9f0ff,muscle:0xff3d8b,nerve:0xffee00,artery:0xff2a2a,vein:0x2a8bff},em:.18},{k:'pal_gold',t:'pal',n:'Altın İskelet',ic:'👑',p:500,c:{bone:0xf3c74f,muscle:0xc8485a,nerve:0xfff1a8,artery:0xe5323e,vein:0x4a78e0},bm:.5}];
+ {k:'pal_atlas',t:'pal',n:'Klasik Atlas',ic:'📕',p:0,c:{bone:0xefe4cf,muscle:0xd24a44,nerve:0xffb000,artery:0xe5202e,vein:0x2f63e0,organ:0xe07a96}},{k:'pal_pastel',t:'pal',n:'Pastel',ic:'🍬',p:200,c:{bone:0xfff4e0,muscle:0xf4a0b5,nerve:0xffe27a,artery:0xff8a8a,vein:0x8ab4ff}},{k:'pal_neon',t:'pal',n:'Neon',ic:'🌈',p:350,c:{bone:0xe9f0ff,muscle:0xff3d8b,nerve:0xffee00,artery:0xff2a2a,vein:0x2a8bff},em:.18},{k:'pal_gold',t:'pal',n:'Altın İskelet',ic:'👑',p:500,c:{bone:0xf3c74f,muscle:0xc8485a,nerve:0xfff1a8,artery:0xe5323e,vein:0x4a78e0},bm:.5}];
 function applyCosmetics(){const th=SHOP.find(s=>s.k===S.theme)||SHOP[0],pl=SHOP.find(s=>s.k===S.pal)||SHOP[4];const r=document.documentElement.style;r.setProperty('--bg',th.bg);r.setProperty('--pri',th.pri);r.setProperty('--sh',`0 4px 0 ${th.dark?'#120f22':'#e2d9ff'}`);
  document.body.classList.toggle('dark',!!th.dark);scene.background=new THREE.Color(th.bg);
- OBJ.forEach(o=>{const m=o.userData.m;if(m.c==='att')return;const c=new THREE.Color(pl.c[m.c]);if(m.c==='muscle'){c.offsetHSL((m.n.length*37%20-10)/360,0,(m.n.length%5-2)*.015)}o.material.color.copy(c);o.material.metalness=m.c==='bone'&&pl.bm?pl.bm:0;o.material.roughness=m.c==='bone'&&pl.bm?.3:(m.c==='bone'?.75:.55);o.userData.em=pl.em||0;if(!hl.has(o)){o.material.emissive.copy(c);o.material.emissiveIntensity=pl.em||0}})}
+ OBJ.forEach(o=>{const m=o.userData.m;if(m.c==='att')return;const c=new THREE.Color(pl.c[m.c]!==undefined?pl.c[m.c]:COL[m.c]);if(m.c==='muscle'){c.offsetHSL((m.n.length*37%20-10)/360,0,(m.n.length%5-2)*.015)}o.material.color.copy(c);o.material.metalness=m.c==='bone'&&pl.bm?pl.bm:0;o.material.roughness=m.c==='bone'&&pl.bm?.3:(m.c==='bone'?.75:.55);o.userData.em=pl.em||0;if(!hl.has(o)){o.material.emissive.copy(c);o.material.emissiveIntensity=pl.em||0}})}
 // ---------- ana ekran ----------
 let HTAB='map';
 function showHome(){RUN=null;uiReset();$('quiz').style.display='none';const L=lvlOf(S.xp);const h=new Date().getHours(),gr=h<6?'İyi geceler':h<12?'Günaydın':h<18?'İyi çalışmalar':'İyi akşamlar';
