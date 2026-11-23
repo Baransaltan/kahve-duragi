@@ -966,12 +966,12 @@ function refreshPads(){
  const idx=PADS.findIndex(p=>!has(p.id));if(idx<0)return;
  // show the next two pads: one goal you can reach now, one you can see coming
  PADS.slice(idx,idx+2).forEach((p,k)=>{if(has(p.id))return;const pos=padPos(p),cost=padCost(p),paid=G.padPaid[p.id]||0;
-  const tex=padTex(p,cost-paid);const m=new THREE.Mesh(new THREE.PlaneGeometry(2.3,2.3),new THREE.MeshBasicMaterial({map:tex,transparent:true,depthWrite:false}));m.rotation.x=-Math.PI/2;m.position.set(pos.x,.05,pos.z);
+  const tex=padTex(p,Math.max(0,cost-paid));const m=new THREE.Mesh(new THREE.PlaneGeometry(2.3,2.3),new THREE.MeshBasicMaterial({map:tex,transparent:true,depthWrite:false}));m.rotation.x=-Math.PI/2;m.position.set(pos.x,.05,pos.z);
   const fillM=new THREE.Mesh(new THREE.PlaneGeometry(2.05,2.05),new THREE.MeshBasicMaterial({color:0x5fd06e,transparent:true,opacity:.55,depthWrite:false}));fillM.rotation.x=-Math.PI/2;fillM.position.set(pos.x,.04,pos.z);fillM.scale.set(1,1e-3,1);
   const grp=new THREE.Group();grp.add(fillM,m);world.add(grp);popIn(grp,k*.15);
-  pads.push({p,m:grp,tex,plane:m,fill:fillM,x:pos.x,z:pos.z,cost,paid,lastShown:cost-paid,zone:{x:pos.x,z:pos.z,r:1.15},payT:0})});
+  const pd={p,m:grp,tex,plane:m,fill:fillM,x:pos.x,z:pos.z,cost,paid,lastShown:cost-paid,zone:{x:pos.x,z:pos.z,r:1.15},payT:0};pads.push(pd);if(paid>=cost){pd.paid=cost;later(()=>{if(pads.includes(pd))completePad(pd)},400+k*300)}});
 }
-function updatePadVis(pd){const left=pd.cost-pd.paid;if(left!==pd.lastShown){pd.lastShown=left;const t=padTex(pd.p,left);pd.plane.material.map.dispose();pd.plane.material.map=t}
+function updatePadVis(pd){const left=Math.max(0,pd.cost-pd.paid);if(left!==pd.lastShown){pd.lastShown=left;const t=padTex(pd.p,left);pd.plane.material.map.dispose();pd.plane.material.map=t}
  const f=pd.paid/pd.cost;pd.fill.scale.set(1,Math.max(.001,f),1);pd.fill.position.z=pd.z+1.025*(1-f);}
 function completePad(pd){saveSoon();
  const p=pd.p;G.unl.push(p.id);delete G.padPaid[p.id];world.remove(pd.m);pads=pads.filter(x=>x!==pd);
