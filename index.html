@@ -48,6 +48,7 @@ html,body{margin:0;height:100%;overflow:hidden;background:#f6e3c6;font-family:'B
 #floats{position:fixed;inset:0;pointer-events:none;z-index:7;overflow:hidden}
 .fl{position:absolute;font-weight:800;font-size:22px;color:#2f9a46;text-shadow:0 2px 0 #fff,0 0 6px #fff;transform:translate(-50%,-50%);animation:fu 1s ease-out forwards;white-space:nowrap}
 .fl.y{color:#ff8a1f}.fl.g{color:#2f9a46;font-size:26px}
+#shareBar{display:none;align-items:center;gap:4px;font-size:10.5px;font-weight:800;margin:2px 0 3px;color:#5a3a10}#shareBar .sb{flex:1;height:7px;border-radius:5px;background:#9b7cff;overflow:hidden;min-width:60px;box-shadow:inset 0 1px 2px rgba(0,0,0,.2)}#shareBar .sb b{display:block;height:100%;background:linear-gradient(90deg,#2f9a46,#5fd06e);border-radius:5px 0 0 5px;transition:width .6s}#shareBar.bump{animation:sbB .5s}@keyframes sbB{40%{transform:scale(1.06)}}
 #vAlert{position:fixed;z-index:14;left:12px;top:calc(100px + env(safe-area-inset-top,0px));display:flex;flex-direction:column;gap:6px;pointer-events:none;max-width:62vw}
 #vAlert .va{display:flex;align-items:center;gap:8px;background:#fff;border-radius:14px;padding:5px 10px 6px 6px;box-shadow:0 3px 0 #e2c49b,0 6px 14px rgba(0,0,0,.12);font-weight:800;font-size:12.5px;color:#5a3a10;animation:vaIn .35s cubic-bezier(.3,1.6,.5,1)}
 #vAlert .va i{font-style:normal;font-size:22px;width:32px;height:32px;display:grid;place-items:center;border-radius:10px;background:#fff3dc}
@@ -163,7 +164,7 @@ body.intitle #dlg:not(.x),body.intitle .hud,body.intitle #musBtn,body.intitle #s
 <div id="c"></div>
 <div id="top" class="hud">
   <div id="money"><div class="ic">$</div><span id="mv">0</span></div>
-  <div id="lvlBox"><div id="lvlName"></div><div id="lvlSub"></div><div id="dayLine"></div><div class="pb"><div id="lvlP"></div></div></div>
+  <div id="lvlBox"><div id="lvlName"></div><div id="lvlSub"></div><div id="dayLine"></div><div id="shareBar"></div><div class="pb"><div id="lvlP"></div></div></div>
 </div>
 <div id="vAlert"></div><div id="nextUp" class="hud"></div>
 <div id="boost" class="hud"><b>⚡ 2x</b><span id="bt">40s</span></div>
@@ -863,7 +864,7 @@ function buildWorld(){
  const walk=mesh(new THREE.PlaneGeometry(40,5),std(0xb9ada0),0,.0,14.5,false);walk.rotation.x=-Math.PI/2;if(![1,3,6].includes(LVI()))world.add(walk);
  const road=mesh(new THREE.PlaneGeometry(80,8),std(0x6b6f78),0,-.01,21,false);road.rotation.x=-Math.PI/2;if(![1,3,4,6].includes(LVI()))world.add(road);
  if(![1,3,4,6].includes(LVI()))for(let i=-6;i<=6;i++){const l=mesh(new THREE.PlaneGeometry(1.6,.25),std(0xffffff),i*4,0,21,false);l.rotation.x=-Math.PI/2;world.add(l)}
- buildInterior(th);buildOffice(th);buildScenery(th);
+ buildInterior(th);buildOffice(th);buildScenery(th);RIVAL.g=null;setTimeout(()=>{buildRival();shareUI()},0);
  // front: door frame + awning
  {const wm=std(0xffffff),tm=std(th.trim);for(const sx of[-1,1]){world.add(mesh(new THREE.BoxGeometry(8.2,.7,.4),wm,sx*6.1,.35,12));world.add(mesh(new THREE.BoxGeometry(.4,1.2,.4),tm,sx*2,.6,12))}}
 
@@ -1070,7 +1071,7 @@ function serve(c,it){if(PROF.name&&GT>thxT&&Math.random()<.18){thxT=GT+9;const L
  fly(it,()=>c.c.carry.localToWorld(new V3(0,idx?ITEM_H[c.c.stack[0].userData.kind]:0,0)),.28,1,()=>{c.c.carry.attach(it);it.position.set(0,idx?ITEM_H[c.c.stack[0].userData.kind]:0,0);it.rotation.set(0,0,0);it.userData.flying=false});
  misHit('sell',c.order);SFX.serve();c.c.squash=.8;
  if(c.order2){c.part=priceOf(c.order);c.order=c.order2;c.order2=null;c.bub.material.map=emojiTex(PROD[c.order].ic,true);c.bub.scale.setScalar(.85);c.bub.userData.pop={t:0,s:1.4};return}
- c.served=true;heart(c);const val=(priceOf(c.order)+(c.part||0))*(c.combo?1.5:1)*(c.vip?3:1)*boostMul();G.total+=val;
+ c.served=true;heart(c);shareAdd(.006);const val=(priceOf(c.order)+(c.part||0))*(c.combo?1.5:1)*(c.vip?3:1)*boostMul();G.total+=val;
  if(c.combo){misHit('combo');repAdd(.03);floatText('🍱 Kombo ×1.5',new V3(c.c.root.position.x,2.6,c.c.root.position.z),'y')}
  if((c.wt||0)<8)repAdd(.015);
  if(c.vip){STAT.vip++;misHit('vip');repAdd(.08,c.c.root.position.clone().add(new V3(0,2.9,0)));floatText('👑 VIP ×3',new V3(c.c.root.position.x,2.6,c.c.root.position.z),'y');confetti(c.c.root.position,30)}
@@ -1110,7 +1111,7 @@ let spawnT=2;
 function custInterval(){if(WCS)return custInterval0()*.92;return custInterval0()}
 function custInterval0(){const seats=tables.reduce((a,t)=>a+t.seats.length,0);return clamp(4.4-seats*.25-machines.length*.3,1.2,5)*(1-.07*decorN())}
 function updateCustomers(dt){tables.forEach(t=>{if(t.dirty>=t.seats.length)t.dirtyT=(t.dirtyT||0)+dt});
- if(reg){spawnT-=dt;const inQ=customers.filter(c=>c.qi!==undefined&&c.qi>=0).length;if(spawnT<=0&&inQ<6){const ph=PHASES[Math.max(0,PHASE)];spawnT=custInterval()*rnd(.75,1.25)/ph.sp*repSpawn()/(WX.on?.85:1);spawnCustomer(inQ);
+ if(reg){spawnT-=dt;const inQ=customers.filter(c=>c.qi!==undefined&&c.qi>=0).length;if(spawnT<=0&&inQ<6){const ph=PHASES[Math.max(0,PHASE)];spawnT=custInterval()*rnd(.75,1.25)/ph.sp*repSpawn()/(WX.on?.85:1)*shareSpawn();spawnCustomer(inQ);
   if(inQ<5&&has('t1')&&Math.random()<.22){const a=customers[customers.length-1];if(!a.vip){spawnCustomer(inQ+1,false);const b=customers[customers.length-1];a.mate=b;b.mate=a;b.c.root.position.x=a.c.root.position.x+.7;b.c.root.position.z+=.4}}}}
  const pos=new V3();
  customers.forEach(c=>{
@@ -1159,7 +1160,7 @@ function spawnCustomer(qi,vip){
  const q=QUEUE(qi);customers.push({id:cid++,c,state:'toQueue',qi,order,bub,path:[{x:DOOR.x,z:DOOR.z-1},{x:q.x,z:Math.max(q.z,6.5)}],served:false,vip,pat:45,pat0:45,bcol:'#ffc93c',order2,combo:!!order2,wt:0});
  if(vip){showHint('👑 VIP müşteri! Çabuk servis et, 3 kat öder');SFX.unlock()}
 }
-function giveUp(c,p,angry){if(c.qi>=0){const k=c.qi;c.qi=-1;customers.forEach(o=>{if(o.qi>k)o.qi--})}
+function giveUp(c,p,angry){if(angry)shareAdd(-.025);if(c.qi>=0){const k=c.qi;c.qi=-1;customers.forEach(o=>{if(o.qi>k)o.qi--})}
  c.state='leave';c.served=true;c.path=[{x:-.6,z:Math.max(p.z,1)},{x:DOOR.x,z:9},{x:DOOR.x,z:DOOR.z+3}];
  if(angry){emo(c.c,'😤',2.1);if(GT>(window._guT||0)){window._guT=GT+20;showHint('Müşteri sırada çok bekledi ve gitti 😤')}}}
 function leaveQueue(c){
@@ -2096,6 +2097,48 @@ function updateVisitors(dt){for(let i=VIS.length-1;i>=0;i--){const v=VIS[i],ch=v
   else if(v.state==='out'){if(walk()){scene.remove(ch.root);VIS.splice(i,1);continue}}
   animChar(ch,dt,vel);ch.making=0}}
 function clearVisitors(){VIS.forEach(v=>scene.remove(v.ch.root));VIS.length=0}
+// ================= RAKİP: MegaCup standı, tanıtımcı, pazar payı =================
+const RIVAL={g:null,stage:-1,pro:null,cool:60,hintShown:0,pos:{x:-3.1,z:14.7}};
+const rivalOn=()=>started&&G&&!EASY()&&has('reg');
+function shareAdd(d){if(!G||EASY())return;if(G.share==null)G.share=.35;const old=G.share;G.share=clamp(G.share+(d>0?d*(1-G.share)*1.6:d*(.4+G.share)),.05,.97);shareUI(d<0&&Math.abs(d)>=.02);
+ if(Math.floor(old*10)!==Math.floor(G.share*10)&&G.share>old&&G.share>=.5)showHint('📈 Pazar payın %'+Math.round(G.share*100)+'! MegaCup geriliyor 😈→😰')}
+const shareSpawn=()=>(!G||EASY()||G.share==null)?1:1.25-.5*G.share;
+function shareUI(bump){const el=$('shareBar');if(!el)return;if(!G||EASY()){el.style.display='none';return}if(G.share==null)G.share=.35;el.style.display='flex';const p=Math.round(G.share*100);
+ el.innerHTML=`<span>☕ %${p}</span><div class="sb"><b style="width:${p}%"></b></div><span style="color:#7a5cff">😈 %${100-p}</span>`;if(bump){el.classList.remove('bump');void el.offsetWidth;el.classList.add('bump')}}
+function rivalStage(){const s=G.share==null?.35:G.share;return s<.5?0:s<.7?1:s<.85?2:3}
+function buildRival(){if(RIVAL.g){if(RIVAL.g.parent)RIVAL.g.parent.remove(RIVAL.g);RIVAL.g=null}if(RIVAL.pro){scene.remove(RIVAL.pro.c.root);RIVAL.pro=null}RIVAL.stage=-1;if(!G||EASY())return;
+ const st=rivalStage(),P=RIVAL.pos,g=new THREE.Group();g.position.set(P.x,0,P.z);world.add(g);RIVAL.g=g;RIVAL.stage=st;
+ const pur=st>=2?0x8f86a8:0x7a5cff,pk=st>=2?0xb7a9c9:0xff4f9a;
+ g.add(rbox(1.5,.95,.7,.08,std(pur)));const top=mesh(new THREE.BoxGeometry(1.6,.07,.8),std(0xfff6ec),0,.98,0);g.add(top);
+ if(st<3){const cup=new THREE.Group();cup.add(mesh(new THREE.CylinderGeometry(.13,.1,.28,16),std(0xffffff),0,0,0));cup.add(mesh(new THREE.CylinderGeometry(.14,.14,.04,16),std(pk),0,.15,0));cup.position.set(-.45,1.16,0);g.add(cup);const c2=cup.clone();c2.position.x=.45;g.add(c2)}
+ // şemsiye: açık / kapalı
+ const pole=mesh(new THREE.CylinderGeometry(.04,.04,2.1,8),std(0xdddddd),.55,1.05,-.2);g.add(pole);
+ if(st<3){const um=new THREE.Mesh(new THREE.ConeGeometry(.78,.36,10,1,true),new THREE.MeshStandardMaterial({color:pk,side:THREE.DoubleSide,roughness:.8}));um.position.set(.55,2.15,-.2);um.castShadow=true;g.add(um)}
+ else{const um=mesh(new THREE.ConeGeometry(.16,1.1,8),std(pk),.55,1.7,-.2);g.add(um)}
+ const txt=['MegaCup','%50 İNDİRİM!','MegaCup','KAPANDI'][st],sub=['😈 Daha hızlı, daha ucuz!','😰 Lütfen gelin...','💤 Işıklar söndü','Devren kiralık 🏷️'][st];
+ const sg=canvasTex(320,120,(c,w,h)=>{c.fillStyle=st>=2?'#5d5570':'#7a5cff';rr(c,6,6,w-12,h-12,24);c.fill();c.fillStyle=st===1?'#ffd166':st===3?'#ff8a8a':'#fff';c.font='bold 46px "Baloo 2",sans-serif';c.textAlign='center';c.textBaseline='middle';c.fillText(txt,w/2,48);c.fillStyle='rgba(255,255,255,.85)';c.font='bold 22px sans-serif';c.fillText(sub,w/2,92)});
+ const sp=new THREE.Sprite(new THREE.SpriteMaterial({map:sg,transparent:true,depthWrite:false}));sp.scale.set(1.6,.6,1);sp.position.set(-.1,2.75,0);g.add(sp);RIVAL.sign=sp;
+ if(st===3){const x=mesh(new THREE.BoxGeometry(1.6,.08,.05),std(0x8a5a3c),0,.55,.37);x.rotation.z=.35;g.add(x);const y2=x.clone();y2.rotation.z=-.35;g.add(y2)}
+ if(st<2){const c=makeChar(TPL.v_CoolCloud?'v_CoolCloud':CUSTOMER_KEYS[1],1.5);c.root.position.set(P.x-.2,0,P.z+.75);scene.add(c.root);vTag(c,'😈 MegaCup','#7a5cff');RIVAL.pro={c,state:'idle',path:[],t:0,prey:[]}}}
+function updateRival(dt){if(!G)return;if(!rivalOn()){if(RIVAL.g||RIVAL.pro)buildRival();return}
+ if(G.share==null){G.share=.35;shareUI()}if(!RIVAL.g||rivalStage()!==RIVAL.stage)buildRival();
+ if(RIVAL.sign)RIVAL.sign.position.y=2.75+Math.sin(GT*2)*.04;RIVAL.ut=(RIVAL.ut||0)-dt;if(RIVAL.ut<=0){RIVAL.ut=1;shareUI()}
+ const pr=RIVAL.pro;if(!pr)return;const c=pr.c,p=c.root.position;let vel=new V3();
+ const walk=sp=>{if(!pr.path.length)return true;const t=pr.path[0],d=new V3(t.x-p.x,0,t.z-p.z),L=d.length();if(L<.1){pr.path.shift();return!pr.path.length}vel=d.normalize().multiplyScalar(Math.min(sp,L/dt));p.addScaledVector(vel,dt);c.tHeading=Math.atan2(vel.x,vel.z);return false};
+ RIVAL.cool-=dt;pr.t+=dt;
+ if(pr.state==='idle'){c.tHeading=0;if(pr.t>rnd(7,11)){pr.t=0;chat(c,['MegaCup! Sırasız kahve! 😈','Bir alana bir bedava!','Neden bekleyesin ki? ☕'][Math.floor(Math.random()*3)],'#7a5cff')}
+  const q=customers.filter(o=>o.qi>=0&&!o.served&&o.state==='wait'&&!o.vip);const mx=q.reduce((a,o)=>Math.max(a,o.wt||0),0);
+  if(RIVAL.cool<=0&&q.length&&(q.length>=5||mx>24)){const prey=q.sort((a,b)=>b.qi-a.qi).slice(0,q.length>=5?2:1);pr.prey=prey;prey.forEach(o=>o.lured=1);const last=QUEUE(prey[0].qi);pr.state='go';pr.path=[{x:DOOR.x+.6,z:DOOR.z+1.2},{x:DOOR.x+.4,z:9},{x:last.x+1.1,z:last.z}];RIVAL.cool=rnd(70,110);
+   if(!RIVAL.hintShown){RIVAL.hintShown=1;showHint('😈 MegaCup tanıtımcısı içeri girdi! Bekleyen müşterilerini kapacak')}else showHint('😈 MegaCup tanıtımcısı geliyor!');SFX.nope&&SFX.nope()}}
+ else if(pr.state==='go'){if(walk(2.6)){pr.state='steal';pr.t=0;chat(c,'MegaCup\'ta beklemek yok, hadi gel! 😈','#7a5cff');c.tHeading=-Math.PI/2}
+  // oyuncu tanıtımcıya yetişirse kovar
+  if(Math.hypot(player.root.position.x-p.x,player.root.position.z-p.z)<1.1)rivalShoo()}
+ else if(pr.state==='steal'){if(Math.hypot(player.root.position.x-p.x,player.root.position.z-p.z)<1.1){rivalShoo();}else if(pr.t>2.2){let n=0;pr.prey.forEach(o=>{if(o.served||o.qi<0||!customers.includes(o))return;n++;const op=o.c.root.position;if(o.qi>=0){const k=o.qi;o.qi=-1;customers.forEach(x=>{if(x.qi>k)x.qi--})}o.state='leave';o.served=true;o.stolen=1;o.path=[{x:op.x+.8,z:op.z},{x:DOOR.x+.5,z:9},{x:DOOR.x,z:DOOR.z+1.5},{x:RIVAL.pos.x+.3,z:RIVAL.pos.z+1},{x:RIVAL.pos.x-2.5,z:RIVAL.pos.z+6}];emo(o.c,'😈',2.1);if(o.bub)o.bub.visible=false;shareAdd(-.03)});
+   if(n){floatText('😈 MegaCup '+n+' müşteri kaptı!',p.clone().add(new V3(0,2.4,0)),'r');buzz([40,30,40])}pr.state='back';pr.path=[{x:DOOR.x+.4,z:9},{x:DOOR.x+.6,z:DOOR.z+1.2},{x:RIVAL.pos.x-.2,z:RIVAL.pos.z+.75}]}}
+ else if(pr.state==='shoo'||pr.state==='back'){if(walk(pr.state==='shoo'?3.4:2.4)){pr.state='idle';pr.t=0;pr.prey=[]}}
+ animChar(c,dt,vel)}
+function rivalShoo(){const pr=RIVAL.pro;if(!pr)return;pr.prey.forEach(o=>o.lured=0);pr.prey=[];pr.state='shoo';chat(pr.c,'Tamam tamam, gidiyorum! 😰','#7a5cff');emo(player,'😤',2.4);floatText('Kovdun! 💪',pr.c.root.position.clone().add(new V3(0,2.3,0)),'g');shareAdd(.015);SFX.unlock();
+ pr.path=[{x:DOOR.x+.4,z:9},{x:DOOR.x+.6,z:DOOR.z+1.2},{x:RIVAL.pos.x-.2,z:RIVAL.pos.z+.75}]}
 // ---------- ziyaretçi uyarı kartı ----------
 const VTMAX={rent:70,repair:70,supplier:110};let vaT=0,vaH='';
 function updateVAlert(dt){vaT-=dt;if(vaT>0)return;vaT=.25;const el=$('vAlert');if(!el)return;if(!started||!G||EASY()||!VIS.length){if(vaH){el.innerHTML='';vaH=''}return}
@@ -2203,7 +2246,7 @@ function levelDoneCard(){
 }
 
 function nextLevel(){$('over').classList.remove('open');clearManager();if(!META.branches.some(b=>b.lvl===G.lvl))META.branches.push({lvl:G.lvl,t:Date.now()});saveMeta();const bn=G.bonusNext||0,od=G.debt||0;G=fresh(G.lvl+1,1);G.money=30*MULT()+bn;if(od>.5)G.debt=od;/* kapanmamış borç yeni şubeye devreder */buildWorld();updateHUD();save();showHint('Yeni şube! İlk makineyi aç');flash();setTimeout(storyStart,600)}
-function updateHUD(){if(G&&G.rep!=null&&$('dayLine'))updateDayHUD();$('side').style.display=started&&has('reg')?'flex':'none';if(G.mis)misBadge();
+function updateHUD(){shareUI();if(G&&G.rep!=null&&$('dayLine'))updateDayHUD();$('side').style.display=started&&has('reg')?'flex':'none';if(G.mis)misBadge();
  $('mv').textContent=fmt(G.money);$('lvlName').textContent=cafeName();
  const done=PADS.filter(p=>has(p.id)).length;$('lvlSub').textContent=`Şube ${G.lvl+1} · ${done}/${PADS.length}`;$('lvlP').style.width=(done/PADS.length*100)+'%';
 }
@@ -2229,7 +2272,7 @@ function step(dt,now){GT+=dt;for(let i=LATER.length-1;i>=0;i--)if(LATER[i].t<=GT
  if(started){updateMachines(dt);updateCustomers(dt);updateStaff(dt);
   hintTimer-=dt;if(hintTimer<0&&hintTimer>-dt*1.5)$('hint').style.opacity=0;
   saveT+=dt;if(saveT>2){saveT=0;save()}
-  updateFun(dt);updateNextUp(dt);updateToken(dt,now);updateSky(dt);updateBin(dt);updateWC(dt);updateDeco(dt);updateOut(dt);updateScenery(dt);updateSheila(dt);updateManager(dt);branchTick(dt);updateTruck(dt);updateVisitors(dt);updateCalls(dt);updateVAlert(dt);updateOffice(dt);updateChats(dt);outCard();if(reg&&reg.trash&&reg.trash.userData.pump>0){const tc=reg.trash;tc.userData.pump-=dt;const k=Math.sin(tc.userData.pump/.2*Math.PI)*.12;tc.scale.set(1+k,1-k,1+k);if(tc.userData.pump<=0)tc.scale.setScalar(1)}}
+  updateFun(dt);updateNextUp(dt);updateToken(dt,now);updateSky(dt);updateBin(dt);updateWC(dt);updateDeco(dt);updateOut(dt);updateScenery(dt);updateSheila(dt);updateManager(dt);branchTick(dt);updateTruck(dt);updateVisitors(dt);updateCalls(dt);updateVAlert(dt);updateOffice(dt);updateRival(dt);updateChats(dt);outCard();if(reg&&reg.trash&&reg.trash.userData.pump>0){const tc=reg.trash;tc.userData.pump-=dt;const k=Math.sin(tc.userData.pump/.2*Math.PI)*.12;tc.scale.set(1+k,1-k,1+k);if(tc.userData.pump<=0)tc.scale.setScalar(1)}}
  // flyers (arc tweens)
  for(let i=flyers.length-1;i>=0;i--){const f=flyers[i];f.t+=dt/f.dur;const t=Math.min(1,f.t),e=t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2;
   const to=f.targetFn();f.obj.position.lerpVectors(f.from,to,e);f.obj.position.y+=Math.sin(t*Math.PI)*f.h;f.obj.rotation.y=f.r0+t*Math.PI*2*f.spin*.5;f.obj.rotation.x=Math.sin(t*Math.PI)*.4*f.spin;
