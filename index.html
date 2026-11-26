@@ -410,9 +410,10 @@ const UPG=[
  {k:'mach',n:'Makine Hızı',ic:'⚙️',d:'Makineler %15 hızlı',max:5,b:70},
  {k:'staff',n:'Personel',ic:'👥',d:'Personel hızlı ve +1 taşır',max:5,b:90},
  {k:'price',n:'Menü Fiyatı',ic:'🏷️',d:'Fiyatlar +%20',max:5,b:120},
- {k:'stock',n:'Depo Kapasitesi',ic:'🏬',d:'Makine stok kapasitesi +30',max:5,b:80},
- {k:'care',n:'Bakım Sözleşmesi',ic:'🛠️',d:'Makineler daha az bozulur',max:5,b:90}
+ {k:'stock',n:'Depo Kapasitesi',ic:'🏬',d:'Makine stok kapasitesi +30',max:5,b:80,late:1},
+ {k:'care',n:'Bakım Sözleşmesi',ic:'🛠️',d:'Makineler daha az bozulur',max:5,b:90,late:1}
 ];
+const upOK=u=>!u.late||!EASY();
 // layout
 const MACH_POS=[[-7.4,-6.6],[-5.1,-6.6],[-2.8,-6.6],[-0.5,-6.6]];
 // her şubede makineler farklı yuvalarda (aynı sıra hissini kırar)
@@ -1211,7 +1212,7 @@ function guideTarget(){
  if(TOK)return{x:TOK.x,z:TOK.z};
  if(OUT&&OUT.focus&&GT<OUT.focus.t){const s=OUT.slots[OUT.focus.i];if(s&&s.state==='wait'&&player.stack.some(i=>s.left.includes(i.userData.kind)))return s.zone}
  {const og=outGuide();if(og)return og}
- if(board&&GT>boardCool){const u=UPG.filter(u=>G.upg[u.k]<u.max).map(upCost).sort((a,b)=>a-b)[0];if(u&&G.money>=u&&(!nextPad||u<(nextPad.cost-nextPad.paid)*.6))return{x:board.zone.x,z:board.zone.z}}
+ if(board&&GT>boardCool){const u=UPG.filter(u=>upOK(u)&&G.upg[u.k]<u.max).map(upCost).sort((a,b)=>a-b)[0];if(u&&G.money>=u&&(!nextPad||u<(nextPad.cost-nextPad.paid)*.6))return{x:board.zone.x,z:board.zone.z}}
  const pileT={x:PILE.x,z:PILE.z+.9};
  if(reg.pile.length>=8)return pileT;
  const hasC=staff.some(s=>s.role==='cashier'),need=needItem(),inStock=need&&findItem(reg.stock,need)>=0;
@@ -2080,7 +2081,7 @@ function panelOpen(){return $('panel').classList.contains('open')||$('over').cla
 function openBoard(){joy.on=false;$('joy').style.display='none';
  let h='<button class="close" onclick="closePanel()">✕</button><h2>⭐ Geliştirmeler</h2>';
  if(decorN())h+=`<div style="text-align:center;font-size:13px;font-weight:700;color:#c96a2f;margin:-4px 0 8px">🌸 Dekor bonusu: bahşişler +%${decorN()*15}</div>`;
- UPG.forEach(u=>{const lv=G.upg[u.k],mx=lv>=u.max,c=upCost(u);h+=`<div class="up"><div class="ui">${u.ic}</div><div class="ut"><b>${u.n}</b><small>${u.d}</small><div class="dots">${Array.from({length:u.max},(_,i)=>`<i class="${i<lv?'on':''}"></i>`).join('')}</div></div><button class="bb ${mx?'max':''}" ${mx||G.money<c?'disabled':''} onclick="buyUp('${u.k}')">${mx?'MAKS':'$'+fmt(c)}</button></div>`});
+ UPG.filter(upOK).forEach(u=>{const lv=G.upg[u.k],mx=lv>=u.max,c=upCost(u);h+=`<div class="up"><div class="ui">${u.ic}</div><div class="ut"><b>${u.n}</b><small>${u.d}</small><div class="dots">${Array.from({length:u.max},(_,i)=>`<i class="${i<lv?'on':''}"></i>`).join('')}</div></div><button class="bb ${mx?'max':''}" ${mx||G.money<c?'disabled':''} onclick="buyUp('${u.k}')">${mx?'MAKS':'$'+fmt(c)}</button></div>`});
  $('panel').innerHTML=h;$('panel').dataset.k='board';$('panel').classList.add('open')}
 // ================= AYARLAR =================
 const PRIVACY_URL='https://baransaltan.github.io/kahve-duragi/privacy.html';
