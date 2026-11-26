@@ -47,7 +47,18 @@ html,body{margin:0;height:100%;overflow:hidden;background:#f6e3c6;font-family:'B
 #knob{position:absolute;left:50%;top:50%;width:54px;height:54px;margin:-27px 0 0 -27px;border-radius:50%;background:#fff;box-shadow:0 4px 10px rgba(0,0,0,.2)}
 #floats{position:fixed;inset:0;pointer-events:none;z-index:7;overflow:hidden}
 .fl{position:absolute;font-weight:800;font-size:22px;color:#2f9a46;text-shadow:0 2px 0 #fff,0 0 6px #fff;transform:translate(-50%,-50%);animation:fu 1s ease-out forwards;white-space:nowrap}
-.fl.y{color:#ff8a1f}.fl.r{color:#e8453c}
+.fl.y{color:#ff8a1f}.fl.g{color:#2f9a46;font-size:26px}
+#vAlert{position:fixed;z-index:14;left:12px;top:calc(100px + env(safe-area-inset-top,0px));display:flex;flex-direction:column;gap:6px;pointer-events:none;max-width:62vw}
+#vAlert .va{display:flex;align-items:center;gap:8px;background:#fff;border-radius:14px;padding:5px 10px 6px 6px;box-shadow:0 3px 0 #e2c49b,0 6px 14px rgba(0,0,0,.12);font-weight:800;font-size:12.5px;color:#5a3a10;animation:vaIn .35s cubic-bezier(.3,1.6,.5,1)}
+#vAlert .va i{font-style:normal;font-size:22px;width:32px;height:32px;display:grid;place-items:center;border-radius:10px;background:#fff3dc}
+#vAlert .va div{display:flex;flex-direction:column;line-height:1.15;min-width:0}
+#vAlert .va small{font-size:11px;color:#8a7055;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#vAlert .va .bar{height:4px;border-radius:3px;background:#f1e4cf;margin-top:3px;overflow:hidden}#vAlert .va .bar b{display:block;height:100%;background:#2f9a46;border-radius:3px}
+#vAlert .va.hot{box-shadow:0 3px 0 #e88,0 0 0 2px #e8453c;animation:vaPulse .8s infinite}#vAlert .va.hot .bar b{background:#e8453c}#vAlert .va.hot small{color:#c0504d}
+#vAlert .va.ok{opacity:.8}#vAlert .va.ok i{background:#e3f6e6}
+@keyframes vaIn{from{transform:translateX(-30px);opacity:0}}@keyframes vaPulse{50%{transform:scale(1.04)}}
+#over .oh{display:flex;align-items:center;gap:10px;background:#fff8ec;border-radius:14px;padding:8px 10px;margin:8px 0;text-align:left}#over .oh i{font-style:normal;font-size:30px}#over .oh div{flex:1}#over .oh b{display:block}#over .oh small{font-size:12px;color:#8a7055}
+@media (min-width:700px){#vAlert{top:calc(120px + env(safe-area-inset-top,0px));max-width:340px}#vAlert .va{font-size:15px}#vAlert .va small{font-size:13px}}.fl.r{color:#e8453c}
 @keyframes fu{0%{opacity:0;transform:translate(-50%,-30%) scale(.6)}15%{opacity:1;transform:translate(-50%,-60%) scale(1.15)}100%{opacity:0;transform:translate(-50%,-180%) scale(1)}}
 #panel{position:fixed;left:0;right:0;bottom:0;z-index:10;background:#fff8ee;border-radius:24px 24px 0 0;padding:14px 14px calc(18px + env(safe-area-inset-bottom,0px));box-shadow:0 -10px 30px rgba(80,50,20,.25);transform:translateY(110%);transition:transform .3s cubic-bezier(.2,1.3,.4,1)}
 #panel.open{transform:none}
@@ -154,7 +165,7 @@ body.intitle #dlg:not(.x),body.intitle .hud,body.intitle #musBtn,body.intitle #s
   <div id="money"><div class="ic">$</div><span id="mv">0</span></div>
   <div id="lvlBox"><div id="lvlName"></div><div id="lvlSub"></div><div id="dayLine"></div><div class="pb"><div id="lvlP"></div></div></div>
 </div>
-<div id="nextUp" class="hud"></div>
+<div id="vAlert"></div><div id="nextUp" class="hud"></div>
 <div id="boost" class="hud"><b>⚡ 2x</b><span id="bt">40s</span></div>
 <button id="musBtn" onclick="openSettings()">⚙️</button>
 <div id="side"><button onclick="openMissions()">📋<i id="misN">0</i></button><button onclick="openMap()">🗺️</button><button onclick="openShop()">🎨</button><button onclick="openSave()">💾</button></div>
@@ -1879,9 +1890,10 @@ function decoRep(){const c=G.custom||{};let r=0,parts=[];const d=(c.deco||[]).le
 function dayEnd(){if(!started||!has('reg'))return;G.day=(G.day||1)+1;const inc=G.dayInc||0;G.dayInc=0;G.lastInc=inc;
  const bills=dayBills(),tot=bills.reduce((a,b)=>a+b[1],0),paid=Math.min(G.money,tot);G.money-=paid;$('mv').textContent=fmt(G.money);G.dayExp=tot;
  const owe=tot-paid,late=(G.debt||0)>.5;if(late)repAdd(-.05);G.debt=(G.debt||0)+(owe>.5?owe:0);updateDayHUD();const dr=decoRep();if(dr>0)repAdd(dr);
- const net=inc-tot;
- $('daycard').innerHTML=`<div class="dh">🌅 ${G.day-1}. gün bitti</div><div class="dr"><span>Gelir</span><b style="color:#2f9a46">+$${fmt(inc)}</b></div>`+bills.map(b=>`<div class="dr s"><span>${b[0]}</span><b>-$${fmt(b[1])}</b></div>`).join('')+
-  `<div class="dr t"><span>Net</span><b style="color:${net>=0?'#2f9a46':'#c0504d'}">${net>=0?'+':'-'}$${fmt(Math.abs(net))}</b></div>`+(dr>0?`<div class="dr s"><span>🌸 Dekor ünü</span><b style="color:#c96a2f">+${dr.toFixed(2)} ⭐</b></div>`:'')+(owe>.5?`<div class="dr s" style="color:#c0504d">Kasada $${fmt(owe)} eksik kaldı → borç olarak sonraki kazançlardan düşülecek</div>`:'')+(late?`<div class="dr s" style="color:#c0504d">Dünkü borç kapanmadı (-0.05 ⭐)</div>`:'');
+ const DV=G.dayVis||{};G.dayVis={};const vrows=[['🏠 Kira',DV.rent],['📦 Toptancı',DV.supplier],['🔧 Tamir',DV.repair]].filter(r=>r[1]>.5);const vtot=vrows.reduce((a,r)=>a+r[1],0);
+ const net=inc-tot-vtot;const np=PADS.find(p=>!has(p.id));const npLeft=np?Math.max(0,padCost(np)-(G.padPaid[np.id]||0)-G.money):0;
+ $('daycard').innerHTML=`<div class="dh">🌅 ${G.day-1}. gün bitti</div><div class="dr"><span>Gelir</span><b style="color:#2f9a46">+$${fmt(inc)}</b></div>`+bills.concat(vrows).map(b=>`<div class="dr s"><span>${b[0]}</span><b>-$${fmt(b[1])}</b></div>`).join('')+
+  `<div class="dr t"><span>Net</span><b style="color:${net>=0?'#2f9a46':'#c0504d'}">${net>=0?'+':'-'}$${fmt(Math.abs(net))}</b></div>`+(dr>0?`<div class="dr s"><span>🌸 Dekor ünü</span><b style="color:#c96a2f">+${dr.toFixed(2)} ⭐</b></div>`:'')+(owe>.5?`<div class="dr s" style="color:#c0504d">Kasada $${fmt(owe)} eksik kaldı → borç olarak sonraki kazançlardan düşülecek</div>`:'')+(late?`<div class="dr s" style="color:#c0504d">Dünkü borç kapanmadı (-0.05 ⭐)</div>`:'')+(DV.late?`<div class="dr s" style="color:#c0504d">⏰ ${DV.late} ödeme gecikti (borç +%20)</div>`:'')+(np?`<div class="dr s" style="color:#7a5cff">🎯 Sonraki: ${padInfo(np).n||'geliştirme'} → ${npLeft>0?'$'+fmt(npLeft)+' kaldı':'hazır! ✅'}</div>`:'');
  $('daycard').classList.add('open');clearTimeout(window._dcT);window._dcT=setTimeout(()=>$('daycard').classList.remove('open'),7000);SFX.unlock();save()}
 
 // ================= MANAGER HAND-OVER (each finished branch keeps earning) =================
@@ -1997,7 +2009,7 @@ function wcTick(c,dt){// returns a target for the queue states
  return null}
 
 // ================= MANAGER'S OFFICE + VISITORS (rent · wholesaler · repair · inspector) =================
-const OFF={x0:6.4,x1:9.95,z0:-8.6,z1:-5.6,pay:{x:7.3,z:-6.9,r:1.05},door:{x:6.9,z:-5.6}};
+const OFF={x0:6.4,x1:9.95,z0:-8.6,z1:-5.6,pay:{x:7.3,z:-6.9,r:1.05},door:{x:6.9,z:-5.6},ob:{x:6.9,z:-8.0,r:.45}};
 const VSPOT=[{x:8.5,z:-6.25},{x:9.4,z:-6.25},{x:9.4,z:-7.2}];
 function buildOffice(th){const g=new THREE.Group();world.add(g);
  const ft=canvasTex(128,128,(c,w,h)=>{c.fillStyle='#8a6d55';c.fillRect(0,0,w,h);c.fillStyle='rgba(255,255,255,.08)';for(let i=0;i<w;i+=16){c.fillRect(i,0,8,h)}});ft.wrapS=ft.wrapT=THREE.RepeatWrapping;ft.repeat.set(2,2);
@@ -2012,11 +2024,26 @@ function buildOffice(th){const g=new THREE.Group();world.add(g);
  const pc=canvasTex(128,80,(c,w,h)=>{c.fillStyle='#14213d';c.fillRect(0,0,w,h);c.fillStyle='#5fd06e';c.font='bold 16px monospace';c.fillText('KASA ✓',8,22);c.fillStyle='#ffd166';c.fillText('GİDER ▼',8,44);c.fillStyle='#9fd3ff';c.fillText('STOK ▮▮▯',8,66)});
  g.add(mesh(new THREE.PlaneGeometry(.5,.3),new THREE.MeshBasicMaterial({map:pc}),8.6,1.02,-8.07,false));
  g.add(mesh(new THREE.BoxGeometry(.6,1.3,.5),std(0x9a9fa8,{metalness:.3}),9.55,.65,-8.25));for(let i=0;i<3;i++)g.add(mesh(new THREE.BoxGeometry(.5,.02,.02),std(0x555a66),9.55,.3+i*.4,-7.99));
- propC('k_pottedPlant',1.1,6.75,-8.25,0,g);
+ propC('k_pottedPlant',1.0,6.62,-6.9,0,g);
+ if(TPL.k_bookcaseOpen)propC('k_bookcaseOpen',1.5,7.35,-8.4,0,g);if(TPL.k_books)propC('k_books',.25,7.35,-8.4,0,g,1.0);
+ if(TPL.k_chairCushion)propC('k_chairCushion',.9,8.6,-8.4,0,g);
+ if(TPL.k_lampRoundTable)propC('k_lampRoundTable',.42,9.2,-8.05,0,g,.78);
+ if(TPL.k_benchCushionLow)propC('k_benchCushionLow',.5,9.78,-6.7,-Math.PI/2,g);
+ // fatura tepsisi (masanın önü)
+ const tray=new THREE.Group();tray.add(mesh(new THREE.BoxGeometry(.42,.03,.3),std(0x6b4a2f),0,0,0));for(let i=0;i<4;i++){const p=mesh(new THREE.BoxGeometry(.32,.012,.22),std(i%2?0xfffaf0:0xf3ead8),rnd(-.02,.02),.025+i*.013,rnd(-.02,.02));p.rotation.y=rnd(-.2,.2);tray.add(p)}tray.position.set(7.95,.8,-7.62);g.add(tray);
+ // duvarda şube fotoğrafları + saat
+ const PIC=[['☕','#ffe2b8'],['🏆','#d9f0ff'],['🧁','#ffd9e6']];PIC.forEach(([e,bg],i)=>{const t=canvasTex(96,80,(c,w,h)=>{c.fillStyle='#7a5432';c.fillRect(0,0,w,h);c.fillStyle=bg;c.fillRect(7,7,w-14,h-14);c.font='40px sans-serif';c.textAlign='center';c.textBaseline='middle';c.fillText(e,w/2,h/2+2)});g.add(mesh(new THREE.PlaneGeometry(.42,.35),new THREE.MeshBasicMaterial({map:t}),8.1+i*.55,1.55,-8.52,false))});
+ const ck=canvasTex(96,96,(c,w)=>{c.fillStyle='#fff';c.beginPath();c.arc(w/2,w/2,44,0,7);c.fill();c.lineWidth=6;c.strokeStyle='#5a3a10';c.stroke();c.lineWidth=4;c.beginPath();c.moveTo(48,48);c.lineTo(48,20);c.moveTo(48,48);c.lineTo(68,56);c.stroke()});g.add(mesh(new THREE.CircleGeometry(.17,24),new THREE.MeshBasicMaterial({map:ck,transparent:true}),7.35,1.85,-8.5,false));
+ // ofis panosu (sol duvar)
+ const obT=canvasTex(160,128,(c,w,h)=>{c.fillStyle='#2f3b35';rr(c,4,4,w-8,h-8,14);c.fill();c.fillStyle='#ffd166';c.font='bold 22px "Baloo 2",sans-serif';c.textAlign='center';c.fillText('OFİS',w/2,34);c.font='38px sans-serif';c.fillText('🧮📋',w/2,86);c.fillStyle='#fff';c.font='bold 15px sans-serif';c.fillText('Personel al',w/2,116)});
+ const ob=mesh(new THREE.PlaneGeometry(.7,.56),new THREE.MeshBasicMaterial({map:obT}),6.48,1.3,-8.0,false);ob.rotation.y=Math.PI/2;g.add(ob);
+ const oz=mesh(new THREE.PlaneGeometry(.9,.9),new THREE.MeshBasicMaterial({map:canvasTex(96,96,(c,w)=>{c.strokeStyle='rgba(255,220,120,.95)';c.lineWidth=6;c.setLineDash([10,8]);rr(c,6,6,w-12,w-12,18);c.stroke();c.font='40px sans-serif';c.textAlign='center';c.textBaseline='middle';c.fillText('🧮',w/2,w/2+3)}),transparent:true,depthWrite:false}),6.9,.04,-8.0,false);oz.rotation.x=-Math.PI/2;g.add(oz);
+ if(!QLOW){const L=new THREE.PointLight(0xffc98a,.55,4.2,2);L.position.set(8.2,2.1,-7.1);g.add(L)}
+ OFF.desk={x:8.6,z:-8.35};setTimeout(refreshOffStaff,0);
  const sgT=canvasTex(256,72,(c,w,h)=>{c.fillStyle='#2f3b35';rr(c,4,4,w-8,h-8,22);c.fill();c.fillStyle='#ffd166';c.font='bold 32px "Baloo 2",sans-serif';c.textAlign='center';c.textBaseline='middle';c.fillText('👔 Müdür Odası',w/2,h/2+2)});
  const sg=new THREE.Sprite(new THREE.SpriteMaterial({map:sgT,transparent:true,depthWrite:false}));sg.scale.set(1.5,.42,1);sg.position.set(6.9,2.15,-5.6);g.add(sg);
  const pz=mesh(new THREE.PlaneGeometry(1.5,1.5),new THREE.MeshBasicMaterial({map:canvasTex(128,128,(c,w)=>{c.strokeStyle='rgba(255,255,255,.9)';c.lineWidth=8;c.setLineDash([14,10]);rr(c,8,8,w-16,w-16,24);c.stroke();c.font='54px sans-serif';c.textAlign='center';c.textBaseline='middle';c.fillText('💳',w/2,w/2+4)}),transparent:true,depthWrite:false}),OFF.pay.x,.04,OFF.pay.z,false);pz.rotation.x=-Math.PI/2;g.add(pz);OFF.pz=pz;
- solids.push({x0:6.33,x1:6.47,z0:-8.6,z1:-5.6},{x0:7.4,x1:9.95,z0:-5.67,z1:-5.53},{x0:7.75,x1:9.45,z0:-8.4,z1:-7.5},{x0:9.25,x1:9.95,z0:-8.55,z1:-7.95})}
+ solids.push({x0:7.0,x1:7.7,z0:-8.6,z1:-8.2},{x0:6.33,x1:6.47,z0:-8.6,z1:-5.6},{x0:7.4,x1:9.95,z0:-5.67,z1:-5.53},{x0:7.75,x1:9.45,z0:-8.4,z1:-7.5},{x0:9.25,x1:9.95,z0:-8.55,z1:-7.95})}
 const VIS=[];const VKEY={rent:'v_CoolPancake',supplier:'v_Butter',repair:'v_Cookieman',inspect:'v_SuperICEPOP'};
 const VNAME={rent:'🏠 Ev Sahibi',supplier:'📦 Toptancı',repair:'🔧 Tamirci',inspect:'🧑‍⚕️ Denetçi'};
 const IN_ROUTE=[{x:0,z:11.2},{x:1.2,z:9.5},{x:1.2,z:-5.75},{x:6.9,z:-5.75},{x:6.9,z:-6.4}];
@@ -2028,13 +2055,16 @@ function spawnVisitor(kind,cost,extra={}){const ch=makeChar(VKEY[kind],1.6);ch.r
  if(kind==='supplier'){const n=4;for(let i=0;i<n;i++){const b=makeBox();ch.carry.add(b);ch.stack.push(b)}}
  if(kind==='repair'){v.path=[{x:0,z:11.2},{x:1.2,z:9.5},{x:1.6,z:-3.0},{x:v.m.zone.x,z:-3.6},{x:v.m.zone.x,z:v.m.zone.z}];v.state='toFix'}
  if(kind==='inspect'){v.path=[{x:0,z:11.2},{x:1.2,z:9.5},{x:1.2,z:2.0}];v.state='toCheck'}
- VIS.push(v);return v}
+ VIS.push(v);if(!EASY()&&kind!=='inspect')buzz([20,40,20]);return v}
 function makeBox(){const g=new THREE.Group();g.userData.kind='box';const o=TPL.k_cardboardBoxClosed?TPL.k_cardboardBoxClosed.scene.clone(true):TPL.k_cardboardBoxOpen.scene.clone(true);o.scale.setScalar(fitScale(TPL.k_cardboardBoxClosed?'k_cardboardBoxClosed':'k_cardboardBoxOpen',.42));const b=new THREE.Box3().setFromObject(o);const c=b.getCenter(new V3());o.position.set(-c.x,-b.min.y,-c.z);g.add(o);return g}
 function vSpot(v){const w=VIS.filter(o=>o.state==='wait'||o.state==='toSpot');return VSPOT[Math.max(0,w.indexOf(v))%VSPOT.length]}
+function payBill(v,amt,from){const b=makeItem('bill');const src=from?new V3(from.x,1.1,from.z):player.root.position.clone().add(new V3(0,1.1,0));b.position.copy(src);b.scale.setScalar(1.25);scene.add(b);
+ fly(b,()=>v.ch.root.position.clone().add(new V3(0,1.15,0)),.32,.9,()=>{scene.remove(b);v.fly=Math.max(0,(v.fly||0)-amt);v.paid+=amt;G.dayVis=G.dayVis||{};G.dayVis[v.kind]=(G.dayVis[v.kind]||0)+amt;v.ch.root.userData&&0;if(Math.random()<.5)SFX.coin();buzz(6)},3)}
+function autoPayer(v){if(!G.offh)return false;if(v.t<2.5)return false;if((v.kind==='rent'||v.kind==='repair')&&G.offh.acct)return true;if(v.kind==='supplier'&&G.offh.clerk)return true;return false}
 function vDone(v,credit){window.__vis=window.__vis||{};const kk=v.kind+(credit?'_borc':'');window.__vis[kk]=(window.__vis[kk]||0)+1;const ch=v.ch;if(v.ct){ch.root.remove(v.ct);v.ct=null}
- if(credit){const left=v.cost-v.paid;G.debt=(G.debt||0)+left;updateDayHUD();floatText('Borç +$'+fmt(left),new V3(ch.root.position.x,2.6,ch.root.position.z),'r')}
- else{SFX.unlock();emo(ch,'🤝',2.4)}
- if(v.kind==='rent'){G.rentPaid=G.day;if(credit){repAdd(-.04);chat(ch,'Kira gecikti! 😠','#c0504d')}else chat(ch,'Teşekkürler, iyi günler! 🏠')}
+ if(credit){v.sending=1;const left=Math.max(0,v.cost-v.paid-(v.fly||0))*1.2;G.debt=(G.debt||0)+left;G.dayVis=G.dayVis||{};G.dayVis.late=(G.dayVis.late||0)+1;if(v.kind!=='rent')repAdd(-.05,ch.root.position.clone().add(new V3(0,2.9,0)));updateDayHUD();floatText('Borç +$'+fmt(left)+' (%20 faiz)',new V3(ch.root.position.x,2.6,ch.root.position.z),'r');SFX.nope();buzz([30,40,30])}
+ else{SFX.unlock();emo(ch,'🤝',2.4);floatText('ÖDENDİ ✅',ch.root.position.clone().add(new V3(0,2.4,0)),'g');confetti(ch.root.position,14)}
+ if(v.kind==='rent'){G.rentPaid=G.day;if(credit){repAdd(-.15,ch.root.position.clone().add(new V3(0,2.9,0)));chat(ch,'Kira gecikti! Ün kaybı ⭐ 😠','#c0504d')}else chat(ch,'Teşekkürler, iyi günler! 🏠')}
  if(v.kind==='repair'){if(credit)chat(ch,'Faturayı borca yazdım 🧾');else chat(ch,'Makineniz tıkır tıkır! 🔧')}
  if(v.kind==='supplier'){chat(ch,credit?'Veresiye yazdım, sonra ödersin 📒':'Kolileri hemen dağıtıyorum! 📦');v.state='deliver';v.todo=machines.filter(m=>!v.done||!v.done.includes(m)).map(m=>m);v.path=[];v.t=0;save();return}
  v.state='out';v.path=[{x:6.9,z:-5.75},{x:1.2,z:-5.75},{x:1.2,z:9.5},{x:0,z:11.2},{x:0,z:15}];save()}
@@ -2045,9 +2075,12 @@ function updateVisitors(dt){for(let i=VIS.length-1;i>=0;i--){const v=VIS[i],ch=v
   else if(v.state==='wait'){costTag(v);const s=vSpot(v);if(Math.hypot(p.x-s.x,p.z-s.z)>.1){v.path=[s];walk()}else ch.tHeading=Math.atan2(OFF.pay.x-p.x,OFF.pay.z-p.z);
    v.cht-=dt;if(v.cht<0){v.cht=rnd(9,14);chat(ch,{rent:'Kirayı bekliyorum 🏠',supplier:'Ödeme yapacak mısınız? 📦',repair:'Fatura hâlâ duruyor 🧾'}[v.kind]||'...')}
    const first=VIS.find(o=>o.state==='wait');
-   if(first===v&&near(player,OFF.pay)&&G.money>0){const pay=Math.min(G.money,v.cost-v.paid,Math.max(1,v.cost*.06));G.money-=pay;v.paid+=pay;$('mv').textContent=fmt(G.money);if(Math.random()<.4)SFX.coin();if(v.paid>=v.cost-.5)vDone(v,false)}
-   else if(v.kind==='supplier'&&((v.t>25&&machines.some(m=>mStock(m.kind)<=3)&&G.money<(v.cost-v.paid)*.5)||v.t>110))vDone(v,true)
-   else if(v.kind!=='supplier'&&v.t>70)vDone(v,true)}
+   const auto=autoPayer(v);
+   v.payingNow=first===v&&(near(player,OFF.pay)||auto)&&G.money>0;
+   if(v.payingNow&&!v.sending){v.payT=(v.payT||0)-dt;if(v.payT<=0){v.payT=.09;const due=v.cost-v.paid-(v.fly||0);if(due>.5){const fee=auto?.05:0;const pay=Math.min(G.money/(1+fee),due,Math.max(1,v.cost/14));G.money-=pay*(1+fee);v.fly=(v.fly||0)+pay;$('mv').textContent=fmt(G.money);payBill(v,pay,auto?OFF.desk:null);if(fee&&!v.feeShown){v.feeShown=1;floatText('🧮 %5 komisyon',new V3(OFF.desk.x,2.2,OFF.desk.z),'y')}}}}
+   if(v.paid>=v.cost-.5&&!v.sending){v.sending=1;later(()=>vDone(v,false),250)}
+   else if(!v.payingNow&&!(v.fly>0)&&!v.sending&&v.kind==='supplier'&&((v.t>25&&machines.some(m=>mStock(m.kind)<=3)&&G.money<(v.cost-v.paid)*.5)||v.t>110))vDone(v,true)
+   else if(!v.payingNow&&!(v.fly>0)&&!v.sending&&v.kind!=='supplier'&&v.t>70)vDone(v,true)}
   else if(v.state==='deliver'){// carry the boxes to every machine and refill it
    if(!v.path.length&&v.cur){const m=v.cur;const b=ch.stack.pop();if(b){ch.carry.remove(b);scene.add(b);b.position.copy(p).add(new V3(0,1.2,0));fly(b,()=>new V3(m.x,1.3,m.z+.3),.3,1.4,()=>{scene.remove(b);m.g.userData.pump=.25})}G.mstock[m.kind]=stockCap();m.slq='';v.cur=null}
    if(!v.path.length){const m=v.todo.shift();if(m&&machines.includes(m)){v.cur=m;v.path=[{x:6.9,z:-5.75},{x:1.6,z:-5.0},{x:m.zone.x,z:-3.6},{x:m.zone.x,z:m.zone.z}].filter((w,k)=>k>0||p.z<-5.2)}else{truckNeeds().forEach(([k])=>G.mstock[k]=stockCap());ch.stack.forEach(b=>ch.carry.remove(b));ch.stack=[];v.state='out';v.path=[{x:1.6,z:-3.0},{x:1.2,z:9.5},{x:0,z:11.2},{x:0,z:15}];save()}}
@@ -2063,6 +2096,31 @@ function updateVisitors(dt){for(let i=VIS.length-1;i>=0;i--){const v=VIS[i],ch=v
   else if(v.state==='out'){if(walk()){scene.remove(ch.root);VIS.splice(i,1);continue}}
   animChar(ch,dt,vel);ch.making=0}}
 function clearVisitors(){VIS.forEach(v=>scene.remove(v.ch.root));VIS.length=0}
+// ---------- ziyaretçi uyarı kartı ----------
+const VTMAX={rent:70,repair:70,supplier:110};let vaT=0,vaH='';
+function updateVAlert(dt){vaT-=dt;if(vaT>0)return;vaT=.25;const el=$('vAlert');if(!el)return;if(!started||!G||EASY()||!VIS.length){if(vaH){el.innerHTML='';vaH=''}return}
+ const rows=VIS.filter(v=>v.state!=='out'&&v.state!=='deliver').map(v=>{const nm=VNAME[v.kind],ic=nm.split(' ')[0],n=nm.slice(ic.length+1);
+  if(v.kind==='inspect')return `<div class="va hot"><i>${ic}</i><div><span>${n} geldi!</span><small>Masaları ve WC'yi temizle 🧽</small></div></div>`;
+  if(v.state==='toFix'||v.state==='fix')return `<div class="va ok"><i>${ic}</i><div><span>${n} çalışıyor</span><small>${PROD[v.m.kind]?PROD[v.m.kind].n:''} tamir ediliyor…</small></div></div>`;
+  if(v.state!=='wait')return `<div class="va"><i>${ic}</i><div><span>${n} geliyor</span><small>Müdür odasına yöneliyor 👔</small></div></div>`;
+  const tm=VTMAX[v.kind]||70,left=Math.max(0,Math.ceil(tm-v.t)),f=Math.max(0,1-v.t/tm),due=Math.max(0,v.cost-v.paid),au=autoPayer({kind:v.kind,t:9});
+  const what=v.kind==='rent'?'Kira bekliyor':v.kind==='supplier'?'Koli parası bekliyor':'Faturayı bekliyor';
+  return `<div class="va ${left<=20&&!au?'hot':''}"><i>${ic}</i><div><span>${what} · $${fmt(due)}</span><small>${au?'🧮 Ofis personeli ödüyor':(left<=20?'⏰ '+left+' sn! Gecikirse borç +%20'+(v.kind!=='supplier'?' ve ⭐ düşer':''):'👔 Müdür odası · '+Math.floor(left/60)+':'+String(left%60).padStart(2,'0'))}</small><div class="bar"><b style="width:${f*100}%"></b></div></div></div>`});
+ const h=rows.join('');if(h!==vaH){el.innerHTML=h;vaH=h}}
+// ---------- ofis personeli ----------
+const OFFH=[{k:'acct',n:'Muhasebeci',ic:'🧮',d:'Kira ve tamir faturalarını sen gelmeden öder',c:160,key:'v_Milk',x:7.85,z:-7.3},{k:'clerk',n:'Depo Görevlisi',ic:'📋',d:'Toptancıyı karşılar, koli parasını öder',c:220,key:'v_Coffee',x:9.72,z:-7.72}];
+const offCost=o=>Math.round(o.c*MULT());let OFFST=[];
+function refreshOffStaff(){OFFST.forEach(c=>{if(c.root.parent)c.root.parent.remove(c.root)});OFFST=[];if(!G.offh)return;
+ OFFH.forEach(o=>{if(!G.offh[o.k])return;const c=makeChar(TPL[o.key]?o.key:CUSTOMER_KEYS[0],1.45);c.root.position.set(o.x,0,o.z);c.tHeading=0;c.root.rotation.y=0;world.add(c.root);vTag(c,o.ic+' '+o.n,'#6b4a2f');OFFST.push(c)})}
+let offLock=false;
+function updateOffice(dt){OFFST.forEach(c=>{c.tHeading=0;animChar(c,dt,new V3())});if(!started||!G||!OFF.ob)return;
+ if(near(player,OFF.ob)&&!panelOpen()&&!offLock){offLock=true;openOffice()}if(!near(player,{x:OFF.ob.x,z:OFF.ob.z,r:1.2}))offLock=false}
+function openOffice(){joy.on=false;$('joy').style.display='none';let h='<button class="close" onclick="closePanel()">✕</button><h2>👔 Ofis Personeli</h2>';
+ if(EASY())h+='<p style="text-align:center;font-weight:700;color:#8a7055">Ev sahibi, toptancı ve tamirci 2. şubeden itibaren gelir. Ofis personeli o zaman işine yarar 🙂</p>';
+ else{h+='<div style="text-align:center;font-size:13px;font-weight:700;color:#8a7055;margin:-4px 0 6px">Ödemeleri %5 komisyonla otomatik yaparlar</div>';
+  OFFH.forEach(o=>{const own=G.offh&&G.offh[o.k],c=offCost(o);h+=`<div class="up"><div class="ui">${o.ic}</div><div class="ut"><b>${o.n}</b><small>${o.d}</small></div><button class="bb ${own?'max':''}" ${own||G.money<c?'disabled':''} onclick="buyOff('${o.k}')">${own?'✓ İşte':'$'+fmt(c)}</button></div>`})}
+ $('panel').innerHTML=h;$('panel').dataset.k='office';$('panel').classList.add('open')}
+function buyOff(k){const o=OFFH.find(x=>x.k===k),c=offCost(o);if(!o||G.money<c||(G.offh&&G.offh[k]))return;G.money-=c;$('mv').textContent=fmt(G.money);G.offh=G.offh||{};G.offh[k]=1;SFX.unlock();buzz(25);refreshOffStaff();confetti(new V3(o.x,0,o.z),30);showHint(o.ic+' '+o.n+' işe başladı!');saveSoon();openOffice()}
 function officeGuide(){const w=VIS.find(o=>o.state==='wait');if(!w)return null;const urgent=(w.kind==='supplier'&&machines.some(m=>mStock(m.kind)<=8))||w.kind==='rent'&&w.t>30;if(G.money<Math.min(w.cost-w.paid,Math.max(1,(w.cost-w.paid)*.25)))return null;if(!(urgent||G.money>=(w.cost-w.paid)*.5))return null;
  const P=player.root.position;if(P.x>6.45&&P.z<-5.6)return OFF.pay;if(Math.abs(P.x-6.9)<.45&&P.z<-4.3)return{x:6.9,z:-6.4};return{x:6.9,z:-4.6}}
 // daily events: landlord at noon, inspector some days, wholesaler when stock is low
@@ -2171,7 +2229,7 @@ function step(dt,now){GT+=dt;for(let i=LATER.length-1;i>=0;i--)if(LATER[i].t<=GT
  if(started){updateMachines(dt);updateCustomers(dt);updateStaff(dt);
   hintTimer-=dt;if(hintTimer<0&&hintTimer>-dt*1.5)$('hint').style.opacity=0;
   saveT+=dt;if(saveT>2){saveT=0;save()}
-  updateFun(dt);updateNextUp(dt);updateToken(dt,now);updateSky(dt);updateBin(dt);updateWC(dt);updateDeco(dt);updateOut(dt);updateScenery(dt);updateSheila(dt);updateManager(dt);branchTick(dt);updateTruck(dt);updateVisitors(dt);updateCalls(dt);updateChats(dt);outCard();if(reg&&reg.trash&&reg.trash.userData.pump>0){const tc=reg.trash;tc.userData.pump-=dt;const k=Math.sin(tc.userData.pump/.2*Math.PI)*.12;tc.scale.set(1+k,1-k,1+k);if(tc.userData.pump<=0)tc.scale.setScalar(1)}}
+  updateFun(dt);updateNextUp(dt);updateToken(dt,now);updateSky(dt);updateBin(dt);updateWC(dt);updateDeco(dt);updateOut(dt);updateScenery(dt);updateSheila(dt);updateManager(dt);branchTick(dt);updateTruck(dt);updateVisitors(dt);updateCalls(dt);updateVAlert(dt);updateOffice(dt);updateChats(dt);outCard();if(reg&&reg.trash&&reg.trash.userData.pump>0){const tc=reg.trash;tc.userData.pump-=dt;const k=Math.sin(tc.userData.pump/.2*Math.PI)*.12;tc.scale.set(1+k,1-k,1+k);if(tc.userData.pump<=0)tc.scale.setScalar(1)}}
  // flyers (arc tweens)
  for(let i=flyers.length-1;i>=0;i--){const f=flyers[i];f.t+=dt/f.dur;const t=Math.min(1,f.t),e=t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2;
   const to=f.targetFn();f.obj.position.lerpVectors(f.from,to,e);f.obj.position.y+=Math.sin(t*Math.PI)*f.h;f.obj.rotation.y=f.r0+t*Math.PI*2*f.spin*.5;f.obj.rotation.x=Math.sin(t*Math.PI)*.4*f.spin;
