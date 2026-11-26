@@ -1898,7 +1898,7 @@ function updateManager(dt){if(!MGR)return;const c=MGR.c,p=c.root.position;let ve
  p.addScaledVector(vel,dt);animChar(c,dt,vel)}
 function clearManager(){if(MGR){scene.remove(MGR.c.root);MGR=null}}
 // passive income from handed-over branches is paid out while you play, too
-let brT=0;function branchTick(dt){if(!META.branches.length||!started)return;brT+=dt;if(brT<30)return;brT=0;const v=brPending();if(v<1)return;META.branches.forEach(b=>b.t=Date.now());saveMeta();addMoney(v,true);floatText('🏪 Şube geliri +$'+fmt(v),new V3(player.root.position.x,2.6,player.root.position.z),'y')}
+let brT=0;function branchTick(dt){if(!META.branches.length||!started)return;brT+=dt;if(brT<30)return;brT=0;const gap=(Date.now()-Math.min(...META.branches.map(b=>b.t)))/1000;const v=brPending()*(gap>120?AFK:1);if(v<1)return;META.branches.forEach(b=>b.t=Date.now());saveMeta();addMoney(v,true);floatText('🏪 Şube geliri +$'+fmt(v),new V3(player.root.position.x,2.6,player.root.position.z),'y')}
 
 // ================= SHEILA: a themed outfit + bed for every branch =================
 const SH_LOOK=['Pembe fiyonk','Güneş gözlüğü & çiçek kolye','Papyon & şapka','Bere & atkı','Pilot şapkası','Mezuniyet kepi','Parti şapkası & balon'];
@@ -2150,10 +2150,13 @@ function updateHUD(){if(G&&G.rep!=null&&$('dayLine'))updateDayHUD();$('side').st
 }
 function autoRate(){if(!G)return 0;const hasC=G.unl.includes('cash'),hasB=G.unl.includes('bar1');if(!hasC||!hasB)return 0;
  const m=G.unl.filter(x=>/^m\d/.test(x)).length;return .45*(m/ (2.4*Math.pow(.85,G.upg.mach)))*PROD.coffee.price*MULT()*Math.pow(1.2,G.upg.price)}
+// AFK: aktif kazancın ~%15'i. Aktif hız oyun içinde ölçülüyor (G.arate, $/sn).
+const AFK=.15;let rtT=0,rtTot=null;
+function rateTick(dt){if(!started||!G||document.hidden)return;if(rtTot===null){rtTot=G.total||0;rtT=0;return}rtT+=dt;if(rtT<30)return;const r=Math.max(0,((G.total||0)-rtTot)/rtT);rtTot=G.total||0;rtT=0;G.arate=G.arate==null?r:G.arate*.75+r*.25}
 function offlineCheck(prev){
- const sec=Math.min(14400,(Date.now()-prev.t)/1000);const own=Math.floor((prev.rate||0)*sec);const br=(META.branches&&META.branches.length&&sec>60)?Math.floor(brPending()):0;const earn=own+br;
+ const sec=Math.min(14400,(Date.now()-prev.t)/1000);const base=prev.arate!=null?prev.arate:(prev.rate||0)*.5;const own=Math.floor(base*AFK*sec);const br=(META.branches&&META.branches.length&&sec>60)?Math.floor(brPending()*AFK):0;const earn=own+br;
  if(br>0)META.branches.forEach(b=>b.t=Date.now());
- if(earn>0&&sec>60){$('over').innerHTML=`<div class="card"><div class="em">☕</div><h1>Tekrar hoş geldin!</h1><p>Sen yokken personelin çalıştı (${sec>=3600?Math.floor(sec/3600)+' sa '+Math.floor(sec%3600/60)+' dk':Math.floor(sec/60)+' dk'})</p><p class="big">+$${fmt(earn)}</p>${br>0?`<p style="font-size:13px;margin:-4px 0 4px">☕ Bu şube: $${fmt(own)} · 🏪 Müdürlerin: $${fmt(br)}</p>`:''}<button class="bb" onclick="claimOff(${earn})">Topla</button></div>`;$('over').classList.add('open')}}
+ if(earn>0&&sec>60){$('over').innerHTML=`<div class="card"><div class="em">☕</div><h1>Tekrar hoş geldin!</h1><p>Sen yokken personelin yarı uykulu çalıştı 😴 (${sec>=3600?Math.floor(sec/3600)+' sa '+Math.floor(sec%3600/60)+' dk':Math.floor(sec/60)+' dk'})</p><p class="big">+$${fmt(earn)}</p>${br>0?`<p style="font-size:13px;margin:-4px 0 4px">☕ Bu şube: $${fmt(own)} · 🏪 Müdürlerin: $${fmt(br)}</p>`:''}<button class="bb" onclick="claimOff(${earn})">Topla</button></div>`;$('over').classList.add('open')}}
 function claimOff(v){$('over').classList.remove('open');addMoney(v,true);confetti(player.root.position,50);save();if(window._pendDaily){window._pendDaily=0;dailyCheck()}}
 
 // ================= LOOP =================
@@ -2161,7 +2164,7 @@ const GUIDE={idle:0,a:0};const camPos=new V3(),camLook=new V3();let started=fals
 let GT=0;const LATER=[];function later(fn,ms){LATER.push({t:GT+ms/1000,fn})}
 function loop(){
  requestAnimationFrame(loop);
- const rdt=clock.getDelta(),dt=Math.min(rdt,.05),now=performance.now();fpsWatch(Math.min(rdt,.5));step(dt,now);mirrorCam();renderer.render(scene,camera)}
+ const rdt=clock.getDelta(),dt=Math.min(rdt,.05),now=performance.now();fpsWatch(Math.min(rdt,.5));step(dt,now);rateTick(Math.min(rdt,.5));mirrorCam();renderer.render(scene,camera)}
 function step(dt,now){GT+=dt;for(let i=LATER.length-1;i>=0;i--)if(LATER[i].t<=GT){const f=LATER[i].fn;LATER.splice(i,1);f()}
  if(started&&!panelOpen()){updatePlayer(dt)}else if(started)animChar(player,dt,new V3());
  if(started){updateMachines(dt);updateCustomers(dt);updateStaff(dt);
