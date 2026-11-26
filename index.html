@@ -1925,13 +1925,16 @@ const MGR_NAMES=['Selim Bey','Derya Hanım','Kemal Bey','Aslı Hanım','Murat Be
 const MGR_KEYS=['v_Rose','v_Jennifer','v_TastySandwich','v_MoonGirl','v_CoolBaguette','v_Teddy','v_AwesomeLemon'];
 const mgrName=l=>MGR_NAMES[l%7];
 let MGR=null;
+function handoverBlock(){if(!G||EASY())return '';const rv=VIS.find(v=>v.kind==='rent'&&v.state!=='out');if(rv)return 'Önce kirayı öde, sonra devralırım 🏠';
+ if(PHASE>=1&&G.rentPaid!==G.day&&!rv)return 'Bugünün kirası ödenmedi, ev sahibini bekleyelim 🏠';
+ if((G.debt||0)>.5)return 'Borç kapanmadan devralamam: $'+fmt(G.debt)+' · Müdür odasında öde 🧾';return ''}
 function managerArrive(done){const key=MGR_KEYS[LVI()];const c=makeChar(TPL[key]?key:CUSTOMER_KEYS[0],1.62);c.root.position.set(DOOR.x,0,DOOR.z+1);scene.add(c.root);
  const tg=canvasTex(256,64,(g,w,h)=>{g.fillStyle='#2f3b35';rr(g,4,4,w-8,h-8,24);g.fill();g.fillStyle='#ffd166';g.font='bold 30px "Baloo 2",sans-serif';g.textAlign='center';g.textBaseline='middle';g.fillText('👔 '+mgrName(G.lvl),w/2,h/2+2)});
  const sp=new THREE.Sprite(new THREE.SpriteMaterial({map:tg,transparent:true,depthWrite:false}));sp.scale.set(1.4,.35,1);sp.position.y=c.rig.h*1.18+.3;c.root.add(sp);
  MGR={c,path:[{x:-.6,z:8},{x:-.6,z:1.2},{x:REG.x+.2,z:REG.z+1.0}],done,t:0};showHint('👔 '+mgrName(G.lvl)+' şubeyi devralmaya geldi!')}
 function updateManager(dt){if(!MGR)return;const c=MGR.c,p=c.root.position;let vel=new V3();
  if(MGR.path.length){const t=MGR.path[0],d=new V3(t.x-p.x,0,t.z-p.z),L=d.length();if(L<.08)MGR.path.shift();else{vel=d.normalize().multiplyScalar(Math.min(2.2,L/dt));c.tHeading=Math.atan2(vel.x,vel.z)}}
- else{MGR.t+=dt;if(MGR.t<.1){c.tHeading=0;c.rig.play('wave');emo(c,'🤝',2.3)}if(MGR.t>1.6&&MGR.done){const f=MGR.done;MGR.done=null;f()}}
+ else{MGR.t+=dt;if(MGR.t<.1){c.tHeading=0;c.rig.play('wave');emo(c,'🤝',2.3)}if(MGR.t>1.6&&MGR.done){const why=handoverBlock();if(why){MGR.wt=(MGR.wt||0)-dt;if(MGR.wt<=0){MGR.wt=9;chat(c,why,'#c0504d');showHint('👔 '+mgrName(G.lvl)+': '+why)}}else{const f=MGR.done;MGR.done=null;chat(c,'Her şey tamam, devralıyorum! 🤝','#2f9a46');later(f,900)}}}
  p.addScaledVector(vel,dt);animChar(c,dt,vel)}
 function clearManager(){if(MGR){scene.remove(MGR.c.root);MGR=null}}
 // passive income from handed-over branches is paid out while you play, too
@@ -2121,7 +2124,7 @@ function updateVisitors(dt){for(let i=VIS.length-1;i>=0;i--){const v=VIS[i],ch=v
   animChar(ch,dt,vel);ch.making=0}}
 function clearVisitors(){VIS.forEach(v=>scene.remove(v.ch.root));VIS.length=0}
 // ================= RAKİP: MegaCup standı, tanıtımcı, pazar payı =================
-const RIVAL={g:null,stage:-1,pro:null,cool:60,hintShown:0,pos:{x:-3.1,z:14.7}};
+const RIVAL={g:null,stage:-1,pro:null,cool:35,kupa:null,bragCool:0,hintShown:0,pos:{x:-3.1,z:14.7}};
 const rivalOn=()=>started&&G&&!EASY()&&has('reg');
 function shareAdd(d){if(!G||EASY())return;if(G.share==null)G.share=.35;const old=G.share;G.share=clamp(G.share+(d>0?d*(1-G.share)*1.6:d*(.4+G.share)),.05,.97);shareUI(d<0&&Math.abs(d)>=.02);
  if(Math.floor(old*10)!==Math.floor(G.share*10)&&G.share>old&&G.share>=.5)showHint('📈 Pazar payın %'+Math.round(G.share*100)+'! MegaCup geriliyor 😈→😰')}
@@ -2129,7 +2132,7 @@ const shareSpawn=()=>(!G||EASY()||G.share==null)?1:1.25-.5*G.share;
 function shareUI(bump){const el=$('shareBar');if(!el)return;if(!G||EASY()){el.style.display='none';return}if(G.share==null)G.share=.35;el.style.display='flex';const p=Math.round(G.share*100);
  el.innerHTML=`<span>☕ %${p}</span><div class="sb"><b style="width:${p}%"></b></div><span style="color:#7a5cff">😈 %${100-p}</span>`;if(bump){el.classList.remove('bump');void el.offsetWidth;el.classList.add('bump')}}
 function rivalStage(){const s=G.share==null?.35:G.share;return s<.5?0:s<.7?1:s<.85?2:3}
-function buildRival(){if(RIVAL.g){if(RIVAL.g.parent)RIVAL.g.parent.remove(RIVAL.g);RIVAL.g=null}if(RIVAL.pro){scene.remove(RIVAL.pro.c.root);RIVAL.pro=null}RIVAL.stage=-1;if(!G||EASY())return;
+function buildRival(){if(RIVAL.kupa){scene.remove(RIVAL.kupa.c.root);RIVAL.kupa=null}if(RIVAL.g){if(RIVAL.g.parent)RIVAL.g.parent.remove(RIVAL.g);RIVAL.g=null}if(RIVAL.pro){scene.remove(RIVAL.pro.c.root);RIVAL.pro=null}RIVAL.stage=-1;if(!G||EASY())return;
  const st=rivalStage(),P=RIVAL.pos,g=new THREE.Group();g.position.set(P.x,0,P.z);world.add(g);RIVAL.g=g;RIVAL.stage=st;
  const pur=st>=2?0x8f86a8:0x7a5cff,pk=st>=2?0xb7a9c9:0xff4f9a;
  g.add(rbox(1.5,.95,.7,.08,std(pur)));const top=mesh(new THREE.BoxGeometry(1.6,.07,.8),std(0xfff6ec),0,.98,0);g.add(top);
@@ -2146,25 +2149,36 @@ function buildRival(){if(RIVAL.g){if(RIVAL.g.parent)RIVAL.g.parent.remove(RIVAL.
 function updateRival(dt){if(!G)return;if(!rivalOn()){if(RIVAL.g||RIVAL.pro)buildRival();return}
  if(G.share==null){G.share=.35;shareUI()}if(!RIVAL.g||rivalStage()!==RIVAL.stage)buildRival();
  if(RIVAL.sign)RIVAL.sign.position.y=2.75+Math.sin(GT*2)*.04;RIVAL.ut=(RIVAL.ut||0)-dt;if(RIVAL.ut<=0){RIVAL.ut=1;shareUI()}
- const pr=RIVAL.pro;if(!pr)return;const c=pr.c,p=c.root.position;let vel=new V3();
+ RIVAL.bragCool-=dt;updateKupa(dt);const pr=RIVAL.pro;if(!pr)return;const c=pr.c,p=c.root.position;let vel=new V3();
  const walk=sp=>{if(!pr.path.length)return true;const t=pr.path[0],d=new V3(t.x-p.x,0,t.z-p.z),L=d.length();if(L<.1){pr.path.shift();return!pr.path.length}vel=d.normalize().multiplyScalar(Math.min(sp,L/dt));p.addScaledVector(vel,dt);c.tHeading=Math.atan2(vel.x,vel.z);return false};
  RIVAL.cool-=dt;pr.t+=dt;
  if(pr.state==='idle'){c.tHeading=0;if(pr.t>rnd(7,11)){pr.t=0;chat(c,['MegaCup! Sırasız kahve! 😈','Bir alana bir bedava!','Neden bekleyesin ki? ☕'][Math.floor(Math.random()*3)],'#7a5cff')}
   const q=customers.filter(o=>o.qi>=0&&!o.served&&o.state==='wait'&&!o.vip);const mx=q.reduce((a,o)=>Math.max(a,o.wt||0),0);
-  if(RIVAL.cool<=0&&q.length&&(q.length>=5||mx>24)){const prey=q.sort((a,b)=>b.qi-a.qi).slice(0,q.length>=5?2:1);pr.prey=prey;prey.forEach(o=>o.lured=1);const last=QUEUE(prey[0].qi);pr.state='go';pr.path=[{x:DOOR.x+.6,z:DOOR.z+1.2},{x:DOOR.x+.4,z:9},{x:last.x+1.1,z:last.z}];RIVAL.cool=rnd(70,110);
+  if(RIVAL.cool<=0&&q.length&&(q.length>=3||mx>16)){const prey=q.sort((a,b)=>b.qi-a.qi).slice(0,q.length>=5?3:q.length>=3?2:1);pr.prey=prey;prey.forEach(o=>o.lured=1);const last=QUEUE(prey[0].qi);pr.state='go';pr.path=[{x:DOOR.x+.6,z:DOOR.z+1.2},{x:DOOR.x+.4,z:9},{x:last.x+1.1,z:last.z}];RIVAL.cool=rnd(38,60);
    if(!RIVAL.hintShown){RIVAL.hintShown=1;showHint('😈 MegaCup tanıtımcısı içeri girdi! Bekleyen müşterilerini kapacak')}else showHint('😈 MegaCup tanıtımcısı geliyor!');SFX.nope&&SFX.nope()}}
- else if(pr.state==='go'){if(walk(2.6)){pr.state='steal';pr.t=0;chat(c,'MegaCup\'ta beklemek yok, hadi gel! 😈','#7a5cff');c.tHeading=-Math.PI/2}
+ else if(pr.state==='go'){if(walk(3.1)){pr.state='steal';pr.t=0;chat(c,'MegaCup\'ta beklemek yok, hadi gel! 😈','#7a5cff');c.tHeading=-Math.PI/2}
   // oyuncu tanıtımcıya yetişirse kovar
   if(Math.hypot(player.root.position.x-p.x,player.root.position.z-p.z)<1.1)rivalShoo()}
- else if(pr.state==='steal'){if(Math.hypot(player.root.position.x-p.x,player.root.position.z-p.z)<1.1){rivalShoo();}else if(pr.t>2.2){let n=0;pr.prey.forEach(o=>{if(o.served||o.qi<0||!customers.includes(o))return;n++;const op=o.c.root.position;if(o.qi>=0){const k=o.qi;o.qi=-1;customers.forEach(x=>{if(x.qi>k)x.qi--})}o.state='leave';o.served=true;o.stolen=1;o.path=[{x:op.x+.8,z:op.z},{x:DOOR.x+.5,z:9},{x:DOOR.x,z:DOOR.z+1.5},{x:RIVAL.pos.x+.3,z:RIVAL.pos.z+1},{x:RIVAL.pos.x-2.5,z:RIVAL.pos.z+6}];emo(o.c,'😈',2.1);if(o.bub)o.bub.visible=false;shareAdd(-.03)});
-   if(n){floatText('😈 MegaCup '+n+' müşteri kaptı!',p.clone().add(new V3(0,2.4,0)),'r');buzz([40,30,40])}pr.state='back';pr.path=[{x:DOOR.x+.4,z:9},{x:DOOR.x+.6,z:DOOR.z+1.2},{x:RIVAL.pos.x-.2,z:RIVAL.pos.z+.75}]}}
+ else if(pr.state==='steal'){if(Math.hypot(player.root.position.x-p.x,player.root.position.z-p.z)<1.1){rivalShoo();}else if(pr.t>1.6){let n=0;pr.prey.forEach(o=>{if(o.served||o.qi<0||!customers.includes(o))return;n++;const op=o.c.root.position;if(o.qi>=0){const k=o.qi;o.qi=-1;customers.forEach(x=>{if(x.qi>k)x.qi--})}o.state='leave';o.served=true;o.stolen=1;o.path=[{x:op.x+.8,z:op.z},{x:DOOR.x+.5,z:9},{x:DOOR.x,z:DOOR.z+1.5},{x:RIVAL.pos.x+.3,z:RIVAL.pos.z+1},{x:RIVAL.pos.x-2.5,z:RIVAL.pos.z+6}];emo(o.c,'😈',2.1);if(o.bub)o.bub.visible=false;shareAdd(-.03)});
+   if(n){floatText('😈 MegaCup '+n+' müşteri kaptı!',p.clone().add(new V3(0,2.4,0)),'r');buzz([40,30,40]);RIVAL.stolen=(RIVAL.stolen||0)+n;if(RIVAL.bragCool<=0&&!RIVAL.kupa)later(()=>kupaBrag(n),1800)}pr.state='back';pr.path=[{x:DOOR.x+.4,z:9},{x:DOOR.x+.6,z:DOOR.z+1.2},{x:RIVAL.pos.x-.2,z:RIVAL.pos.z+.75}]}}
  else if(pr.state==='shoo'||pr.state==='back'){if(walk(pr.state==='shoo'?3.4:2.4)){pr.state='idle';pr.t=0;pr.prey=[]}}
+ animChar(c,dt,vel)}
+const BRAG=['Hahaha! {n} müşterin artık MegaCup\'ta! 😏','Senin kuyruğun, benim kasam 💸','Kahven soğurken müşterin bana geldi ☕😈','Bu hızla dükkanı bana devredersin 🏷️','Müşteriler beklemeyi sevmez, bilmiyor muydun? 😏','MegaCup: sırasız, sorunsuz, SENSİZ! 😂'];
+function kupaBrag(n){if(RIVAL.kupa||!rivalOn())return;RIVAL.bragCool=rnd(40,70);const key=TPL.v_Froggy?'v_Froggy':CUSTOMER_KEYS[2];const c=makeChar(key,1.7);c.root.position.set(DOOR.x-.5,0,DOOR.z+1.5);scene.add(c.root);vTag(c,'😈 Bay Kupa','#5b3fd1');
+ const cr=new THREE.Sprite(new THREE.SpriteMaterial({map:emojiTex('🎩'),transparent:true,depthWrite:false}));cr.scale.setScalar(.5);cr.position.y=c.rig.h*1.05+.2;c.rig.inner.add(cr);
+ RIVAL.kupa={c,state:'in',t:0,n,said:0}}
+function updateKupa(dt){const K=RIVAL.kupa;if(!K)return;const c=K.c,p=c.root.position;let vel=new V3();K.t+=dt;const pp=player.root.position;
+ if(K.state==='in'){const tx=clamp(pp.x+1.3,-8.5,8.5),tz=clamp(pp.z+1.1,-6,11.5);const d=new V3(tx-p.x,0,tz-p.z),L=d.length();if(L<.25||K.t>9){K.state='brag';K.t=0}else{vel=d.normalize().multiplyScalar(Math.min(3.2,L/dt));p.addScaledVector(vel,dt)}}
+ else if(K.state==='brag'){c.tHeading=Math.atan2(pp.x-p.x,pp.z-p.z);if(!K.said){K.said=1;chat(c,BRAG[Math.floor(Math.random()*BRAG.length)].replace('{n}',K.n),'#5b3fd1');emo(c,'😏',2.4);c.rig.play('wave');tone(196,.12,'sawtooth',.05);setTimeout(()=>tone(165,.16,'sawtooth',.05),140);floatText('😈 Bay Kupa dalga geçiyor!',p.clone().add(new V3(0,2.7,0)),'r')}
+  if(K.t>1.8&&K.said===1){K.said=2;emo(c,['😂','💸','🤭'][Math.floor(Math.random()*3)],2.4);c.squash=.5}if(K.t>3.6){K.state='out';chat(c,'Görüşürüz, ezik! 👋','#5b3fd1')}}
+ else if(K.state==='out'){const d=new V3(DOOR.x-p.x,0,DOOR.z+3-p.z),L=d.length();if(L<.3){scene.remove(c.root);RIVAL.kupa=null;return}vel=d.normalize().multiplyScalar(Math.min(3,L/dt));p.addScaledVector(vel,dt)}
  animChar(c,dt,vel)}
 function rivalShoo(){const pr=RIVAL.pro;if(!pr)return;pr.prey.forEach(o=>o.lured=0);pr.prey=[];pr.state='shoo';chat(pr.c,'Tamam tamam, gidiyorum! 😰','#7a5cff');emo(player,'😤',2.4);floatText('Kovdun! 💪',pr.c.root.position.clone().add(new V3(0,2.3,0)),'g');shareAdd(.015);SFX.unlock();
  pr.path=[{x:DOOR.x+.4,z:9},{x:DOOR.x+.6,z:DOOR.z+1.2},{x:RIVAL.pos.x-.2,z:RIVAL.pos.z+.75}]}
 // ---------- ziyaretçi uyarı kartı ----------
 const VTMAX={rent:70,repair:70,supplier:110};let vaT=0,vaH='';
-function updateVAlert(dt){vaT-=dt;if(vaT>0)return;vaT=.25;const el=$('vAlert');if(!el)return;if(!started||!G||EASY()||!VIS.length){if(vaH){el.innerHTML='';vaH=''}return}
+function updateVAlert(dt){vaT-=dt;if(vaT>0)return;vaT=.25;const el=$('vAlert');if(!el)return;const why=MGR&&MGR.done?handoverBlock():'';if(!started||!G||EASY()||(!VIS.length&&!why)){if(vaH){el.innerHTML='';vaH=''}return}
+ const pre=why?`<div class="va hot"><i>👔</i><div><span>Müdür devralmayı bekliyor</span><small>${why}</small></div></div>`:'';
  const rows=VIS.filter(v=>v.state!=='out'&&v.state!=='deliver').map(v=>{const nm=VNAME[v.kind],ic=nm.split(' ')[0],n=nm.slice(ic.length+1);
   if(v.kind==='inspect')return `<div class="va hot"><i>${ic}</i><div><span>${n} geldi!</span><small>Masaları ve WC'yi temizle 🧽</small></div></div>`;
   if(v.state==='toFix'||v.state==='fix')return `<div class="va ok"><i>${ic}</i><div><span>${n} çalışıyor</span><small>${PROD[v.m.kind]?PROD[v.m.kind].n:''} tamir ediliyor…</small></div></div>`;
@@ -2172,14 +2186,17 @@ function updateVAlert(dt){vaT-=dt;if(vaT>0)return;vaT=.25;const el=$('vAlert');i
   const tm=VTMAX[v.kind]||70,left=Math.max(0,Math.ceil(tm-v.t)),f=Math.max(0,1-v.t/tm),due=Math.max(0,v.cost-v.paid),au=autoPayer({kind:v.kind,t:9});
   const what=v.kind==='rent'?'Kira bekliyor':v.kind==='supplier'?'Koli parası bekliyor':'Faturayı bekliyor';
   return `<div class="va ${left<=20&&!au?'hot':''}"><i>${ic}</i><div><span>${what} · $${fmt(due)}</span><small>${au?'🧮 Ofis personeli ödüyor':(left<=20?'⏰ '+left+' sn! Gecikirse borç +%20'+(v.kind!=='supplier'?' ve ⭐ düşer':''):'👔 Müdür odası · '+Math.floor(left/60)+':'+String(left%60).padStart(2,'0'))}</small><div class="bar"><b style="width:${f*100}%"></b></div></div></div>`});
- const h=rows.join('');if(h!==vaH){el.innerHTML=h;vaH=h}}
+ const h=pre+rows.join('');if(h!==vaH){el.innerHTML=h;vaH=h}}
 // ---------- ofis personeli ----------
 const OFFH=[{k:'acct',n:'Muhasebeci',ic:'🧮',d:'Kira ve tamir faturalarını sen gelmeden öder',c:160,key:'v_Milk',x:7.85,z:-7.3},{k:'clerk',n:'Depo Görevlisi',ic:'📋',d:'Toptancıyı karşılar, koli parasını öder',c:220,key:'v_Coffee',x:9.72,z:-7.72}];
 const offCost=o=>Math.round(o.c*MULT());let OFFST=[];
 function refreshOffStaff(){OFFST.forEach(c=>{if(c.root.parent)c.root.parent.remove(c.root)});OFFST=[];if(!G.offh)return;
  OFFH.forEach(o=>{if(!G.offh[o.k])return;const c=makeChar(TPL[o.key]?o.key:CUSTOMER_KEYS[0],1.45);c.root.position.set(o.x,0,o.z);c.tHeading=0;c.root.rotation.y=0;world.add(c.root);vTag(c,o.ic+' '+o.n,'#6b4a2f');OFFST.push(c)})}
 let offLock=false;
-function updateOffice(dt){OFFST.forEach(c=>{c.tHeading=0;animChar(c,dt,new V3())});if(!started||!G||!OFF.ob)return;
+let debtT=0;function updateOffice(dt){
+ if(started&&G&&!EASY()&&(G.debt||0)>.5&&near(player,OFF.pay)&&!VIS.some(v=>v.state==='wait')&&G.money>.5){debtT-=dt;if(debtT<=0){debtT=.09;const amt=Math.min(G.money,G.debt,Math.max(1,G.debt/10,12*MULT()));G.money-=amt;G.debt-=amt;if(G.debt<.5)G.debt=0;$('mv').textContent=fmt(G.money);
+  const b=makeItem('bill');b.position.copy(player.root.position).add(new V3(0,1.1,0));b.scale.setScalar(1.2);scene.add(b);fly(b,()=>new V3(OFF.desk.x,.95,OFF.desk.z+.4),.3,.9,()=>{scene.remove(b)},3);if(Math.random()<.4)SFX.coin();
+  if(G.debt===0){updateDayHUD();floatText('BORÇ KAPANDI ✅',player.root.position.clone().add(new V3(0,2.4,0)),'g');confetti(player.root.position,24);SFX.unlock();saveSoon()}}}OFFST.forEach(c=>{c.tHeading=0;animChar(c,dt,new V3())});if(!started||!G||!OFF.ob)return;
  if(near(player,OFF.ob)&&!panelOpen()&&!offLock){offLock=true;openOffice()}if(!near(player,{x:OFF.ob.x,z:OFF.ob.z,r:1.2}))offLock=false}
 function openOffice(){joy.on=false;$('joy').style.display='none';let h='<button class="close" onclick="closePanel()">✕</button><h2>👔 Ofis Personeli</h2>';
  if(EASY())h+='<p style="text-align:center;font-weight:700;color:#8a7055">Ev sahibi, toptancı ve tamirci 2. şubeden itibaren gelir. Ofis personeli o zaman işine yarar 🙂</p>';
@@ -2192,7 +2209,7 @@ function officeGuide(){const w=VIS.find(o=>o.state==='wait');if(!w)return null;c
 // daily events: landlord at noon, inspector some days, wholesaler when stock is low
 let brokeCool=90,inspT=rnd(260,420);
 function updateCalls(dt){if(!started||!has('reg')||EASY())return;
- if(PHASE===1&&G.rentPaid!==G.day&&!VIS.some(v=>v.kind==='rent')){G.rentPaid=G.day;const r=Math.round(Math.max(30*MULT(),(G.lastInc||0)*.12));spawnVisitor('rent',r);showHint('🏠 Ev sahibi kira almaya geldi! Müdür odasına git')}
+ if(PHASE>=1&&G.rentPaid!==G.day&&!VIS.some(v=>v.kind==='rent')){G.rentPaid=G.day;const r=Math.round(Math.max(30*MULT(),(G.lastInc||0)*.12));spawnVisitor('rent',r);showHint('🏠 Ev sahibi kira almaya geldi! Müdür odasına git')}
  if(!VIS.some(v=>v.kind==='supplier')){truckCool-=dt;if(truckCool<=0&&machines.some(m=>mStock(m.kind)<=15)){const need=truckNeeds();const cost=Math.round(need.reduce((a,[k,d])=>a+d*unitCost(k),0));spawnVisitor('supplier',cost);truckCool=20;showHint('📦 Toptancı kolilerle geldi! Müdür odasında ödemeyi yap')}}
  // machine breakdowns
  brokeCool-=dt;if(brokeCool<=0&&machines.length&&!machines.some(m=>m.broken)&&Math.random()<dt/(160*(1+.35*(G.upg.care||0)))){const m=machines[Math.floor(Math.random()*machines.length)];m.broken=true;brokeCool=999;
@@ -2340,7 +2357,7 @@ async function boot(){
  $('playBtn').onclick=()=>{if(!META.prof){audio();window._afterProf=()=>$('playBtn').onclick();META.prof={name:'',char:PROF.char,pending:1};$('title').style.transition='opacity .4s';$('title').style.opacity=0;setTimeout(()=>{$('title').style.display='none'},400);openProfile(true);return}
   if(META.prof.pending){delete META.prof.pending;saveMeta()}document.body.classList.remove('intitle');player.root.visible=true;audio();startMusic();$('title').style.transition='opacity .5s';$('title').style.opacity=0;setTimeout(()=>$('title').remove(),500);started=true;setTimeout(greet,2600);
   if(!G.unl.length)showHint('Parlayan kareye yürü ve ilk makineni aç!');else showHint('Hareket etmek için ekranı sürükle');
-  if(prev)offlineCheck(prev);if($('over').classList.contains('open'))window._pendDaily=1;else dailyCheck();setTimeout(()=>{if(has('next')){G.story=G.story||{};G.story.s=1;levelDone()}else storyStart()},700);updateHUD();brBackfill()};
+  if(prev)offlineCheck(prev);if($('over').classList.contains('open'))window._pendDaily=1;else dailyCheck();setTimeout(()=>{if(has('next')){G.story=G.story||{};G.story.s=1;if(handoverBlock())managerArrive(levelDone);else levelDone()}else storyStart()},700);updateHUD();brBackfill()};
  addEventListener('visibilitychange',()=>{if(document.hidden){save();cloudQueue(true);cloudFlush(true)}});addEventListener('pagehide',()=>{save();cloudFlush(true)});addEventListener('beforeunload',save);addEventListener('blur',save);document.addEventListener('freeze',save);
 }
 boot();
